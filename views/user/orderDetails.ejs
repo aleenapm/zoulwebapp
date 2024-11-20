@@ -1,0 +1,163 @@
+<%- include('../partials/user/header') %>
+
+<style>
+    .order-details-section {
+        padding-top: 50px;
+    }
+
+    .store-order-summary h2.store-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .order-total h3 {
+        font-size: 1.25rem;
+    }
+
+    .shipment-status .card-body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .order-products .product-item {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .product-image {
+        border-radius: 8px;
+    }
+
+    .order-summary .card-body {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .shipping-details,
+    .payment-method,
+    .order-summary-details {
+        width: 30%;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<main class="main">
+    <!-- Order Details Section -->
+    <section class="order-details-section position-relative pt-50">
+        <div class="container">
+            <!-- Return to Orders Link -->
+            <div class="return-link mb-4">
+                <a href="/order" class="text-muted"><i class="fi-rs-angle-left"></i> Return to Orders</a>
+            </div>
+
+            <!-- Store and Order Summary -->
+            <div class="store-order-summary d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="store-name">Order Details</h2>
+                    <br>
+                    <p>Order ID: <%= orders.orderId %> <br>Payment Status:
+                        <span class="badge text-dark ms-2 
+                            <% if (orders.paymentStatus === 'Pending') { %> bg-secondary 
+                            <% } else if (orders.paymentStatus === 'Processing') { %> bg-info 
+                            <% } else if (orders.paymentStatus === 'Completed') { %> bg-success 
+                            <% } else if (orders.paymentStatus === 'Failed') { %> bg-danger 
+                            <% } %>">
+                            <%= orders.paymentStatus %>
+                        </span>&nbsp;&nbsp;&nbsp;
+                        <% if (orders.paymentStatus === 'Pending' && orders.paymentMethod === 'Online') { %>
+                            <button id="continuePaymentButton" class="btn btn-primary"
+                                onclick="retryPayment('<%= orders._id %>')">Continue Payment</button>
+                        <% } %>
+                    </p>
+                    <br>
+                    <p>Placed on: <%= new Date(orders.createdOn).toLocaleString() %></p>
+                </div>
+                <div class="order-total">
+                    <h3>Total: <span class="text-primary">₹ <%= orders.finalAmount.toLocaleString() %></span></h3>
+                </div>
+            </div>
+
+            <!-- Shipment Status -->
+            <div class="shipment-status card mb-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Shipment Status: <span class="badge text-dark ms-2 
+                            <% if (orders.status === 'Pending') { %> bg-secondary 
+                            <% } else if (orders.status === 'Processing') { %> bg-info 
+                            <% } else if (orders.status === 'Shipped') { %> bg-primary 
+                            <% } else if (orders.status === 'Delivered') { %> bg-success 
+                            <% } else if (orders.status === 'Cancelled') { %> bg-danger 
+                            <% } else if (orders.status === 'Return Request') { %> bg-warning 
+                            <% } else if (orders.status === 'Returned') { %> bg-dark 
+                            <% } %>">
+                            <%= orders.status %>
+                        </span>
+                        </h5>
+                    </div>
+                    <a href="#" class="btn btn-outline-success btn-success">Track Order</a>
+                </div>
+            </div>
+
+            <!-- Products in Order -->
+            <div class="order-products card mb-4">
+                <div class="card-body">
+                    <% for (let i = 0; i < orders.orderedItems.length; i++) { %>
+                        <div class="product-item d-flex align-items-center mb-4">
+                            <img src="uploads/re-image/<%= orders.orderedItems[i].product.productImage[0] %>"
+                                alt="<%= orders.orderedItems[i].product.productName %>" class="product-image me-3" width="80">
+                            <div class="product-details">
+                                <h5>
+                                    <%= orders.orderedItems[i].product.productName %>
+                                </h5>
+                                <p>Qty: <%= orders.orderedItems[i].quantity %></p>
+                            </div>
+                            <div class="product-price ms-auto">
+                                <h5>₹ <%= orders.orderedItems[i].price.toLocaleString() %></h5>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Order Summary and Shipping Details -->
+            <div class="order-summary card">
+                <div class="card-body d-flex justify-content-between">
+                    <div class="shipping-details">
+                        <h6>Shipping Details</h6>
+                        <% if (address && address.length > 0) { %>
+                            <% address.forEach(function(addr) { %>
+                                <p><%= addr.name %></p>
+                                <p><%= addr.addressType %>, <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %></p>
+                                <p>Phone: <%= addr.phone %></p>
+                                <p>Alt Phone: <%= addr.altPhone %></p>
+                                <hr>
+                            <% }); %>
+                        <% } else { %>
+                            <p>No shipping address available.</p>
+                        <% } %>                                               
+                    </div>
+
+                    <div class="payment-method text-center">
+                        <h6>Payment Method</h6><br>
+                        <p><strong>
+                            <%= orders.paymentMethod %>
+                        </strong></p>
+                    </div>
+
+                    <div class="order-summary-details">
+                        <h6>Order Summary</h6>
+                        <p>Subtotal: ₹<%= orders.totalPrice.toLocaleString() %></p>
+                        <p>Discount: ₹<%= orders.discount.toLocaleString() %></p>
+                        <hr>
+                        <h5>Total: ₹<%= orders.finalAmount.toLocaleString() %></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<%- include('../partials/user/footer') %>

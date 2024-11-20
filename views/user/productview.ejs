@@ -1,0 +1,277 @@
+<%- include('../partials/user/header.ejs') %>
+    <style>
+        header {
+            position: relative;
+            z-index: 1000;
+        }
+
+        .detail-gallery .product-image-slider {
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .modal-body {
+            padding-top: 50px;
+        }
+
+        .detail-extralink {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .detail-qty {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 5px;
+            height: 48px;
+            width: 100px;
+            /* Ensure consistency in width */
+        }
+
+        .qty-val {
+            flex: 1;
+            /* text-align: center; */
+            display: inline-block;
+            min-width: 2ch;
+            font-size: 16px;
+            background-color: #fff;
+            color: #333;
+            border: none;
+            margin: 0;
+        }
+
+        .qty-controls {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .qty-down,
+        .qty-up {
+            background-color: #f8f9fa;
+            border: none;
+            color: #333;
+            font-size: 12px;
+            width: 30px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .qty-down:hover,
+        .qty-up:hover {
+            background-color: #e9ecef;
+        }
+
+        .qty-down {
+            border-radius: 0 0 8px 0;
+        }
+
+        .qty-up {
+            border-radius: 8px 0 0 0;
+        }
+
+        .product-extra-link2 {
+            display: inline-block;
+        }
+
+        .btn-success {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555;
+            font-size: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            color: #e74c3c;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mt-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/category/<%= product.category %>">
+                        <%= cat.name %>
+                    </a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <%= product.productName %>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+
+    <div class="container">
+        <div class="modal-body">
+            <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="detail-gallery">
+                        <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                        <!-- MAIN SLIDES -->
+                        <div class="product-image-slider">
+
+                            <%for(let i=0;i<product.productImage.length;i++){%>
+                                <figure class="border-radius-10">
+                                    <img src="/uploads/re-image/<%= product.productImage[i] %>"
+                                        alt="<%=product.productName%>">
+                                </figure>
+                                <%}%>
+                        </div>
+                        <!-- THUMBNAILS -->
+                        <div class="slider-nav-thumbnails pl-15 pr-15">
+                            <%for(let i=0;i<product.productImage.length;i++){%>
+                                <div><img src="/uploads/re-image/<%= product.productImage[i] %>" alt="product image">
+                                </div>
+                                <%}%>
+                        </div>
+                    </div>
+                    <!-- End Gallery -->
+
+                </div>
+
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="detail-info">
+                        <h3 class="title-detail mt-30 text-center">
+                            <%=product.productName%>
+                        </h3>
+                        <div class="product-detail-rating text-center">
+                            <div class="pro-details-brand">
+                                <span> Brand: <a href="shop-grid-right.html">
+                                        <%=product.brand%>
+                                    </a></span>
+                            </div>
+                            <div class="product-rate-cover text-end">
+                                <div class="product-rate d-inline-block">
+                                    <div class="product-rating" style="width:90%"></div>
+                                </div>
+                                <span class="font-small ml-5 text-muted"> (25 reviews)</span>
+                            </div>
+                        </div>
+                        <div class="clearfix product-price-cover text-center">
+                            <div class="product-price primary-color">
+                                <ins><span class="text-brand">
+                                        ₹ <%=product.salePrice.toLocaleString()%>
+                                    </span></ins>
+                                <ins><span class="old-price font-md ml-15">
+                                        ₹ <%=product.regularPrice.toLocaleString()%>
+                                    </span></ins>
+                                <span class="save-price font-md color3 ml-15">
+                                    <%=product.productOffer%>%
+                                </span>
+                            </div>
+                        </div>
+                        <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                        <div class="short-desc mb-30 text-center">
+                            <p class="font-sm">
+                                <%=product.description%>
+                            </p>
+                        </div>
+
+                        <div class="attr-detail attr-color mb-15 text-center">
+                            <strong class="mr-10">Color: <%=product.color%></strong>
+                        </div>
+                        <% if(product.quantity> 0) { %>
+                            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                            <div class="d-block text-center">
+                                <div class="detail-extralink text-center">
+                                    <form method="post" style="display: flex; align-items: center;"
+                                        action="/addToCart?id=<%=product._id %>">
+                                        <div class="detail-qty">
+                                            <input type="text" name="quantity" value="1" class="qty-val" id="product-qty" 
+                                                   data-max-qty="<%= product.quantity %>" min="1" max="<%= product.quantity %>" readonly>
+                                            <div class="qty-controls">
+                                                <button type="button" class="qty-up" onclick="updateQuantity(1)">
+                                                    <i class="fi-rs-angle-small-up"></i>
+                                                </button>
+                                                <button type="button" class="qty-down" onclick="updateQuantity(-1)">
+                                                    <i class="fi-rs-angle-small-down"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="product-extra-link2">
+                                            <button type="submit" class="btn btn-success">Add to cart</button>
+                                        </div>
+                                        <button type="button" aria-label="Add To Wishlist" class="action-btn hover-up">
+                                            <i class="fi-rs-heart"></i>
+                                        </button>
+                                    </form>
+                                </div><br>
+                                <div class="product-extra-link2">
+                                    <button type="submit" class="btn btn-success" style="width: 200px;">Buy Now</button>
+                                </div>
+                            </div>
+
+
+                            <% } else { %>
+                                <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                <div class="detail-extralink text-center">
+                                    <p class="text-danger font-weight-bold">Sold Out</p>
+                                    <div class="product-extra-link2 d-inline-block">
+                                        <button type="button" class="button button-add-to-cart" disabled
+                                            style="background-color: #d3d3d3; cursor: not-allowed;">Sold Out</button>
+                                        <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#"><i
+                                                class="fi-rs-heart"></i></a>
+                                    </div>
+                                </div>
+                                <% } %>
+
+                                    <%if(product.quantity> 0){%>
+                                        <ul class="product-meta font-xs color-grey mt-50 text-center"><br>
+                                            <li>Availability:<span class="in-stock text-success ml-5">
+                                                    <%=product.quantity%> Items In Stock
+                                                </span></li>
+                                        </ul>
+                                        <%}else{%>
+                                            <ul class="product-meta font-xs color-grey mt-50 text-center"><br>
+                                                <li>Availability:<span class="in-stock text-danger ml-5">Out of
+                                                        Stock</span></li>
+                                            </ul>
+                                            <%}%>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function updateQuantity(change) {
+            const qtyInput = document.getElementById('product-qty');
+            const maxStockQty = parseInt(qtyInput.getAttribute('data-max-qty')) || 0;
+            const maxAllowedQty = Math.min(5, maxStockQty);
+            let currentQty = parseInt(qtyInput.value) || 1;
+            
+            currentQty = Math.max(1, Math.min(currentQty + change, maxAllowedQty));
+            qtyInput.value = currentQty;
+
+            if (currentQty === maxAllowedQty) {
+                Swal.fire({
+                    title: 'Stock Limit Reached!',
+                    text: `Only ${maxAllowedQty} items available in stock.`,
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    </script>
+
+    <%- include('../partials/user/footer') %>

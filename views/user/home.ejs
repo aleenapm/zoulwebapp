@@ -1,0 +1,383 @@
+<%- include("../partials/user/header.ejs") %> 
+<style>
+    .sort-container {
+        margin: 20px 0 30px;
+        padding: 0 15px;
+    }
+    
+    .sort-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .sort-wrapper label {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .custom-select {
+        position: relative;
+        min-width: 200px;
+    }
+    
+    .custom-select select {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        padding: 8px 35px 8px 12px;
+        font-size: 14px;
+        border: 1px solid #e2e2e2;
+        border-radius: 4px;
+        background-color: #fff;
+        cursor: pointer;
+        color: #333;
+        transition: all 0.3s ease;
+    }
+    
+    .custom-select select:hover {
+        border-color: #999;
+    }
+    
+    .custom-select select:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+    }
+    
+    .select-arrow {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #666;
+        pointer-events: none;
+    }
+    
+    /* Hover effect for the select */
+    .custom-select:hover .select-arrow {
+        border-top-color: #333;
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .sort-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        
+        .custom-select {
+            width: 100%;
+        }
+    }
+    
+    /* Optional Animation for dropdown */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    select option {
+        padding: 10px;
+        animation: fadeIn 0.2s ease;
+    }
+    </style>
+
+    <main class="main">       
+        <section class="home-slider position-relative pt-50">
+            <div class="hero-slider-1 dot-style-1 dot-style-1-position-1">
+                <div class="single-hero-slider single-animation-wrap">
+                    <div class="container">
+                        <div class="row align-items-center slider-animated-1">
+                            
+                            <div class="col-xs-12">
+                                <div class="single-slider-img single-slider-img-1">
+                                    <img class="animated slider-1-1" src="/zoul-frontend/assets/imgs/slider/s1.png" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="single-hero-slider single-animation-wrap">
+                    <div class="container">
+                        <div class="row align-items-center slider-animated-1">
+                            <div class="col-lg-5 col-md-6">
+                                <div class="hero-slider-content-2">
+                                    <h4 class="animated">Everyday wear</h4>
+                                    <h2 class="animated fw-900">Personalized</h2>
+                                    <h1 class="animated fw-900 text-7">Jewellery Collection</h1>
+                                    <p class="animated">Save more with coupons & up to 20% off</p>
+                                    <a class="animated btn" href="shop-product-right.html"> Discover Now </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 col-md-6">
+                                <div class="single-slider-img single-slider-img-1">
+                                    <img class="animated slider-1-2" src="/zoul-frontend/assets/imgs/slider/s2.jpg" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="single-hero-slider single-animation-wrap">
+                    <div class="container">
+                        <div class="row align-items-center slider-animated-1">
+                            <div class="col-lg-5 col-md-6">
+                                <div class="hero-slider-content-2">
+                                    <h4 class="animated">Struggling</h4>
+                                    <h2 class="animated fw-900">to find</h2>
+                                    <h1 class="animated fw-900 text-8">Perfect Gift for her</h1>
+                                    <p class="animated">Our curated collection of women's 
+                                        bracelets, necklaces, and rings offers 
+                                        diverse styles and price points, 
+                                        ensuring you'll find the ideal gift for your 
+                                        sister, girlfriend, or anyone 
+                                        special.</p>
+                                    <a class="animated btn" href="shop-product-right.html"> Shop Now </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 col-md-6">
+                                <div class="single-slider-img single-slider-img-1">
+                                    <img class="animated slider-1-3" src="/zoul-frontend/assets/imgs/slider/s3.jpg" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-arrow hero-slider-1-arrow"></div>
+        </section>
+       
+        
+
+
+        <section class="product-tabs section-padding position-relative wow fadeIn animated" id="prosection">
+            <div class="bg-square"></div>
+            <div class="container">
+
+                <!-- Sort Dropdown Section -->
+                <div class="sort-container">
+                    <div class="sort-wrapper">
+                        <label for="sort-select">Sort by:</label>
+                        <div class="custom-select">
+                            <select id="sort-select" onchange="sortProducts()">
+                                <option value="featured">Default</option>
+                                <option value="featured">Featured</option>
+                                <option value="popularity">Popularity</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="rating">Average Ratings</option>
+                                <option value="new">New Arrivals</option>
+                                <option value="az">Name: A to Z</option>
+                                <option value="za">Name: Z to A</option>
+                            </select>
+                            <span class="select-arrow"></span>
+                        </div>
+                        <!-- filter Dropdown Section -->
+                <div class="custom-select">
+                    <select id="cat-filter" class="sort-select" onchange="catFilter()">
+                        <option value="all-categories">All Categories</option>
+                        <%for(let i=0;i<categories.length;i++){%>
+                            <option value="<%=categories[i]._id%>">
+                                <%=categories[i].name%>
+                            </option>
+                            <%}%>
+                    </select>
+                    <span class="select-arrow"></span>
+                </div>
+                    </div>
+                </div>
+
+
+                
+                
+                <!--End nav-tabs-->
+                <div class="tab-content wow fadeIn animated" id="myTabContent">
+                    <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+                        
+                        <div class="row product-grid-4" id="product-grid">
+                            <% for(let i = 0; i < products.length; i++) { %>
+                                <div class="product-cart-wrap mb-30" style="flex: 1 1 23%; box-sizing: border-box; margin: 10px;">
+                                    <div class="product-img-action-wrap">
+                                        <div class="product-img product-img-zoom">
+                                            <a href="/productDetails?id=<%= products[i]._id %>">
+                                                <img class="default-img" src="/uploads/re-image/<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="product-content-wrap">
+                                        <h6><%= products[i].productName %></h6>
+                                        <h6>₹ <%= products[i].salePrice.toLocaleString() %></h6>
+                                        <% if(products[i].quantity != 0){ %>
+                                        <h6 style="color:green">Stocks:<%=products[i].quantity%></h6>
+                                        <% }else{ %>
+                                            <h6 style="color:rgb(255, 0, 0)"><%= products[i].status %></h6>
+                                            <% } %>
+                                    </div>
+
+
+                                    <div class="product-action-1 show">
+                                        <a href="/getCart" aria-label="Add To Cart" class="action-btn hover-up" onclick="addToCart('<%= products[i]._id %>')">
+                                            <i class="fi-rs-shopping-bag-add"></i>
+                                        </a>
+                                    </div>
+
+
+
+                                </div>
+                            <% } %>
+                        </div> 
+                        <!--End product-grid-4-->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function catFilter() {
+            const selectedCategory = document.getElementById('cat-filter').value;
+            console.log("Selected Category:", selectedCategory);
+            fetch(`/filter-by-category?category=${selectedCategory}`, {
+                method: 'GET',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    updateProductList(data.products);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        // Function to sort products based on the selected option
+        function sortProducts() {
+    const sortOption = document.getElementById('sort-select').value;
+
+    // Fetch sorted products from the server
+    fetch(`/sortProducts?sort=${sortOption}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Ensure data.products is an array
+            if (!Array.isArray(data.products)) {
+                console.error('Products data is not an array:', data.products);
+                return;
+            }
+
+            // Clear the existing product grid
+            const productGrid = document.getElementById('product-grid');
+            productGrid.innerHTML = '';
+
+            // Populate the product grid with sorted products
+            data.products.forEach(product => {
+                const productHTML = `
+                    <div class="product-cart-wrap mb-30" style="flex: 1 1 23%; box-sizing: border-box; margin: 10px;">
+                        <div class="product-img-action-wrap">
+                            <div class="product-img product-img-zoom">
+                                <a href="/productDetails?id=${product._id}">
+                                    <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="product-content-wrap">
+                            <h6>${product.productName}</h6>
+                            <h6>₹ ${product.salePrice.toLocaleString()}</h6>
+                            ${product.quantity === 0 ? `
+                                <h6 style="color: red;">Out of Stock</h6>
+                                <div class="product-action-1 show">
+                                    <button class="action-btn disabled" disabled></button>
+                                </div>
+                            ` : `
+                                <h6 style="color: green;">Stocks: ${product.quantity}</h6>
+                                <div class="product-action-1 show">
+                                    <a aria-label="Add To Cart" class="action-btn hover-up" href="/cart?id=${product._id}">
+                                        <i class="fi-rs-shopping-bag-add"></i>
+                                    </a>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                productGrid.innerHTML += productHTML;
+            });
+        })
+        .catch(error => console.error('Error fetching sorted products:', error));
+}
+
+
+        function addToCart(productId) {
+            console.log("hello");
+            console.log(productId);
+            fetch('/addToCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: productId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`Server responded with error status: ${response.status}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle success (e.g., update the cart icon, show a success message, etc.)
+                console.log('Product added to cart:', data);
+            })
+            .catch(error => console.error('Error adding product to cart:', error));
+        }
+
+        function updateProductList(products) {
+    const productsContainer = document.getElementById('product-grid');
+    productsContainer.innerHTML = '';
+
+    if (products.length === 0) {
+        productsContainer.innerHTML = '<p>No products found.</p>';
+        return;
+    }
+
+    products.forEach(product => {
+        const productHTML = `
+            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                <div class="product-cart-wrap mb-30">
+                    <div class="product-img-action-wrap">
+                        <div class="product-img product-img-zoom">
+                            <a href="/productdetails?id=${product._id}">
+                                <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
+                            </a>
+                        </div>
+                        <div class="product-action-1">
+                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/add-to-cart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-content-wrap">
+                        <h6>${product.productName}</h6>
+                        <h5>₹${product.salePrice.toLocaleString()}</h5>
+                        ${product.quantity > 0
+                            ? `<span style="color: green;">${product.quantity} stocks left</span>`
+                            : `<span class="text-danger">Out of Stock</span>`
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+        productsContainer.insertAdjacentHTML('beforeend', productHTML);
+    });
+}
+    </script>
+  <%- include("../partials/user/footer.ejs") %> 

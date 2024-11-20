@@ -1,0 +1,305 @@
+<%- include("../partials/user/header.ejs") %>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 100%;
+      margin: 8px auto;
+    }
+
+    .breadcrumbs {
+      font-size: 14px;
+      color: #b68b40;
+      margin-bottom: 20px;
+    }
+
+    .breadcrumbs a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    .cart-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .cart-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      text-align: left;
+      font-weight: bold;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 10px;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      margin-right: 10px;
+    }
+
+    .product-info {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .product-info .name {
+      font-weight: bold;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantity-control input {
+      width: 30px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 4px;
+    }
+
+    .quantity-control button {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .remove-btn {
+      background-color: red;
+      border: none;
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .remove-btn:hover {
+      background-color: rgb(198, 12, 12);
+    }
+
+    .cart-total {
+      text-align: right;
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .subtotal,
+    .shipping {
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    .checkout-btn {
+
+      width: 200px;
+      text-align: center;
+      background-color: #fff;
+      color: #333;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      border: 1px solid #333;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      text-decoration: none;
+    }
+
+    .checkout-btn:hover {
+      background-color: green;
+      color: white;
+    }
+  </style>
+  <!-- Header include -->
+  <div>
+    <div class="container">
+      <!-- Breadcrumb -->
+      <div class="breadcrumbs">
+        <a href="/">Home</a> › <span>Your Shopping Cart</span>
+      </div>
+
+      <!-- Cart Title -->
+      <h1 class="cart-title">Your cart</h1>
+
+      <!-- Cart Header -->
+      <div class="cart-header">
+        <div>PRODUCT</div>
+        <div>PRICE</div>
+        <div>QUANTITY</div>
+        <div>ACTION</div>
+        <div>TOTAL</div>
+      </div>
+
+      <!-- Cart Items -->
+      <% if(cart.length> 0){ %>
+        <% cart.forEach(item=>{ %>
+          <div class="cart-item" data-product-id="<%= item.productId._id %>">
+            <div class="product-info">
+              <img src="/uploads/re-image/<%=item.productId.productImage[0] %>" alt="<%= item.productId.name %>">
+              <div>
+                <div class="name">
+                  <%= item.productId.productName %>
+                </div>
+                ₹ <%= item.price %>
+              </div>
+            </div>
+            <div>₹ <%= item.price %>
+            </div>
+            <div class="quantity-control">
+              <button class="decrement" onclick="updateQuantity('<%= item.productId._id %>', -1)">-</button>
+              <input type="text" id="quantity-<%= item.productId._id %>" value="<%= item.quantity %>">
+              <button class="increment" onclick="updateQuantity('<%= item.productId._id %>', 1)">+</button>
+            </div>
+            <!-- Cart Item Remove Button -->
+            <div>
+              <button class="btn btn-danger remove-btn" style="width: 100px;"
+                onclick="removeProduct('<%= item.productId._id %>')">
+                Remove
+              </button>
+            </div>
+            <div class="total-price" id="total-price">₹ <%= item.totalPrice %>
+            </div>
+
+          </div>
+          <% }) %>
+
+
+
+            <!-- Cart Total -->
+            <div class="subtotal" style="margin-right: 140px;">
+              Subtotal ₹ <%= cart.reduce((acc, item)=> acc + item.totalPrice, 0).toFixed(2) %>
+            </div>
+
+
+            <!-- Checkout Button -->
+            <div>
+              <a href="/checkout">
+                <button class="checkout-btn" style="float: right; margin-right: 90px;">Check out</button>
+              </a>
+            </div>
+            <% } else { %>
+              <p>Your cart is empty.</p>
+              <% } %>
+    </div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <!-- Footer include -->
+    <%- include("../partials/user/footer.ejs") %>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+      <script>
+        function updateQuantity(productId, change) {
+          const quantityElement = document.getElementById(`quantity-${productId}`);
+
+          // Use .value for input fields, instead of .textContent
+          const currentQuantity = parseInt(quantityElement.value);
+          const newQuantity = currentQuantity + change;
+          console.log("currentQuantity:",currentQuantity);
+          console.log("newQuantity:",newQuantity);
+          console.log("change:",change);
+          if (newQuantity < 1) {
+            Swal.fire({
+              icon: "warning",
+              title: 'Minimum Quantity Reached',
+              text: "The minimum quantity is 1"
+            });
+            return;
+          } else if (newQuantity > 5) {
+            Swal.fire({
+              icon: "warning",
+              title: 'Maximum Quantity Reached',
+              text: "The maximum quantity is 5"
+            });
+            return;
+          }
+
+          fetch('/updateCartQuantity', {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ productId, quantity: newQuantity })
+
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Update the input field value, not textContent
+                quantityElement.value = data.newQuantity;
+                document.getElementById(`quantity-${productId}`).textContent = data.newQuantity;
+                document.getElementById(`subtotal-${productId}`).textContent = `₹ ${data.newSubtotal.toLocaleString()}`;
+                document.getElementById("total-price").textContent = `₹ ${data.totalPrice.toLocaleString()}`;
+
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: data.message,
+                });
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+            });
+        }
+        
+        function removeProduct(productId) {
+          fetch("/removeProduct", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: productId }) // Send productId in the request body
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Reload the cart page to reflect the removed item
+                window.location.reload();
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: data.message,
+                });
+              }
+            })
+            .catch(error => {
+              console.error("Error removing product from cart:", error);
+            });
+        }
+
+      </script>

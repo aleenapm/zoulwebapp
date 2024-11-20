@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>ZOUL - ACCESSORIES</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="zoul-frontend/assets/imgs/theme/logo.jpg">
+    <link rel="stylesheet" href="zoul-frontend/assets/css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        /* Move these styles to an external CSS file if possible */
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8; /* Light background for better contrast */
+        }
+
+        /* Promotional Banner */
+        .promo-banner {
+            background-color: #ff9800;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 1.1em; /* Slightly larger text */
+        }
+
+        /* Header styles */
+        .header-area {
+            background-color: #ffffff; /* Ensures header stands out */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+
+        .header-top {
+            background-color: #f1f1f1; /* Slightly darker background */
+        }
+
+        .header-info ul {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px; /* Consistent spacing */
+            padding: 10px 0; /* Vertical padding */
+        }
+
+        .header-info a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease; /* Smooth color transition */
+        }
+
+        .header-info a:hover {
+            color: #ff9800; /* Match hover color to promotional color */
+        }
+
+        /* Main menu styles */
+        .header-nav {
+            background-color: #fff; /* White background for the menu */
+        }
+
+        .main-menu nav ul {
+            padding: 10px 0; /* Vertical padding for menu */
+        }
+
+        .main-menu nav ul li {
+            position: relative; /* For dropdown positioning */
+        }
+
+        .main-menu nav ul li a {
+            color: #333;
+            font-weight: bold;
+            padding: 12px 20px; /* Increased padding for touch targets */
+            border-radius: 4px; /* Slight rounding of edges */
+            transition: background-color 0.3s ease; /* Smooth background transition */
+        }
+
+        .main-menu nav ul li a:hover {
+            background-color: #f1f1f1; /* Light gray background on hover */
+        }
+
+        /* Dropdown styles */
+        .dropdown-content {
+            display: none; /* Hide dropdowns by default */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block; /* Show dropdown on hover */
+        }
+
+        .dropdown-content a {
+            padding: 10px 15px; /* Adequate padding for dropdown items */
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1; /* Highlight dropdown items on hover */
+        }
+
+        /* Mobile menu styles */
+        .mobile-menu-toggle {
+            cursor: pointer;
+        }
+
+        .hamburger {
+            width: 30px;
+            height: 21px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hamburger .line {
+            height: 3px;
+            background: #333; /* Dark color for visibility */
+            border-radius: 5px;
+            transition: all 0.3s ease; /* Smooth transitions for hamburger */
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .header-nav {
+                flex-direction: column; /* Stack items in mobile view */
+            }
+
+            .main-menu {
+                display: none; /* Hide main menu by default */
+            }
+
+            .main-menu.show {
+                display: flex; /* Show menu when toggled */
+                flex-direction: column; /* Vertical stacking */
+                background-color: white; /* Background for mobile menu */
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                z-index: 999; /* Ensure visibility */
+                padding: 10px; /* Padding around menu */
+            }
+        }
+
+        .header-bottom .container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .main-menu nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+
+        .main-menu nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            padding: 10px 15px;
+        }
+
+        .notification-badge {
+            position: relative;
+        }
+
+        .notification-badge::after {
+            content: "3";
+            /* Example count */
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 5px;
+            font-size: 10px;
+        }
+
+        .dropdown-content {
+            display: none;
+            /* Hide by default */
+            position: absolute;
+            background-color: #ffffff;
+            /* Background color */
+            min-width: 160px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            /* Higher z-index to overlay other elements */
+            border-radius: 4px;
+            /* Rounded corners */
+            padding: 10px;
+            /* Padding around dropdown items */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+            /* Show dropdown on hover */
+        }
+
+        .dropdown-content a {
+            display: block;
+            /* Display links as block elements */
+            padding: 10px;
+            /* Add padding for better spacing */
+            color: #333;
+            /* Text color */
+            text-decoration: none;
+            /* Remove underline */
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            /* Highlight on hover */
+        }
+
+        .promo-banner {
+            background-color: #ff9800;
+            color: white;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            /* Hide by default, show on smaller screens */
+        }
+
+        .hamburger {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            /* Adjust as necessary */
+            height: 21px;
+            /* Adjust as necessary */
+        }
+
+        .hamburger .line {
+            height: 3px;
+            background: #333;
+            /* Line color */
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        /* Show hamburger menu on small screens */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .mobile-header-content-area {
+                display: none;
+                /* Hide mobile menu initially */
+            }
+
+            .mobile-header-content-area.show {
+                display: block;
+                /* Show mobile menu when toggled */
+            }
+
+            .main-menu {
+                display: none;
+                /* Hide main menu on small screens */
+            }
+
+            .main-menu.show {
+                display: flex;
+                flex-direction: column;
+                background-color: white;
+                /* Background color of mobile menu */
+                position: absolute;
+                top: 60px;
+                /* Adjust based on header height */
+                left: 0;
+                right: 0;
+                z-index: 999;
+                /* Ensure it appears above other elements */
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header-area header-style-1 header-height-2" style="z-index: 999; ">
+        <div class="header-top header-top-ptb-1 d-none d-lg-block"  style="background-color: white;">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-xl-3 col-lg-4">
+                        <div class="currency-language">
+                          
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-lg-4 text-center"></div>
+                    <div class="col-xl-3 col-lg-4">
+                        <div class="header-info header-info-right">
+                            <ul style="display: flex; align-items: center;">
+                                <% if (locals.user) { %>
+                                    <li style="display: flex; align-items: center; margin-right: 15px;">
+                                        <span style="font-weight: bold; color: #000000; margin-right: 10px; font-size: 1.1em; text-transform: capitalize;">
+                                            <%= locals.user.name %>
+                                        </span>
+                                        <a href="/userprofile?id=<%= locals.user._id %>" style="margin-right: 10px; color: #b68b40; text-decoration: none; transition: color 0.3s;">
+                                            Profile
+                                        </a>
+                                        <a href="/logout" style="color: #b68b40; text-decoration: none; transition: color 0.3s;" >
+                                            Logout
+                                        </a>
+                                    </li>
+                                <% } else { %>
+                                    <li style="margin-right: 15px;"><i class="fi-rs-user"></i>
+                                        <a href="/login" style="color: #b68b40; text-decoration: none;">Log In</a>
+                                    </li> 
+                                    <li style="margin-right: 15px;"><i class="fi-rs-user"></i>
+                                        <a href="/signup" style="color: #b68b40; text-decoration: none;">Sign up</a>
+                                    </li>
+                                <% } %>  
+                            </ul>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-middle header-middle-ptb-1 d-none d-lg-block">
+            <div class="container">
+                <div class="header-wrap">
+                    <div class="logo" style="width: 70px;">
+                        <a href="/"><img src="zoul-frontend/assets/imgs/theme/logo.png" alt="logo"></a>
+                    </div>
+                    <div class="header-right">
+                        <div class="search-style-2">
+                            
+                        </div>
+                        <div class="header-action-right">
+                            <div class="header-action-2">
+                                <div class="header-action-icon-2">
+                                    <a href="/get-wishlist">
+                                        <img class="svgInject" alt="Wishlist"
+                                            src="zoul-frontend/assets/imgs/theme/icons/icon-heart.svg">
+                                    </a>
+                                </div>
+                                <div class="header-action-icon-2 mini-cart-icon">
+                                    <a href="/getCart">
+                                        <img alt="Cart" src="zoul-frontend/assets/imgs/theme/icons/icon-cart.svg">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-bottom header-bottom-bg-color sticky-bar">
+            <div class="container">
+                <div class="header-wrap header-space-between position-relative">
+                    <div class="logo logo-width-1 d-block d-lg-none">
+                        <a href="/"><img src="zoul-frontend/assets/imgs/theme/logo.png" alt="logo"></a>
+                    </div>
+                    <div class="header-nav">
+                        <div class="main-menu main-menu-padding-1 main-menu-lh-2">
+                            <nav>
+                                <ul>
+                                    <li><a class="active" href="/">Home</a></li>
+                                    <li class="dropdown"><a href="#">Shop</a>
+                                        <!-- <div class="dropdown-content">
+                                            <a href="/categories">Categoies</a>
+                                            <a href="/brands">Brands</a>
+                                            <a href="/cart">Cart</a>
+                                        </div> -->
+                                    </li>
+                                    <li><a href="/about">About Us</a></li>
+                                    <li><a href="/contact">Contact</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="mobile-menu-toggle d-block d-lg-none">
+                        <div class="hamburger" onclick="toggleMobileMenu()">
+                            <div class="line"></div>
+                            <div class="line"></div>
+                            <div class="line"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.querySelector('.main-menu');
+            menu.classList.toggle('show'); // Toggle visibility of mobile menu
+        }
+    </script>
+</body>
+
+</html>

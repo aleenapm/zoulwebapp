@@ -1,0 +1,222 @@
+<%- include("../../views/partials/admin/header") %>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="form-control">
+                </div>
+                 
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="table-responsive">
+                <div id="orders-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#ID</th>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Payment Method</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (orders && orders.length> 0) { %>
+                                <% orders.forEach(order=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= order.orderId %>
+                                        </td>
+                                        <td>
+                                            <%= order.name %>
+                                        </td>
+                                        <td>
+                                            <%= order.date %>
+                                        </td>
+                                        <td>
+                                            <ul>
+                                                <% order.items.forEach(item=>{%>
+                                                    <li>
+                                                        <%= item.product.productName %>
+                                                    </li>
+                                                <%}) %>
+                                            </ul>
+                                           
+                                        </td>
+                                        <td>
+                                            <ul>
+                                                <% order.items.forEach(item=>{%>
+                                                    <li>
+                                                        <%= item.quantity %>
+                                                    </li>
+                                                <%}) %>
+                                            </ul>
+                                        </td>
+                                        <td>
+                                            <%= order.total %>
+                                        </td>
+                                        <td>
+                                            <%= order.paymentMethod %>
+                                        </td>
+                                        <td>
+                                            <select class="form-select order-status" data-order-id="<%= order.orderId %>">
+                                                <option value="Pending" <%=order.status==='Pending' ? 'selected' : '' %>
+                                                    >Pending</option>
+                                                <option value="Processing" <%=order.status==='Processing' ? 'selected' : ''
+                                                    %>>Processing</option>
+                                                <option value="Shipped" <%=order.status==='Shipped' ? 'selected' : '' %>
+                                                    >Shipped</option>
+                                                <option value="Delivered" <%=order.status==='Delivered' ? 'selected' : '' %>
+                                                    >Delivered</option>
+                                                <option value="Cancelled" <%=order.status==='Cancelled' ? 'selected' : '' %>
+                                                    >Cancelled</option>
+                                                <option value="Return Requested" <%=order.status==='Return Requested'
+                                                    ? 'selected' : '' %>>Return Requested</option>
+                                                <option value="Returned" <%=order.status==='Returned' ? 'selected' : '' %>
+                                                    >Returned</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="8" class="text-center">No orders found</td>
+                                            </tr>
+                                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <% for (let i=1; i <=totalPages; i++) { %>
+                    <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>">
+                            <%= i %>
+                        </a>
+                    </li>
+                    <% } %>
+            </ul>
+        </nav>
+    </div>
+    </section>
+
+    </main>
+    <script src="assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/vendors/select2.min.js"></script>
+    <script src="assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="assets/js/main.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            async function updateOrderStatus(orderId, newStatus) {
+                try {
+                    const response = await fetch('/admin/update-order-status', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ orderId, status: newStatus })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text(); // Capture error text if not OK
+                        console.error('Failed to update order status:', response.status, errorText);
+                        Swal.fire({
+                            title: 'Error',
+                            text: `Failed to update order status. Status: ${response.status}`,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+
+                    const result = await response.json();
+                    console.log('Order status updated successfully:', result);
+
+                    Swal.fire({
+                        title: 'Status Updated',
+                        text: `Order status changed to ${newStatus}.`,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    });
+                } catch (error) {
+                    console.error('Error updating order status:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'An error occurred while updating the order status.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+
+            function updateStatusOptions(selectElement) {
+                const selectedStatus = selectElement.value;
+                const options = selectElement.querySelectorAll('option');
+                
+                // Enable all options first
+                options.forEach(option => option.disabled = false);
+
+                // Disable based on selected status
+                if (selectedStatus === 'Return Requested') {
+                    // Only "Cancelled" and "Returned" should be enabled
+                    options.forEach(option => {
+                        if (option.value !== 'Cancelled' && option.value !== 'Returned') {
+                            option.disabled = true;
+                        }
+                    });
+                } else if (selectedStatus === 'Delivered') {
+                    // "Cancelled", "Return Requested", and "Returned" should be enabled
+                    options.forEach(option => {
+                        if (option.value !== 'Cancelled' && option.value !== 'Return Requested' && option.value !== 'Returned') {
+                            option.disabled = true;
+                        }
+                    });
+                } else if (selectedStatus === 'Cancelled') {
+                    // No more options should be selectable after "Cancelled"
+                    options.forEach(option => option.disabled = true);
+                } else if (selectedStatus === 'Returned') {
+                    // No more options should be selectable after "Returned"
+                    options.forEach(option => option.disabled = true);
+                }
+            }
+
+            // Attach event listener to each status dropdown
+            document.querySelectorAll('.order-status').forEach(select => {
+                // Initially update options when the page loads
+                updateStatusOptions(select);
+
+                // Listen for changes in the dropdown
+                select.addEventListener('change', function () {
+                    const newStatus = this.value;
+                    const orderId = this.getAttribute('data-order-id');
+
+                    // Update the order status
+                    updateOrderStatus(orderId, newStatus);
+
+                    // Update the options based on the selected status
+                    updateStatusOptions(this);
+                });
+            });
+        });
+
+        
+
+    </script>
+
+
+    <%- include("../../views/partials/admin/footer") %>

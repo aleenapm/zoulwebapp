@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      padding: 20px;
+    }
+
+    .dashboard-container {
+      display: flex;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      gap: 30px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    .sidebar {
+      width: 280px;
+      background: #fafafa;
+      padding: 30px 20px;
+      border-radius: 20px 0 0 20px;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .profile-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .profile-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 28px;
+      color: #b68b40;
+      border: 2px solid #b68b40;
+    }
+
+    .profile-name {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .profile-email {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .nav-links {
+      list-style: none;
+    }
+
+    .nav-links li button {
+      width: 100%;
+      text-align: left;
+      padding: 12px 20px;
+      margin-bottom: 8px;
+      border: none;
+      background: none;
+      color: #666;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-size: 15px;
+    }
+
+    .nav-links li button:hover {
+      background: #f0f0f0;
+      color: #b68b40;
+    }
+
+    .nav-links li button.active {
+      background: #b68b40;
+      color: white;
+    }
+
+    .dashboard-section {
+      display: none;
+    }
+
+    .dashboard-section.active {
+      display: block;
+    }
+
+    .section-title {
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #b68b40;
+      color: white;
+    }
+
+    .btn-outline {
+      background: none;
+      border: 1px solid #b68b40;
+      color: #b68b40;
+    }
+
+    .address-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 70px;
+      margin-top: 20px;
+    }
+
+    .address-card {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .address-actions {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .wallet-overview {
+      background: #fafafa;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .wallet-balance {
+      font-size: 32px;
+      color: #333;
+      margin: 15px 0;
+    }
+
+    .wallet-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .transaction-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .transaction-table th {
+      text-align: left;
+      padding: 15px;
+      border-bottom: 2px solid #f0f0f0;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .transaction-table td {
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+    }
+
+    /* Statuses */
+    .status-completed {
+      /* background-color: #4CAF50; Green */
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .status-pending {
+      /* background-color: #FF9800; Orange */
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .status-cancelled {
+      /* background-color: #F44336; Red */
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .type-credit { color: #28a745; }
+    .type-debit { color: #dc3545; }
+
+    .logout-btn {
+      color: #dc3545;
+      margin-top: 20px;
+    }
+    .cancel-btn {
+    background-color: #d9534f;
+    color: white; /* White text color */
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #c9302c; 
+  }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="sidebar">
+      <div class="profile-section">
+        <div class="profile-avatar"><%= user.name.charAt(0).toUpperCase() %></div>
+        <h2 class="profile-name"><%= user.name %></h2>
+        <p class="profile-email"><%= user.email %></p>
+      </div>
+      <ul class="nav-links">
+        <li><button onclick="showSection('dashboard')" class="active">Dashboard</button></li>
+        <li><button onclick="showSection('address')">My Address</button></li>
+        <li><button onclick="showSection('orders')">Orders</button></li>
+        <li><button onclick="showSection('wallet')">My Wallet</button></li>
+        <li><button onclick="showSection('referrals')">Referrals</button></li>
+        <li><button onclick="showSection('logout')" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
+
+    <div class="main-content">
+      <!-- Dashboard Section -->
+      <div id="dashboard" class="dashboard-section active" style="max-width: 900px; width: 100%; background-color: #fff; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
+        <!-- Header -->
+        <div class="header" style=" color: #fff; padding: 20px; text-align: center;">
+          <h2 style="font-size: 1.6em; margin: 0; color: #b68b40;">Dashboard</h2>
+          <p style="font-size: 1em; color: #000000; margin-top: 5px;">Welcome, <%= user.name %></p>
+        </div>
+
+        <!-- User Info Section -->
+        <div class="user-info" style="padding: 20px;">
+          <h3 style="font-size: 1.4em; color: #333; margin-bottom: 10px; border-bottom: 2px solid #b68b40; padding-bottom: 5px;">User Profile</h3>
+          <p style="font-size: 1em; color: #555; margin: 10px 0;"><strong style="color: #333;">Phone:</strong> <%= user.phone %></p>
+          <p style="font-size: 1em; color: #555; margin: 10px 0;"><strong style="color: #333;">Email:</strong> <%= user.email %></p>
+          <div style="margin-top: 20px; text-align: center;">
+            <a href="/change-email" style="font-size: 0.9em; color: #fff; background-color: #b68b40; padding: 8px 16px; border-radius: 4px; text-decoration: none; transition: background-color 0.3s ease;">Change Email</a>
+            <a href="/change-password" style="font-size: 0.9em; color: #fff; background-color: #b68b40; padding: 8px 16px; border-radius: 4px; text-decoration: none; transition: background-color 0.3s ease; margin-left: 10px;">Change Password</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Section -->
+      <div id="address" class="dashboard-section">
+        <h2 class="section-title">My Addresses</h2>
+        <a href="/addAddress">
+          <button class="btn btn-primary">+ Add New Address</button>
+        </a>
+        
+        <div class="address-grid">
+          <%userAddress.address.forEach((addr)=>{%>
+            <div class="address-card"> 
+              <div class="address-actions">
+                <a href="/editAddress?id=<%= addr._id %>">
+                  <button class="btn btn-outline">Edit</button>
+                </a>
+                <a href="/deleteAddress?id=<%= addr._id %>" onclick="return confirmDelete(event)">
+                  <button class="btn btn-outline">Delete</button>
+               </a>
+              </div>
+              <h3><%= addr.addressType %></h3><br>
+              <p><%= addr.name %></p>
+              <p><%= addr.city %></p>
+              <p><%= addr.landMark %></p>
+              <p><%= addr.state %></p>
+              <p><%= addr.pincode %></p>
+              <p><%= addr.phone %></p>
+              <p><%= addr.altPhone %></p>
+            </div>
+          <%})%>
+          
+          
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="orders" class="dashboard-section">
+        <h2 class="section-title">My Orders</h2>
+        <table class="transaction-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(order => { %>
+              <tr id="order-row-<%= order._id %>">
+                  <td><%= order._id %></td>
+                  <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
+                  <td id="order-status-<%= order._id %>" class="status-<%= order.status.toLowerCase() %>"><%= order.status %></td>
+                  <td>₹ <%= order.finalAmount %></td>
+                  <td id="order-action-<%= order._id %>">
+                    <a href="/orderDetails?id=<%= order._id %>"><button>view details</button></a>
+                      <% if (order.status === 'Pending') { %>
+                          <button class="cancel-btn" onclick="confirmCancelOrder('<%= order._id %>')">Cancel</button>
+                      <% } else { %>
+                          --
+                      <% } %>
+                  </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Wallet Section -->
+      <div id="wallet" class="dashboard-section">
+        <h2 class="section-title">My Wallet</h2>
+        <div class="wallet-overview">
+          <h3>Balance</h3>
+          <p class="wallet-balance">$500.00</p>
+          <div class="wallet-actions">
+            <button class="btn btn-primary">Deposit</button>
+            <button class="btn btn-outline">Withdraw</button>
+          </div>
+        </div>
+        <h3>Transactions</h3>
+        <table class="transaction-table">
+          <thead>
+            <tr>
+              <th>Transaction ID</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#67890</td>
+              <td>2024-10-10</td>
+              <td class="type-credit">Credit</td>
+              <td>$200.00</td>
+            </tr>
+            <tr>
+              <td>#67891</td>
+              <td>2024-10-12</td>
+              <td class="type-debit">Debit</td>
+              <td>$50.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Referrals Section -->
+      <div id="referrals" class="dashboard-section">
+        <h2 class="section-title">Referrals</h2>
+        <p>Invite your friends and earn rewards!</p> <br>
+        <button class="btn btn-outline">Copy Referral Link</button>
+      </div>
+
+      <!-- Logout Section -->
+      <div id="logout" class="dashboard-section">
+        <h2 class="section-title">Logout</h2>
+        <p>Are you sure you want to logout?</p><br>
+        <button class="btn btn-outline" onclick="confirmLogout(event)">
+            <span style="color: #b68b40; text-decoration: none; transition: color 0.3s;">Logout</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function showSection(sectionId) {
+      // Hide all sections
+      const sections = document.querySelectorAll('.dashboard-section');
+      sections.forEach(section => section.classList.remove('active'));
+
+      // Remove active class from all sidebar buttons
+      const buttons = document.querySelectorAll('.nav-links button');
+      buttons.forEach(button => button.classList.remove('active'));
+
+      // Show the selected section and activate the respective button
+      document.getElementById(sectionId).classList.add('active');
+      const activeButton = Array.from(buttons).find(button => button.textContent.toLowerCase() === sectionId);
+      if (activeButton) activeButton.classList.add('active');
+      }
+
+      // Load 'dashboard' as default active section on page load
+      document.addEventListener('DOMContentLoaded', () => {
+          showSection('dashboard');
+      });
+      // Check the URL hash on page load and show the correct section
+      window.onload = function() {
+        const hash = window.location.hash.substring(1); // Get the hash without the '#'
+        if (hash) {
+          showSection(hash); // Show the section based on the hash
+        } else {
+          showSection('dashboard'); // Default to 'dashboard' section
+        }
+    };
+    
+    function confirmDelete(event) {
+      event.preventDefault(); // Prevent the default link action
+      const url = event.currentTarget.href; // Store the link URL
+
+      // Show the SweetAlert confirmation dialog
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#b68b40',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirect to the delete URL if confirmed
+          window.location.href = url;
+        }
+      });
+    }
+    function confirmLogout(event) {
+      event.preventDefault(); // Prevent the default form action
+
+      // Show the SweetAlert confirmation dialog
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to log out?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#b68b40',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, logout'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Redirect to the logout URL if confirmed
+          window.location.href = '/logout';
+        }
+      });
+    }
+
+    async function confirmCancelOrder(orderId) {
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you really want to cancel this order?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#b68b40',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, cancel it'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            // Make the server request to cancel the order
+            const response = await fetch('/cancel-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ orderId: orderId }),
+            });
+
+            const data = await response.json();  // Get the response JSON
+
+            if (data.message === 'Order cancelled successfully') {
+                Swal.fire(
+                    'Cancelled!',
+                    `Order ${orderId} has been cancelled.`,
+                    'success'
+                ).then(()=>{
+                  location.reload();
+                })
+                 // Reload the page to reflect changes
+            } else {
+                Swal.fire(
+                    'Error!',
+                    'Something went wrong while cancelling the order.',
+                    'error'
+                );
+            }
+        } catch (err) {
+            // Catch any errors and show them in the Swal
+            Swal.fire(
+                'Error!',
+                'Unable to reach the server or other issue occurred.',
+                'error'
+            );
+        }
+    }
+}
+
+  </script>
+</body>
+</html>

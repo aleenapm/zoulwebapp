@@ -1,0 +1,165 @@
+<%- include("../../views/partials/user/header") %>
+<style>
+  body {
+   
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+
+  .otp-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+
+  .otp-container {
+    max-width: 350px;
+    width: 100%;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: white;
+  }
+
+  .otp-container h3 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #b68b40;
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    color: #b68b40;
+    margin-bottom: 8px;
+  }
+
+  .otp-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 4px;
+    border: 1px solid #b68b40;
+    background-color: #333;
+    color: white;
+    transition: all 0.3s;
+  }
+
+  .otp-input:focus {
+    border-color: #b68b40;
+    box-shadow: 0 0 5px rgba(182, 139, 64, 0.5);
+  }
+
+  .btn-primary {
+    width: 100%;
+    font-weight: bold;
+    background-color: #b68b40;
+    border: none;
+    margin-top: 20px;
+    border-radius: 5px;
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .btn-primary:hover {
+    background-color: #a07a3b;
+  }
+
+  .otp-timer,
+  .resend-btn {
+    display: inline-block;
+    font-size: 14px;
+    color: #b68b40;
+    margin-top: 15px;
+    cursor: pointer;
+  }
+
+  .text-muted {
+    font-size: 14px;
+    color: #b68b40;
+    text-align: center;
+    margin-top: 20px;
+  }
+</style>
+
+<div class="otp-wrapper">
+  <div class="otp-container">
+    <h3>Email Verification</h3>
+    <form action="/verify-email-otp" method="post">
+      <div class="form-group">
+        <label for="otp">Enter OTP:</label>
+        <input type="text" id="otp" name="otp" class="otp-input" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Verify OTP</button>
+      <div class="otp-timer">
+        <span id="otpTimer">OTP Expires in: 1:00</span>
+      </div>
+      <button type="button" onclick="resendOTP()" class="resend-btn">Resend OTP</button>
+      <% if (locals.message && message.length > 0) { %>
+        <div class="alert alert-danger mt-3" style="color: #ff4d4d;">
+          <%= message %>
+        </div>
+      <% } %>
+    </form>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+  let countdown; // Declare a global variable for the countdown interval
+
+  function startOTPTimer(durationInSeconds) {
+    // Clear any existing interval to prevent multiple timers from running
+    if (countdown) {
+      clearInterval(countdown);
+    }
+
+    let timer = durationInSeconds;
+    const timerElement = document.getElementById('otpTimer');
+    
+    // Start a new countdown timer
+    countdown = setInterval(function () {
+      const minutes = Math.floor(timer / 60);
+      const seconds = timer % 60;
+
+      timerElement.textContent = `OTP Expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+      // Decrement timer and stop when it reaches zero
+      if (--timer < 0) {
+        clearInterval(countdown);
+        countdown = null; // Reset countdown variable
+        timerElement.textContent = 'OTP Expired';
+      }
+    }, 1000);
+  }
+
+  function resendOTP() {
+    $.ajax({
+      type: 'POST',
+      url: '/resend-otp',
+      success: function (response) {
+        if (response.success) {
+          startOTPTimer(60); // Restart the timer to 60 seconds for a new OTP
+        } else {
+          alert('Failed to resend OTP. Please try again.');
+        }
+      },
+      error: function () {
+        alert('Error occurred while resending OTP. Please try again.');
+      }
+    });
+  }
+
+  // Initial timer start
+  startOTPTimer(60);
+</script>
+
+<%- include("../../views/partials/user/footer") %>

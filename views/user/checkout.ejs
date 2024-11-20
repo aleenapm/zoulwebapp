@@ -1,0 +1,284 @@
+<%- include('../partials/user/header') %>
+
+<style>
+    :root {
+        --primary-color: #b68b40;
+        --secondary-color: #9f7630;
+        --text-color: #333;
+        --light-bg: #f9f9f9;
+        --border-color: #ddd;
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: var(--light-bg);
+        color: var(--text-color);
+        line-height: 1.6;
+    }
+
+   
+    .page-header {
+        /* background: linear-gradient(to right, var(--primary-color), var(--secondary-color)); */
+        color: #fff;
+        padding: 10px 0;
+        
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+    }
+
+    .breadcrumb a, .breadcrumb span {
+        color: #000000;
+        text-decoration: none;
+    }
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    h3 {
+        color: black;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 10px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card label {
+        display: block;
+        cursor: pointer;
+    }
+
+    .order_review {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 25px;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        border-top: none;
+    }
+
+    .payment_option {
+        margin-top: 20px;
+    }
+
+    .custome-radio {
+        margin-bottom: 10px;
+    }
+
+    .btn-fill-out {
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-fill-out:hover {
+        background-color: var(--secondary-color);
+    }
+    
+ 
+   
+    @media (max-width: 768px) {
+        .order_review {
+            margin-top: 30px;
+        }
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #b68b40;
+      color: white;
+    }
+</style>
+
+<main class="main">
+    <div class="page-header">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="/">Home</a> › <a href="/getCart">Cart</a> <span>Checkout</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="mt-10 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Select Your Address</h3>                   
+                    <% if (address.length) { %> 
+                        <% address.forEach((addr, index) => { %>
+                            <div class="card mb-3">
+                                <div class="form-check p-3">
+                                    <input class="form-check-input" type="radio" name="selectedAddress" id="address-<%= index %>"
+                                        value="<%= addr._id %>" required
+                                        onchange="document.getElementById('selectedAddressId').value = '<%= addr._id %>';">
+                                    <label class="form-check-label" for="address-<%= index %>">
+                                        <strong><%= addr.addressType %></strong><br>
+                                        <%= addr.name %><br>
+                                        <%= addr.city %>, <%= addr.state %>, <%= addr.pincode %><br>
+                                        Landmark: <%= addr.landMark %><br>
+                                        Phone: <%= addr.phone %><br>
+                                        Alt Phone: <%= addr.altPhone %>
+                                    </label>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <!-- Display message when there are no addresses available -->
+                        <p class="alert alert-info" style="margin-top: 0; padding-top: 0; background-color: var(--light-bg); border: none; color: rgb(255, 0, 0);">No address available. Please add an address to continue.</p>
+                    <% } %>
+                
+                    <a href="/addAddress"><button class="btn btn-primary mt-3"> + Add Address</button></a>
+                </div>
+                
+
+                <div class="col-md-6">
+                    <h3>Order Summary</h3>
+                    <div class="order_review">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (products.length > 0) { %>
+                                    <% products.forEach(item => { %>
+                                        <tr>
+                                            <td>
+                                                <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>" width="50" height="50" class="mr-2">
+                                                <%= item.productId.productName %> x <%= item.quantity %>
+                                            </td>
+                                            <td>₹ <%= item.totalPrice %></td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="2">No items in cart or product selection.</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Subtotal</th>
+                                    <td id="subtotal">₹ <%= subtotal.toFixed(2) %></td>
+                                </tr>
+                                <tr>
+                                    <th>Discount</th>
+                                    <td id="discount">₹ 0</td>
+                                </tr>
+                                <tr>
+                                    <th>Total</th>
+                                    <td id="totalPriceAfterDiscount">₹ <%= totalPriceAfterDiscount.toFixed(2) %></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                
+                        <form id="orderForm" method="POST" action="/createOrder" onsubmit="return validateAddress()">
+                            <div class="payment_option">
+                                <h4>Select Payment Method</h4>
+                                <div class="custome-radio">
+                                    <input class="form-check-input" required type="radio" value="COD" name="paymentMethod" id="exampleRadios3" checked onchange="togglePaymentButtons()">
+                                    <label class="form-check-label" for="exampleRadios3">Cash on Delivery</label>
+                                </div>
+                                <div class="custome-radio">
+                                    <input class="form-check-input" required type="radio" value="Online" name="paymentMethod" id="exampleRadios5" onchange="togglePaymentButtons()">
+                                    <label class="form-check-label" for="exampleRadios5">Online Payment</label>
+                                </div>
+                            </div>
+                
+                            <!-- Hidden fields to store cart and totals -->
+                            <input type="hidden" name="cart" value='<%= JSON.stringify(cart) %>'>
+                            <input type="hidden" id="totalamount" name="totalPrice" value="<%= totalPriceAfterDiscount %>">
+                            <!-- <input type="hidden" id="discountInput" name="discount" value=""> -->
+                            <input type="hidden" id="selectedAddressId" name="address">
+
+                            <div id="paymentButtons" class="mt-4">
+                                <button type="submit" class="btn btn-fill-out btn-block" id="submitButton">Place Order</button>
+                                <button type="button" class="btn btn-fill-out btn-block" id="razorpayButton" style="display: none;">Pay with Razorpay</button>
+                            </div>
+                        </form>
+                    </div> 
+                </div>                
+            </div>
+        </div>
+    </section>
+</main>
+
+<%- include('../partials/user/footer') %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    
+
+    function validateAddress() {
+        const addressRadioButtons = document.querySelectorAll('input[name="selectedAddress"]');
+        let addressSelected = false;
+
+        addressRadioButtons.forEach((radio) => {
+            if (radio.checked) {
+                addressSelected = true;
+            }
+        });
+
+        if (!addressSelected) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Address Selected',
+                text: 'Please select an address before proceeding.',
+                confirmButtonColor: '#39b4ac',
+            });
+            return false;
+        }
+        return true;
+    }
+
+    function togglePaymentButtons() {
+        const submitButton = document.getElementById('submitButton');
+        const razorpayButton = document.getElementById('razorpayButton');
+        const paymentOption = document.querySelector('input[name="payment_option"]:checked').value;
+
+        if (paymentOption === 'COD') {
+            submitButton.style.display = 'block';
+            razorpayButton.style.display = 'none';
+        } else {
+            submitButton.style.display = 'none';
+            razorpayButton.style.display = 'block';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePaymentButtons();
+    });
+</script>

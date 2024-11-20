@@ -1,0 +1,249 @@
+<%- include('../partials/admin/header') %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Coupons</h2>
+            </div>
+            <div>
+                <input type="text" placeholder="Search Coupons" class="form-control bg-white">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <form action="/admin/save-coupon" method="post" onsubmit="return validateCouponForm()">
+                            <div class="mb-4">
+                                <label for="couponCode" class="form-label">Coupon Code</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="couponCode"
+                                    name="couponCode" />
+                                <small id="codeError" style="color: red; display: none;">Code is required</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Discount Percentage (%)</label>
+                                <input type="number" placeholder="Enter discount percentage" class="form-control"
+                                    id="discountPercentage" name="discountPercentage" />
+                                <small id="discountError" style="color: red; display: none;">Discount percentage must be
+                                    between 1 and 100</small>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Minimum Price</label>
+                                    <input type="number" placeholder="Enter min" class="form-control" id="minimumPrice" name="minimumPrice" />
+                                    <small id="minimumError" style="color: red; display: none;">Minimum price can't be empty</small>
+                                </div>
+                            
+                                <div class="col-md-6">
+                                    <label class="form-label">Maximum Price</label>
+                                    <input type="number" placeholder="Enter max" class="form-control" id="maximumPrice" name="maximumPrice" />
+                                    <small id="maximumError" style="color: red; display: none;">Maximum price can't be empty</small>
+                                </div>
+                            </div>
+                            
+
+                            <div class="mb-4">
+                                <label class="form-label">Created On</label>
+                                <input type="date" class="form-control" id="createdDate" name="createdDate" />
+                                <small id="createdError" style="color: red; display: none;">Created date is
+                                    required</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" id="endDate" name="endDate" />
+                                <small id="endDateError" style="color: red; display: none;">Expiry date is
+                                    required</small>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit">Create Coupon</button>
+                            </div>
+                        </form>
+
+
+                    </div>
+                    <div class="col-md-9">
+                        <div>
+                            <%if(coupons.length>0){%>
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Coupon Code</th>
+                                            <th>Discount %</th>
+                                            <th>Created On</th>
+                                            <th>Expired On</th>
+                                            <th>Min Price</th>
+                                            <th>Max Price</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%for(let i=0;i<coupons.length;i++){%>
+                                            <tr>
+                                                <td>
+                                                    <%=coupons[i].name%>
+                                                </td>
+                                                <td>
+                                                    <%=coupons[i].offerPercentage%>
+                                                </td>
+                                                <td>
+                                                    <%= coupons[i].createdOn.toLocaleDateString() %>
+                                                </td>
+                                                <td>
+                                                    <%= coupons[i].expireOn.toLocaleDateString() %>
+                                                </td>
+                                                <td>
+                                                    <%= coupons[i].minimumPrice %>
+                                                </td>
+                                                <td>
+                                                    <%= coupons[i].maximumPrice %>
+                                                </td>
+                                                <%if(coupons[i].isList){%>
+                                                    <td>
+                                                        <span class="badge rounded-pill alert-success">Active</span>
+                                                    </td>
+                                                    <%}else{%>
+                                                        <td>
+                                                            <span
+                                                                class="badge rounded-pill alert-danger">Inactive</span>
+                                                        </td>
+                                                        <%}%>
+                                                            <td>
+                                                                <button class="btn btn-danger text-white"
+                                                                    onclick="confirmDelete('<%= coupons[i]._id %>')">Delete</button>
+                                                            </td>
+                                            </tr>
+                                            <%}%>
+                                    </tbody>
+                                </table>
+                                <%}else{%>
+                                    <h3>No coupons added yet.</h3>
+                                    <%}%>
+                        </div>
+                    </div> <!-- .col// -->
+                </div> <!-- .row // -->
+            </div> <!-- card body .// -->
+        </div> <!-- card .// -->
+    </section> <!-- content-main end// -->
+
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example justify-content-center">
+            <ul class="pagination justify-content-center">
+                <% for (let i=1; i <=totalPages; i++) { %>
+                    <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>">
+                            <%= i %>
+                        </a>
+                    </li>
+                    <% } %>
+            </ul>
+        </nav>
+    </div>
+    <br>
+
+    <script>
+
+        function confirmDelete(couponId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will delete the coupon permanently.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/admin/delete-coupon?id=${couponId}`;
+                }
+            });
+        }
+
+        function validateCouponForm() {
+            let isValid = true;
+
+            const couponCode = document.getElementById("couponCode");
+            const discountPercentage = document.getElementById("discountPercentage");
+            const minimumPrice = document.getElementById("minimumPrice");
+            const maximumPrice = document.getElementById("maximumPrice");
+            const createdDate = document.getElementById("createdDate");
+            const endDate = document.getElementById("endDate");
+
+            // Hide error messages
+            document.getElementById("codeError").style.display = "none";
+            document.getElementById("discountError").style.display = "none";
+            document.getElementById("minimumError").style.display = "none";
+            document.getElementById("maximumError").style.display = "none";
+            document.getElementById("createdError").style.display = "none";
+            document.getElementById("endDateError").style.display = "none";
+
+            // Validate Coupon Code
+            const couponCodeRegex = /^[A-Z0-9]+$/;
+            if (!couponCode.value.trim() || !couponCodeRegex.test(couponCode.value.trim())) {
+                document.getElementById("codeError").style.display = "block";
+                isValid = false;
+            }
+
+            // Validate Discount Percentage
+            const discountValue = parseInt(discountPercentage.value, 10);
+            if (!discountPercentage.value.trim() || discountValue < 1 || discountValue > 100) {
+                document.getElementById("discountError").style.display = "block";
+                isValid = false;
+            }
+
+            // Validate Minimum Price
+            const minPriceValue = parseFloat(minimumPrice.value);
+            if (!minimumPrice.value.trim() || minPriceValue <= 0) {
+                document.getElementById("minimumError").style.display = "block";
+                isValid = false;
+            }
+
+            // Validate Maximum Price (should not be equal to or less than Minimum Price)
+            const maxPriceValue = parseFloat(maximumPrice.value);
+            if (!maximumPrice.value.trim() || maxPriceValue <= minPriceValue) {
+                document.getElementById("maximumError").style.display = "block";
+                isValid = false;
+            }
+
+
+            // Validate Created Date (must be today's date)
+            const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+            if (createdDate.value !== today) {
+                document.getElementById("createdError").style.display = "block";
+                isValid = false;
+            }
+
+            // Validate Expiry Date (must be greater than today's date)
+            if (!endDate.value || endDate.value <= today) {
+                document.getElementById("endDateError").style.display = "block";
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Set default date for Created Date to today's date
+        document.getElementById("createdDate").value = new Date().toISOString().split("T")[0];
+
+        // Set the Created Date input to only accept today's date (disable other dates)
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("createdDate").setAttribute("min", today);
+        document.getElementById("createdDate").setAttribute("max", today);
+
+        // Set min attribute for Expiry Date to tomorrow, ensuring only future dates are allowed
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1); // Set to tomorrow's date
+        const tomorrowString = tomorrow.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        document.getElementById("endDate").setAttribute("min", tomorrowString);
+
+
+
+    </script>
+
+
+    <%- include('../partials/admin/footer') %>
