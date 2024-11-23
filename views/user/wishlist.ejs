@@ -1,0 +1,99 @@
+<%- include('../partials/user/header') %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <main class="main">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="index.html" rel="nofollow">Home</a>
+                    <span></span> Shop
+                    <span></span> Wishlist
+                </div>
+            </div>
+        </div>
+        <section class="mt-50 mb-50">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="table-responsive">
+                            <%if(products && products.length>0){%>
+                                <table class="table shopping-summery text-center">
+                                    <thead>
+                                        <tr class="main-heading">
+                                            <th scope="col" colspan="2">Product</th>
+                                            <th scope="col">Price</th>
+                                            <th scope="col">Stock Status</th>
+                                            <th scope="col">Action</th>
+                                            <th scope="col">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%for(let i=0;i<products.length;i++){%>
+                                            <tr>
+                                                <td class="image product-thumbnail"><img src="/uploads/re-image/<%=products[i].productId.productImage[0]%>" alt="<%=products[i].productId.productName%>"></td>
+                                                <td class="product-des product-name">
+                                                    <h5 class="product-name"><a href="/productdetails?id=<%=products[i].productId._id%>"><%=products[i].productId.productName%></a></h5>
+                                                </td>
+                                                <td class="price" data-title="Price"><span><%=products[i].productId.salePrice.toLocaleString()%></span></td>
+                                                <%if(products[i].productId.quantity > 0){%>
+                                                    <td class="text-center" data-title="Stock">
+                                                        <span class="color3 font-weight-bold">In Stock</span>
+                                                    </td>
+                                                    <td class="text-right" data-title="Cart">
+                                                        <form action="/addToCart" method="POST" style="display:inline;">
+                                                            <input type="hidden" name="id" value="<%= products[i].productId._id %>">
+                                                            <button type="submit" class="btn btn-sm btn-success">
+                                                                <i class="fi-rs-shopping-bag mr-5"></i>Add to cart
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                <%}else{%>
+                                                    <td class="text-center" data-title="Stock">
+                                                        <span class="color3 font-weight-bold">No Stock</span>
+                                                    </td>
+                                                    <td class="text-right" data-title="Cart">
+                                                        <p style="color: red;">Out of Stock</p>  
+                                                    </td>
+                                                <%}%>
+                                                <td class="action" data-title="Remove">
+                                                    <form id="remove-form-<%= products[i].productId._id %>"
+                                                        action="/removeWishlistItem" method="POST">
+                                                        <input type="hidden" name="productId"
+                                                            value="<%= products[i].productId._id %>">
+                                                        <button type="button" class="btn btn-danger"
+                                                            onclick="confirmRemove('<%= products[i].productId._id %>')">
+                                                            <i class="fi-rs-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <%}%>
+                                    </tbody>
+                                </table>
+                            <%}else{%>
+                                <h2>No products yet</h2>
+                            <%}%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+<%- include('../partials/user/footer') %>
+
+<script>
+    function confirmRemove(productId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to remove this item from wishlist?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, remove it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`remove-form-${productId}`).submit();
+                }
+            });
+        }
+</script>

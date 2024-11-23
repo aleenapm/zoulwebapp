@@ -93,6 +93,18 @@
         padding: 10px;
         animation: fadeIn 0.2s ease;
     }
+    .wishlist-btn {
+    margin-left: 10px; /* Add some space between add to cart and wishlist buttons */
+}
+
+.wishlist-btn i {
+    color: #999; /* Default heart icon color */
+    transition: color 0.3s ease;
+}
+
+.wishlist-btn:hover i {
+    color: #ff6f61; /* Change color on hover */
+}
     </style>
 
     <main class="main">       
@@ -228,8 +240,11 @@
 
 
                                     <div class="product-action-1 show">
-                                        <a href="/getCart" aria-label="Add To Cart" class="action-btn hover-up" onclick="addToCart('<%= products[i]._id %>')">
+                                        <a href="/getCart" aria-label="Add To Cart" class="action-btn hover-up" style="margin-top: 10px;" onclick="addToCart('<%= products[i]._id %>')">
                                             <i class="fi-rs-shopping-bag-add"></i>
+                                        </a>
+                                        <a aria-label="Add To Wishlist" class="action-btn hover-up wishlist-btn" onclick="addToWishlist('<%= products[i]._id %>')">
+                                            <i class="fi-rs-heart"></i>
                                         </a>
                                     </div>
 
@@ -260,62 +275,65 @@
         }
         // Function to sort products based on the selected option
         function sortProducts() {
-    const sortOption = document.getElementById('sort-select').value;
+            const sortOption = document.getElementById('sort-select').value;
 
-    // Fetch sorted products from the server
-    fetch(`/sortProducts?sort=${sortOption}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Ensure data.products is an array
-            if (!Array.isArray(data.products)) {
-                console.error('Products data is not an array:', data.products);
-                return;
-            }
+            // Fetch sorted products from the server
+            fetch(`/sortProducts?sort=${sortOption}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Ensure data.products is an array
+                    if (!Array.isArray(data.products)) {
+                        console.error('Products data is not an array:', data.products);
+                        return;
+                    }
 
-            // Clear the existing product grid
-            const productGrid = document.getElementById('product-grid');
-            productGrid.innerHTML = '';
+                    // Clear the existing product grid
+                    const productGrid = document.getElementById('product-grid');
+                    productGrid.innerHTML = '';
 
-            // Populate the product grid with sorted products
-            data.products.forEach(product => {
-                const productHTML = `
-                    <div class="product-cart-wrap mb-30" style="flex: 1 1 23%; box-sizing: border-box; margin: 10px;">
-                        <div class="product-img-action-wrap">
-                            <div class="product-img product-img-zoom">
-                                <a href="/productDetails?id=${product._id}">
-                                    <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
-                                </a>
+                    // Populate the product grid with sorted products
+                    data.products.forEach(product => {
+                        const productHTML = `
+                            <div class="product-cart-wrap mb-30" style="flex: 1 1 23%; box-sizing: border-box; margin: 10px;">
+                                <div class="product-img-action-wrap">
+                                    <div class="product-img product-img-zoom">
+                                        <a href="/productDetails?id=${product._id}">
+                                            <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="product-content-wrap">
+                                    <h6>${product.productName}</h6>
+                                    <h6>₹ ${product.salePrice.toLocaleString()}</h6>
+                                    ${product.quantity === 0 ? `
+                                        <h6 style="color: red;">Out of Stock</h6>
+                                        <div class="product-action-1 show">
+                                            <button class="action-btn disabled" disabled></button>
+                                        </div>
+                                    ` : `
+                                        <h6 style="color: green;">Stocks: ${product.quantity}</h6>
+                                        <div class="product-action-1 show">
+                                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/cart?id=${product._id}">
+                                                <i class="fi-rs-shopping-bag-add"></i>
+                                            </a>
+                                            <a href="#" aria-label="Add To Wishlist" class="action-btn hover-up wishlist-btn" onclick="addToWishlist('${product._id}')">
+                                                <i class="fi-rs-heart"></i>
+                                            </a>
+                                        </div>
+                                    `}
+                                </div>
                             </div>
-                        </div>
-                        <div class="product-content-wrap">
-                            <h6>${product.productName}</h6>
-                            <h6>₹ ${product.salePrice.toLocaleString()}</h6>
-                            ${product.quantity === 0 ? `
-                                <h6 style="color: red;">Out of Stock</h6>
-                                <div class="product-action-1 show">
-                                    <button class="action-btn disabled" disabled></button>
-                                </div>
-                            ` : `
-                                <h6 style="color: green;">Stocks: ${product.quantity}</h6>
-                                <div class="product-action-1 show">
-                                    <a aria-label="Add To Cart" class="action-btn hover-up" href="/cart?id=${product._id}">
-                                        <i class="fi-rs-shopping-bag-add"></i>
-                                    </a>
-                                </div>
-                            `}
-                        </div>
-                    </div>
-                `;
-                productGrid.innerHTML += productHTML;
-            });
-        })
-        .catch(error => console.error('Error fetching sorted products:', error));
-}
+                        `;
+                        productGrid.innerHTML += productHTML;
+                    });
+                })
+                .catch(error => console.error('Error fetching sorted products:', error));
+        }
 
 
         function addToCart(productId) {
@@ -341,6 +359,102 @@
             })
             .catch(error => console.error('Error adding product to cart:', error));
         }
+        function addToWishlist(productId) {
+    console.log("Adding to wishlist:", productId);
+    fetch('/addToWishlist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: productId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error(`Server responded with error status: ${response.status}`);
+            return response.json().then(data => {
+                // Check for specific error message
+                if (data.message === 'Product already in wishlist') {
+                    throw new Error('Product already in wishlist');
+                }
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Success notification with more engaging design
+        Swal.fire({
+            title: 'Wishlist Updated!',
+            html: `
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <i class="fas fa-heart" style="color: #ff6b6b; font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>Product successfully added to your wishlist.</p>
+                    <p>You can view all your saved items in the wishlist.</p>
+                </div>
+            `,
+            icon: 'success',
+            confirmButtonText: 'Continue Shopping',
+            confirmButtonColor: '#3085d6',
+            showCancelButton: true,
+            cancelButtonText: 'View Wishlist',
+            cancelButtonColor: '#d33',
+            didClose: () => {
+                // Optional: You can add logic to redirect to wishlist or continue shopping
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Continue shopping logic
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // Redirect to wishlist page
+                window.location.href = '/getWishlist';
+            }
+        });
+
+        console.log('Product added to wishlist:', data);
+    })
+    .catch(error => {
+        if (error.message === 'Product already in wishlist') {
+            // Notification for already existing product
+            Swal.fire({
+                title: 'Oops! Duplicate Item',
+                html: `
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <i class="fas fa-heart-broken" style="color: #ffa500; font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>This product is already in your wishlist.</p>
+                        <p>Check your wishlist to view or manage your saved items.</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'View Wishlist',
+                confirmButtonColor: '#3085d6',
+                showCancelButton: true,
+                cancelButtonText: 'Continue Shopping',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to wishlist
+                    window.location.href = '/getWishlist';
+                }
+            });
+        } else {
+            // Error notification
+            Swal.fire({
+                title: 'Wishlist Error',
+                html: `
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <i class="fas fa-exclamation-triangle" style="color: #ff4500; font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>Failed to add product to wishlist.</p>
+                        <p>Please try again or contact support if the issue persists.</p>
+                    </div>
+                `,
+                icon: 'error',
+                confirmButtonText: 'Try Again',
+                confirmButtonColor: '#3085d6',
+                
+            });
+        }
+    });
+}
 
         function updateProductList(products) {
     const productsContainer = document.getElementById('product-grid');
@@ -362,7 +476,7 @@
                             </a>
                         </div>
                         <div class="product-action-1">
-                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/add-to-cart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
+                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/getCart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
                         </div>
                     </div>
                     <div class="product-content-wrap">

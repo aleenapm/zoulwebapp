@@ -8,6 +8,7 @@ const productController = require("../controllers/admin/productController");
 const orderController = require("../controllers/admin/orderController");
 const stockController = require('../controllers/admin/stockController');
 const couponController = require("../controllers/admin/couponController");
+const salesController = require("../controllers/admin/salesController");
 
 const { userAuth, adminAuth } = require("../middlewares/auth");
 const multer = require("multer");
@@ -68,8 +69,11 @@ router.post('/update-stock',adminAuth,stockController.updateStock);
 
 //coupon management
 router.get('/coupons',adminAuth,couponController.getCouponPage);
-router.post('/save-coupon',adminAuth,couponController.addCoupon);
-router.get('/delete-coupon',adminAuth,couponController.deleteCoupon);
+router.post('/saveCoupon',adminAuth,couponController.addCoupon);
+router.get('/deleteCoupon',adminAuth,couponController.deleteCoupon);
+
+//sales report
+router.get('/salesReport',adminAuth,salesController.getSalesReport);
 
 
 

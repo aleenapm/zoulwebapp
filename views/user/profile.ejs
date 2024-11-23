@@ -73,6 +73,7 @@
       font-size: 14px;
     }
 
+    
     .nav-links {
       list-style: none;
     }
@@ -237,6 +238,250 @@
   .cancel-btn:hover {
     background-color: #c9302c; 
   }
+
+  .view-details-btn {
+  background-color: #b68b40; 
+  color: white; /* White text */
+  border: none; /* Remove border */
+  padding: 8px 16px; /* Padding for a comfortable button size */
+  font-size: 14px; /* Font size */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+.view-details-btn:hover {
+  background-color: #9f762f; 
+}
+.product-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.product-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.product-item img {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+.wallet-header {
+      margin-bottom: 2rem;
+    }
+
+.wallet-card {
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 15px rgba(35, 37, 38, 0.2);
+}
+    .balance-info {
+      margin-bottom: 1.5rem;
+    }
+
+    .balance-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .balance-amount {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
+    }
+
+    .balance-date {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .wallet-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .wallet-actions .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .transactions-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .transactions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .transaction-filters {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-box input {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      width: 250px;
+      font-size: 0.9rem;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn.active {
+      background: #b68b40;
+      color: white;
+      border-color: #b68b40;
+    }
+
+    .transactions-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .transaction-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.5rem;
+    }
+
+    .transaction-table th {
+      background: #f8f9fa;
+      padding: 1rem;
+      font-weight: 500;
+      text-align: left;
+      color: #666;
+    }
+
+    .transaction-row {
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    .transaction-row:hover {
+      background: #f8f9fa;
+    }
+
+    .transaction-row td {
+      padding: 1rem;
+      border-top: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .date-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .date {
+      font-weight: 500;
+    }
+
+    .time {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .transaction-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .transaction-title {
+      font-weight: 500;
+    }
+
+    .transaction-id {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .badge.credit {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .badge.debit {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .amount {
+      font-weight: 500;
+    }
+
+    .amount.credit {
+      color: #2e7d32;
+    }
+
+    .amount.debit {
+      color: #c62828;
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .status-badge.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-badge.pending {
+      background: #fff3e0;
+      color: #ef6c00;
+    }
+  
   </style>
 </head>
 <body>
@@ -248,12 +493,12 @@
         <p class="profile-email"><%= user.email %></p>
       </div>
       <ul class="nav-links">
-        <li><button onclick="showSection('dashboard')" class="active">Dashboard</button></li>
-        <li><button onclick="showSection('address')">My Address</button></li>
-        <li><button onclick="showSection('orders')">Orders</button></li>
-        <li><button onclick="showSection('wallet')">My Wallet</button></li>
-        <li><button onclick="showSection('referrals')">Referrals</button></li>
-        <li><button onclick="showSection('logout')" class="logout-btn">Logout</button></li>
+        <li><button onclick="showSection('dashboard')" class="nav-button active">Dashboard</button></li>
+        <li><button onclick="showSection('address')" class="nav-button">My Address</button></li>
+        <li><button onclick="showSection('orders')" class="nav-button">Orders</button></li>
+        <li><button onclick="showSection('wallet')" class="nav-button">My Wallet</button></li>
+        <li><button onclick="showSection('referrals')" class="nav-button">Referrals</button></li>
+        <li><button onclick="showSection('logout')" class="nav-button logout-btn">Logout</button></li>
       </ul>
     </div>
 
@@ -312,76 +557,169 @@
       </div>
 
       <!-- Orders Section -->
-      <div id="orders" class="dashboard-section">
-        <h2 class="section-title">My Orders</h2>
-        <table class="transaction-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Total</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% orders.forEach(order => { %>
-              <tr id="order-row-<%= order._id %>">
-                  <td><%= order._id %></td>
-                  <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
-                  <td id="order-status-<%= order._id %>" class="status-<%= order.status.toLowerCase() %>"><%= order.status %></td>
-                  <td>₹ <%= order.finalAmount %></td>
-                  <td id="order-action-<%= order._id %>">
-                    <a href="/orderDetails?id=<%= order._id %>"><button>view details</button></a>
-                      <% if (order.status === 'Pending') { %>
-                          <button class="cancel-btn" onclick="confirmCancelOrder('<%= order._id %>')">Cancel</button>
-                      <% } else { %>
-                          --
-                      <% } %>
-                  </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+<div id="orders" class="dashboard-section">
+  <h2 class="section-title">My Orders</h2>
+  <table class="transaction-table">
+    <thead>
+      <tr>
+        
+        <th>Product Name</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Quantity</th>
+        <th>Payment Method</th>
+        <th>Total</th> 
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orders.forEach(order => { %>
+        <tr id="order-row-<%= order._id %>">
+          <!-- Product Names -->
+          <td colspan="1">
+            <div class="product-list">
+              <% order.orderedItems.forEach(item => { %>
+                <div class="product-item">
+                  <p><%= item.product.productName %></p>
+                </div>
+              <% }) %>
+            </div>
+          </td>
 
-      <!-- Wallet Section -->
-      <div id="wallet" class="dashboard-section">
-        <h2 class="section-title">My Wallet</h2>
-        <div class="wallet-overview">
-          <h3>Balance</h3>
-          <p class="wallet-balance">$500.00</p>
-          <div class="wallet-actions">
-            <button class="btn btn-primary">Deposit</button>
-            <button class="btn btn-outline">Withdraw</button>
+          <!-- Date -->
+          <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
+
+          <!-- Status -->
+          <td id="order-status-<%= order._id %>" class="status-<%= order.status.toLowerCase() %>">
+            <%= order.status %>
+          </td>
+
+          <!-- Quantity -->
+        <td>
+          <div>
+            <% order.orderedItems.forEach(item => { %>
+              <div><%= item.quantity %></div>
+            <% }) %>
           </div>
-        </div>
-        <h3>Transactions</h3>
-        <table class="transaction-table">
-          <thead>
-            <tr>
-              <th>Transaction ID</th>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>#67890</td>
-              <td>2024-10-10</td>
-              <td class="type-credit">Credit</td>
-              <td>$200.00</td>
-            </tr>
-            <tr>
-              <td>#67891</td>
-              <td>2024-10-12</td>
-              <td class="type-debit">Debit</td>
-              <td>$50.00</td>
-            </tr>
-          </tbody>
-        </table>
+        </td>
+        <!-- Payment Method -->
+        <td><%= order.paymentMethod %></td>
+
+          <!-- Total Amount -->
+          <td>₹ <%= order.finalAmount %></td>
+
+          <!-- Action -->
+          <td id="order-action-<%= order._id %>">
+            <a class="view-details-btn btn" style="margin-right: 5px; text-decoration: none;" href="/orderDetails?id=<%= order._id %>">
+              View Details
+            </a>
+            <% if (order.status === 'Pending') { %>
+              <button class="cancel-btn" onclick="confirmCancelOrder('<%= order._id %>')">Cancel</button>
+            <% } else { %>
+              <span></span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- Wallet Section -->
+
+<div id="wallet" class="dashboard-section">
+  <div class="wallet-header">
+    <h1>My Wallet</h1>
+    <div class="wallet-card">
+      <div class="balance-info">
+        <span class="balance-label">Available Balance</span>
+        <!-- Display balance dynamically -->
+        <h1 class="balance-amount">₹<%= walletData.balance.toFixed(2) %></h1>
+        <span class="balance-date">As of <%= new Date().toLocaleDateString() %></span>
       </div>
+      <div class="wallet-actions">
+        <button class="btn btn-primary" onclick="handleTransaction('deposit')">
+          <i class="fas fa-plus-circle"></i> Add Money
+        </button>
+        <button class="btn btn-outline" onclick="handleTransaction('withdraw')">
+          <i class="fas fa-minus-circle"></i> Withdraw
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="transactions-section">
+    <div class="transactions-header">
+      <h3>Transaction History</h3>
+      <div class="transaction-filters">
+        <div class="search-box">
+          <input type="text" id="searchTransaction" placeholder="Search transactions..." onkeyup="filterTransactions()">
+        </div>
+        <div class="filter-buttons">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="credit">Credit</button>
+          <button class="filter-btn" data-filter="debit">Debit</button>
+          <button class="filter-btn" data-filter="refund">Refund</button> <!-- Added Refund filter -->
+        </div>
+      </div>
+    </div>
+
+    <div class="transactions-table-wrapper">
+      <table class="transaction-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Render transactions dynamically -->
+          <% walletData.transactions.forEach(transaction => { %>
+          <tr class="transaction-row <%= transaction.type %>">
+            <td>
+              <div class="date-group">
+                <span class="date"><%= new Date(transaction.date).toLocaleDateString() %></span>
+              </div>
+            </td>
+            <td>
+              <div class="transaction-info">
+                <% if (transaction.orderId && transaction.orderId.orderedItems.length) { %>
+                  <% transaction.orderId.orderedItems.forEach(item => { %>
+                    <span class="transaction-title"><%= item.product.productName %></span><br> <!-- Corrected to item.product.name -->
+                  <% }); %>
+                <% } else { %>
+                  <span class="transaction-title">No Product Available</span>
+                <% } %>
+              </div>
+            </td>
+            <td>
+              <span class="badge <%= transaction.type %>">
+                <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
+              </span>
+            </td>
+            <td class="amount <%= transaction.type %>">
+              <%= (transaction.type === 'credit' || transaction.type === 'refund') ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
+            </td>
+            <td>
+              <!-- Add dynamic status for "Refund" if applicable -->
+              <span class="status-badge <%= transaction.status === 'Refunded' ? 'warning' : 'success' %>">
+                <%= transaction.status === 'Refunded' ? 'Refunded' : 'Completed' %>
+              </span>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
 
       <!-- Referrals Section -->
       <div id="referrals" class="dashboard-section">
@@ -485,7 +823,7 @@
     if (result.isConfirmed) {
         try {
             // Make the server request to cancel the order
-            const response = await fetch('/cancel-order', {
+            const response = await fetch('/cancelOrder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -493,21 +831,22 @@
                 body: JSON.stringify({ orderId: orderId }),
             });
 
-            const data = await response.json();  // Get the response JSON
+            const data = await response.json();
 
-            if (data.message === 'Order cancelled successfully') {
+            if (data.message.includes('successfully')) {
                 Swal.fire(
                     'Cancelled!',
                     `Order ${orderId} has been cancelled.`,
                     'success'
-                ).then(()=>{
-                  location.reload();
-                })
-                 // Reload the page to reflect changes
+                ).then(() => {
+                    // Update the UI after successful cancellation
+                    document.getElementById(`order-status-${orderId}`).innerText = 'Cancelled';
+                    document.getElementById(`order-action-${orderId}`).innerHTML = '<span>Cancelled</span>';
+                });
             } else {
                 Swal.fire(
                     'Error!',
-                    'Something went wrong while cancelling the order.',
+                    data.message || 'Something went wrong while cancelling the order.',
                     'error'
                 );
             }
@@ -521,6 +860,72 @@
         }
     }
 }
+// Add this to your existing script section
+document.addEventListener('DOMContentLoaded', function() {
+      // Filter buttons functionality
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const transactionRows = document.querySelectorAll('.transaction-row');
+
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          button.classList.add('active');
+
+          const filterValue = button.getAttribute('data-filter');
+
+          transactionRows.forEach(row => {
+            if (filterValue === 'all') {
+              row.style.display = '';
+            } else {
+              row.style.display = row.classList.contains(filterValue) ? '' : 'none';
+            }
+          });
+        });
+      });
+    });
+
+    function filterTransactions() {
+      const searchInput = document.getElementById('searchTransaction');
+      const filter = searchInput.value.toLowerCase();
+      const rows = document.querySelectorAll('.transaction-row');
+
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+      });
+    }
+
+    function handleTransaction(type) {
+      Swal.fire({
+        title: type === 'deposit' ? 'Add Money' : 'Withdraw',
+        input: 'number',
+        inputLabel: 'Amount',
+        inputPlaceholder: 'Enter amount',
+        showCancelButton: true,
+        confirmButtonColor: '#b68b40',
+        cancelButtonColor: '#d33',
+        confirmButtonText: type === 'deposit' ? 'Add' : 'Withdraw',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Please enter an amount!';
+          }
+          if (value <= 0) {
+            return 'Amount must be greater than 0!';
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Here you would typically make an API call to process the transaction
+          Swal.fire(
+            'Success!',
+            `${type === 'deposit' ? 'Money added' : 'Withdrawal processed'} successfully!`,
+            'success'
+          );
+        }
+      });
+    }
 
   </script>
 </body>

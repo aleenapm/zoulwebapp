@@ -7,6 +7,10 @@ const profileController = require("../controllers/user/profileController");
 const cartController = require("../controllers/user/cartController");
 const sortController = require("../controllers/user/sortController");
 const orderController = require("../controllers/user/orderController");
+const couponController = require("../controllers/user/couponController");
+const wishlistController = require("../controllers/user/wishlistController");
+const paymentController = require("../controllers/user/paymentController");
+
 
 const { userAuth } = require("../middlewares/auth");
 const User = require("../models/userSchema");
@@ -85,10 +89,25 @@ router.post("/updateCartQuantity", cartController.updateQuantity);
 router.post("/removeProduct", userAuth, cartController.removeProduct);
 
 //order management
-router.get("/order/:orderId", userAuth, orderController.getOrder); 
+router.get("/order", userAuth, orderController.getOrder); 
 router.post("/createOrder", userAuth, orderController.createOrder); 
 router.get("/api/user/orders", orderController.getUserOrders);
-router.post("/cancel-order", userAuth, orderController.cancelOrder);
+router.post("/cancelOrder", userAuth, orderController.cancelOrder);
 router.get("/orderDetails",userAuth,orderController.orderDetails);
+
+
+//coupon management
+router.get('/couponList',couponController.getCouponList);
+router.post('/applyCoupon', couponController.applyCoupon);
+router.post('/removeCoupon', couponController.removeCoupon);
+
+//wishlist
+router.get('/getWishlist', wishlistController.getWishList);
+router.post('/addToWishlist', wishlistController.addToWishlist);
+router.post('/removeWishlistItem', wishlistController.removeItem);
+
+//payment 
+router.post('/createRazorpay',paymentController.createRazorpay);
+
 
 module.exports = router;

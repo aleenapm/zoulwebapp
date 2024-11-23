@@ -1,0 +1,329 @@
+<%- include('../partials/user/header') %>
+
+<main class="main">
+    <section class="coupons-section">
+        <div class="container">
+            <!-- <a href="/checkout" class="return-link">
+                <span class="return-icon">←</span>
+                Return to checkout
+            </a> -->
+
+            <div class="coupons-header">
+                <h2 class="section-title">Premium Offers</h2>
+                <div class="title-decoration">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <p class="subtitle">Exclusive Savings Await You</p>
+            </div>
+
+            <% if (coupons && coupons.length > 0) { %>
+                <div class="coupons-grid">
+                    <% coupons.forEach((coupon) => { %>
+                        <div class="coupon-card">
+                            <div class="coupon-pattern"></div>
+                            <div class="discount-badge">
+                                <span class="discount-amount"><%= coupon.offerPercentage %>%</span>
+                                <span class="discount-label">OFF</span>
+                            </div>
+                            <div class="coupon-content">
+                                <div class="coupon-code">
+                                    <span class="code-label">PREMIUM CODE</span>
+                                    <span class="code-value"><%= coupon.name %></span>
+                                </div>
+                                <div class="coupon-details">
+                                    <p class="min-purchase">Min. Purchase: ₹<%= coupon.minimumPrice.toLocaleString() %></p>
+                                    <p class="expiry">Valid till <%= coupon.expireOn.toLocaleDateString() %></p>
+                                </div>
+                                <button class="copy-btn" onclick="copyCode('<%= coupon.name %>')">
+                                    Copy Code
+                                </button>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="no-coupons">
+                    <div class="empty-illustration">
+                        <div class="empty-icon">🎫</div>
+                    </div>
+                    <h3>No Active Coupons</h3>
+                    <p>Check back later for exclusive deals!</p>
+                </div>
+            <% } %>
+        </div>
+    </section>
+</main>
+
+<style>
+    :root {
+        --primary-color: #b68b40;
+        --secondary-color: #8b6b2f;
+        --accent-color: #d4af37;
+        --background-color: #faf7f2;
+        --card-background: #ffffff;
+        --text-primary: #2c1810;
+        --text-secondary: #5c4d3c;
+        --border-color: #e8d5b5;
+    }
+
+    .coupons-section {
+        background-color: var(--background-color);
+        background-image: linear-gradient(45deg, rgba(182, 139, 64, 0.05) 25%, transparent 25%),
+                          linear-gradient(-45deg, rgba(182, 139, 64, 0.05) 25%, transparent 25%),
+                          linear-gradient(45deg, transparent 75%, rgba(182, 139, 64, 0.05) 75%),
+                          linear-gradient(-45deg, transparent 75%, rgba(182, 139, 64, 0.05) 75%);
+        background-size: 20px 20px;
+        padding: 3rem 0;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .return-link {
+        display: inline-flex;
+        align-items: center;
+        color: var(--primary-color);
+        text-decoration: none;
+        margin-bottom: 2rem;
+        transition: color 0.3s ease;
+        font-weight: 500;
+    }
+
+    .return-icon {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .return-link:hover {
+        color: var(--secondary-color);
+    }
+
+    .coupons-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 700;
+    }
+
+    .title-decoration {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+
+    .title-decoration span {
+        width: 50px;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 2px;
+    }
+
+    .title-decoration span:nth-child(2) {
+        width: 30px;
+        background: var(--accent-color);
+    }
+
+    .subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .coupons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 1rem;
+    }
+
+    .coupon-card {
+        background: var(--card-background);
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(182, 139, 64, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--border-color);
+    }
+
+    .coupon-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(182, 139, 64, 0.2);
+    }
+
+    .coupon-pattern {
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        position: relative;
+        overflow: hidden;
+    }
+
+    .coupon-pattern::after {
+        content: '';
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.1) 10px,
+            transparent 10px,
+            transparent 20px
+        );
+        animation: patternMove 20s linear infinite;
+    }
+
+    @keyframes patternMove {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .discount-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: var(--card-background);
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(182, 139, 64, 0.2);
+        border: 2px solid var(--primary-color);
+    }
+
+    .discount-amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        line-height: 1;
+    }
+
+    .discount-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .coupon-content {
+        padding: 2rem;
+    }
+
+    .coupon-code {
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed var(--border-color);
+    }
+
+    .code-label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+        font-weight: 500;
+    }
+
+    .code-value {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        letter-spacing: 2px;
+    }
+
+    .coupon-details p {
+        margin: 0.5rem 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .copy-btn {
+        width: 100%;
+        padding: 0.8rem;
+        margin-top: 1.5rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .copy-btn:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    .no-coupons {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-illustration {
+        margin-bottom: 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        animation: float 3s ease-in-out infinite;
+        color: var(--primary-color);
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 2rem;
+        }
+        
+        .coupons-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .coupon-card {
+            margin: 0 1rem;
+        }
+    }
+</style>
+
+<script>
+function copyCode(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.background = '#8b6b2f';
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '';
+        }, 2000);
+    });
+}
+</script>
+
+<%- include('../partials/user/footer') %>

@@ -16,6 +16,7 @@ const loadOrders = async (req, res) => {
                 .populate('user', 'name email')
                 .populate('address')
                 .populate("orderedItems.product")
+                .sort({ createdOn: -1 })
                 .skip(skip)
                 .limit(limit)
                 .exec();

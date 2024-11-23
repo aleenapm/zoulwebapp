@@ -50,7 +50,7 @@
         <div class="container">
             <!-- Return to Orders Link -->
             <div class="return-link mb-4">
-                <a href="/order" class="text-muted"><i class="fi-rs-angle-left"></i> Return to Orders</a>
+                <a href="/userProfile#orders" class="text-muted"><i class="fi-rs-angle-left"></i> Return to Orders</a>
             </div>
 
             <!-- Store and Order Summary -->
@@ -126,14 +126,13 @@
             <div class="order-summary card">
                 <div class="card-body d-flex justify-content-between">
                     <div class="shipping-details">
-                        <h6>Shipping Details</h6>
+                        <h6>Shipping Details</h6><hr>
                         <% if (address && address.length > 0) { %>
                             <% address.forEach(function(addr) { %>
                                 <p><%= addr.name %></p>
                                 <p><%= addr.addressType %>, <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %></p>
                                 <p>Phone: <%= addr.phone %></p>
                                 <p>Alt Phone: <%= addr.altPhone %></p>
-                                <hr>
                             <% }); %>
                         <% } else { %>
                             <p>No shipping address available.</p>
@@ -141,14 +140,14 @@
                     </div>
 
                     <div class="payment-method text-center">
-                        <h6>Payment Method</h6><br>
+                        <h6>Payment Method</h6> <hr>
                         <p><strong>
                             <%= orders.paymentMethod %>
                         </strong></p>
                     </div>
 
                     <div class="order-summary-details">
-                        <h6>Order Summary</h6>
+                        <h6>Order Summary</h6> <hr>
                         <p>Subtotal: ₹<%= orders.totalPrice.toLocaleString() %></p>
                         <p>Discount: ₹<%= orders.discount.toLocaleString() %></p>
                         <hr>

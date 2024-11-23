@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
-const productSchema = new Schema({
+const wishlistSchema = new Schema({
     userId:{
         type:Schema.Types.ObjectId,
         ref:"User",

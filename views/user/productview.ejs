@@ -216,7 +216,7 @@
                                     </form>
                                 </div><br>
                                 <div class="product-extra-link2">
-                                    <button type="submit" class="btn btn-success" style="width: 200px;">Buy Now</button>
+                                    <button type="submit" class="btn btn-success" style="width: 200px;" onclick="redirectToCheckout('<%= product._id %>')" >Buy Now</button>
                                 </div>
                             </div>
 
@@ -254,6 +254,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+        function redirectToCheckout(productId) {
+            const quantity = document.getElementById('product-qty').value;
+            const url = `/checkout?id=${productId}&quantity=${quantity}`;
+            window.location.href = url;
+        }
         function updateQuantity(change) {
             const qtyInput = document.getElementById('product-qty');
             const maxStockQty = parseInt(qtyInput.getAttribute('data-max-qty')) || 0;

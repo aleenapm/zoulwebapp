@@ -4,9 +4,10 @@ const Coupon = require('../../models/couponSchema');
 const getCouponPage = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 4;
+        const limit = 7;
 
         const coupons = await Coupon.find()
+            .sort({ createdOn: -1 })
             .limit(limit)
             .skip((page - 1) * limit)
             .exec();

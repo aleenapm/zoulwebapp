@@ -7,14 +7,14 @@
                 <h2 class="content-title card-title">Coupons</h2>
             </div>
             <div>
-                <input type="text" placeholder="Search Coupons" class="form-control bg-white">
+                <input type="text" id="searchInput" placeholder="Search Coupons" class="form-control bg-white">
             </div>
         </div>
         <div class="card">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
-                        <form action="/admin/save-coupon" method="post" onsubmit="return validateCouponForm()">
+                        <form action="/admin/saveCoupon" method="post" onsubmit="return validateCouponForm()">
                             <div class="mb-4">
                                 <label for="couponCode" class="form-label">Coupon Code</label>
                                 <input type="text" placeholder="Type here" class="form-control" id="couponCode"
@@ -82,71 +82,75 @@
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="couponTableBody">
                                         <%for(let i=0;i<coupons.length;i++){%>
-                                            <tr>
-                                                <td>
-                                                    <%=coupons[i].name%>
-                                                </td>
-                                                <td>
-                                                    <%=coupons[i].offerPercentage%>
-                                                </td>
-                                                <td>
-                                                    <%= coupons[i].createdOn.toLocaleDateString() %>
-                                                </td>
-                                                <td>
-                                                    <%= coupons[i].expireOn.toLocaleDateString() %>
-                                                </td>
-                                                <td>
-                                                    <%= coupons[i].minimumPrice %>
-                                                </td>
-                                                <td>
-                                                    <%= coupons[i].maximumPrice %>
-                                                </td>
-                                                <%if(coupons[i].isList){%>
-                                                    <td>
-                                                        <span class="badge rounded-pill alert-success">Active</span>
-                                                    </td>
-                                                    <%}else{%>
-                                                        <td>
-                                                            <span
-                                                                class="badge rounded-pill alert-danger">Inactive</span>
-                                                        </td>
-                                                        <%}%>
-                                                            <td>
-                                                                <button class="btn btn-danger text-white"
-                                                                    onclick="confirmDelete('<%= coupons[i]._id %>')">Delete</button>
-                                                            </td>
-                                            </tr>
+                                        <tr class="coupon-row">
+                                            <td><%=coupons[i].name%></td>
+                                            <td><%=coupons[i].offerPercentage%></td>
+                                            <td><%= coupons[i].createdOn.toLocaleDateString() %></td>
+                                            <td><%= coupons[i].expireOn.toLocaleDateString() %></td>
+                                            <td><%= coupons[i].minimumPrice %></td>
+                                            <td><%= coupons[i].maximumPrice %></td>
+                                            <%if(coupons[i].isList){%>
+                                            <td><span class="badge rounded-pill alert-success">Active</span></td>
+                                            <%}else{%>
+                                            <td><span class="badge rounded-pill alert-danger">Inactive</span></td>
                                             <%}%>
+                                            <td><button class="btn btn-danger text-white" onclick="confirmDelete('<%= coupons[i]._id %>')">Delete</button></td>
+                                        </tr>
+                                        <%}%>
                                     </tbody>
+                                    
                                 </table>
                                 <%}else{%>
                                     <h3>No coupons added yet.</h3>
                                     <%}%>
                         </div>
+                        
                     </div> <!-- .col// -->
+                    <div class="pagination-area mt-30 mb-50">
+                        <nav aria-label="Page navigation example justify-content-center">
+                            <ul class="pagination justify-content-center">
+                                <% for (let i=1; i <=totalPages; i++) { %>
+                                    <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                    <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                    
                 </div> <!-- .row // -->
             </div> <!-- card body .// -->
         </div> <!-- card .// -->
     </section> <!-- content-main end// -->
 
-    <div class="pagination-area mt-30 mb-50">
-        <nav aria-label="Page navigation example justify-content-center">
-            <ul class="pagination justify-content-center">
-                <% for (let i=1; i <=totalPages; i++) { %>
-                    <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>">
-                            <%= i %>
-                        </a>
-                    </li>
-                    <% } %>
-            </ul>
-        </nav>
-    </div>
+    
     <br>
 
     <script>
+
+        const searchInput = document.getElementById("searchInput");
+        const tableBody = document.getElementById("couponTableBody");
+
+        searchInput.addEventListener("input", function () {
+            const filter = searchInput.value.toUpperCase();
+            const rows = tableBody.getElementsByClassName("coupon-row");
+
+            for (let i = 0; i < rows.length; i++) {
+                const couponCodeCell = rows[i].getElementsByTagName("td")[0];
+                if (couponCodeCell) {
+                    const couponCode = couponCodeCell.textContent || couponCodeCell.innerText;
+                    if (couponCode.toUpperCase().indexOf(filter) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
+            }
+        });
 
         function confirmDelete(couponId) {
             Swal.fire({
@@ -159,7 +163,7 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = `/admin/delete-coupon?id=${couponId}`;
+                    window.location.href = `/admin/deleteCoupon?id=${couponId}`;
                 }
             });
         }

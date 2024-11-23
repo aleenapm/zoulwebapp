@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user;
-        const cart = await Cart.findOne({ userId: userId }).populate('items.productId');
+        const cart = await Cart.findOne({ userId: userId }).populate('items.productId').sort({ createdOn: -1 });;
         return res.render("cart", { cart: cart ? cart.items : [] });
     } catch (error) {
         console.log("Cart page not loading:", error);
@@ -34,29 +34,60 @@ const loadCheckout = async (req, res) => {
         let totalPriceAfterDiscount = 0; 
 
         if (req.query.id) {
+            // Single product checkout
+            const quantity = req.query.quantity || 1;
             const product = await Product.findById(req.query.id);
             if (!product) {
                 return res.redirect('/page-not-found');
             }
-            subtotal = product.salePrice;
 
-            discount = 0; 
+            subtotal = product.salePrice * quantity;
+
+            // Apply discount calculation here if any coupon is used
+            discount = 0; // Set your discount here if needed
             totalPriceAfterDiscount = subtotal - discount;
 
-            return res.render('checkout', { cart: null, product, address: addresses, subtotal, discount, totalPriceAfterDiscount });
+            return res.render('checkout', {
+                cart: null,
+                product,
+                quantity,
+                address: addresses,
+                subtotal,
+                discount,
+                totalPriceAfterDiscount,
+                products: []
+            });
         } else {
+            // Cart-based checkout
             const cartItems = await Cart.findOne({ userId: user }).populate('items.productId');
-            if (!cartItems) {
-                return res.render('checkout', { cart: null, products: [], address: addresses, subtotal, discount, totalPriceAfterDiscount, product: null });
+            if (!cartItems || !cartItems.items.length) {
+                return res.render('checkout', {
+                    cart: null,
+                    products: [],
+                    address: addresses,
+                    subtotal,
+                    discount,
+                    totalPriceAfterDiscount,
+                    product: null
+                });
             }
 
             subtotal = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0);
             products = cartItems.items;
 
-            discount = 0; 
+            // Apply discount calculation here if any coupon is used
+            discount = 0; // Set your discount here if needed
             totalPriceAfterDiscount = subtotal - discount;
 
-            return res.render('checkout', { cart: cartItems, products, address: addresses, subtotal, discount, totalPriceAfterDiscount, product: null });
+            return res.render('checkout', {
+                cart: cartItems,
+                products,
+                address: addresses,
+                subtotal,
+                discount,
+                totalPriceAfterDiscount,
+                product: null
+            });
         }
     } catch (error) {
         console.error("Error loading checkout page:", error);
@@ -65,11 +96,13 @@ const loadCheckout = async (req, res) => {
 };
 
 
+
 const addToCart = async (req, res) => {
     try {
         const userId = req.session.user;
 
         const productId = req.body.id || req.query.id;
+        console.log("cart:",productId);
 
         if (!userId) {
             return res.status(401).json({ message: 'Please log in to add products to the cart.' });
