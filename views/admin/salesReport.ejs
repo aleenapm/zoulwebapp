@@ -1,654 +1,478 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Sales Analytics</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --success: #059669;
-            --danger: #dc2626;
-            --warning: #d97706;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
-        }
+<%- include('../partials/admin/header') %>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="text-primary">Sales Report</h2>
+            <div class="export-buttons">
+                <button class="btn btn-primary me-2" onclick="previewPDF()">
+                    <i class="material-icons md-file_download"></i> Preview PDF
+                </button>
 
-        body {
-            background-color: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-
-        main {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding: 1.5rem 2rem;
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .filters-card {
-            grid-column: span 12;
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .filter-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        select, input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.875rem;
-            color: var(--text-primary);
-            background-color: var(--surface);
-            transition: all 0.2s;
-        }
-
-        select:focus, input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .metric-card {
-            grid-column: span 3;
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .metric-title {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .metric-icon {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--primary);
-        }
-
-        .metric-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-trend {
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            width: fit-content;
-        }
-
-        .trend-up {
-            background: rgba(5, 150, 105, 0.1);
-            color: var(--success);
-        }
-
-        .trend-down {
-            background: rgba(220, 38, 38, 0.1);
-            color: var(--danger);
-        }
-
-        .chart-card {
-            grid-column: span 8;
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .stats-card {
-            grid-column: span 4;
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .data-card {
-            grid-column: span 12;
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        .data-table th {
-            background: var(--background);
-            padding: 1rem;
-            font-weight: 600;
-            text-align: left;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .data-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .data-table tr:hover {
-            background: var(--background);
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: var(--background);
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-completed {
-            background: rgba(5, 150, 105, 0.1);
-            color: var(--success);
-        }
-
-        .status-pending {
-            background: rgba(217, 119, 6, 0.1);
-            color: var(--warning);
-        }
-
-        .chart-container {
-            height: 300px;
-            margin-top: 1rem;
-        }
-
-        .stats-list {
-            list-style: none;
-        }
-
-        .stats-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .stats-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .stats-value {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        @media (max-width: 1200px) {
-            .metric-card {
-                grid-column: span 6;
-            }
-            .chart-card {
-                grid-column: span 12;
-            }
-            .stats-card {
-                grid-column: span 12;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .metric-card {
-                grid-column: span 12;
-            }
-            .filter-form {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <%- include("../../views/partials/admin/header") %>
-
-    <main>
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Sale Analytics</h1>
-                <p class="page-subtitle">Comprehensive sales performance insights</p>
+                <button class="btn btn-primary me-2" onclick="exportToPDF()">
+                    <i class="material-icons md-file_download"></i> Export PDF
+                </button>
+                <button class="btn btn-success" onclick="exportToExcel()">
+                    <i class="material-icons md-file_download"></i> Export Excel
+                </button>
             </div>
-            <button class="btn btn-primary">
-                <i class="fas fa-file-export"></i>
-                Generate Report
-            </button>
         </div>
 
-        <div class="dashboard-grid">
-            <section class="filters-card">
-                <form class="filter-form">
-                    <div class="form-group">
-                        <label class="form-label" for="dateRange">Time Period</label>
-                        <select id="dateRange" name="dateRange">
-                            <option value="today" selected>Today</option>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                        </select>
-                    </div>
-            
-                    
-                    <div class="form-group mb-4">
-                        <label for="startDate" class="form-label">Start Date:</label>
-                        <input type="date" id="startDate" name="startDate" class="form-control">
-                    </div>
-            
-                    <div class="form-group mb-4">
-                        <label for="endDate" class="form-label">End Date:</label>
-                        <input type="date" id="endDate" name="endDate" class="form-control">
-                    </div>
-                </form>
-            </section>
-            
-
-            <div class="metric-card">
-                <div class="metric-title">
-                    <div class="metric-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    Total Sales
-                </div>
-                <div class="metric-value">₹<%= totalOrderAmount %></div>    
-                
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-title">
-                    <div class="metric-icon">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    Total Discounts
-                </div>
-                <div class="metric-value">₹<%= totalDiscounts %></div>
-               
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-title">
-                    <div class="metric-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    Net Revenue
-                </div>
-                <div class="metric-value">₹<%= netSales %></div>
-                
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-title">
-                    <div class="metric-icon">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </div>
-                    Total Orders
-                </div>
-                <div class="metric-value"><%= totalSalesCount %></div>
-                
-            </div>
-
-            
-            
-
-            <section class="data-card">
-                <div class="card-header">
-                    <h2 class="card-title">Recent Transactions</h2>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary" onclick="exportData('csv')">
-                            <i class="fas fa-file-csv"></i>
-                            Export CSV
-                        </button>
-                        <button class="btn btn-secondary" onclick="exportData('excel')">
-                            <i class="fas fa-file-excel"></i>
-                            Export Excel
-                        </button>
-                        <button class="btn btn-secondary" onclick="exportData('pdf')">
-                            <i class="fas fa-file-pdf"></i>
-                            Export PDF
+        <div id="pdfPreviewModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">PDF Preview</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
+                    <div class="modal-body">
+                        <canvas id="pdfCanvas"></canvas> <!-- Canvas for PDF rendering -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
-                
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
+            </div>
+        </div>
+
+        <!-- Date Filter Options -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <select class="form-select w-auto" name="dateRange" id="dateRangeSelect" aria-label="Select Date Range">
+                <option value="">Select Date Range</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+            </select>
+
+            <form class="d-flex align-items-center gap-2">
+                <label for="startDate" class="form-label me-2">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" class="form-control w-auto">
+                <label for="endDate" class="form-label me-2">End Date:</label>
+                <input type="date" id="endDate" name="endDate" class="form-control w-auto">
+            </form>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Sales</h6>
+                        <h3 class="text-primary">₹45,000</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Orders</h6>
+                        <h3 class="text-success">
+                            <%= count %>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Discount</h6>
+                        <h3 class="text-warning">₹5,000</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Customers</h6>
+                        <h3 class="text-info">85</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Report Table -->
+        <div class="table-responsive shadow-sm">
+            <table class="table table-hover align-middle text-center" id="salesTable">
+                <thead class="table-primary text-uppercase">
+                    <tr>
+                        <th>Sl No</th>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Products</th>
+                        <th>Quantity</th>
+                        <th>Date</th>
+                        <th>Total Price</th>
+                        <th>Coupon Code</th>
+                        <th>Coupon Amount</th>
+                        <th>Final Amount</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% let k=1; %>
+                        <% for (let i=orders.length - 1; i>= 0; i--) { %>
                             <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Product</th>
-                                <th>Original Amount</th>
-                                <th>Discount</th>
-                                <th>Final Amount</th>
-                                <th>Status</th>
+                                <td>
+                                    <%= k++ %>
+                                </td>
+                                <td data-customer-id="<%= orders[i].user%>">
+                                    <%= orders[i].user.name %>
+                                </td>
+
+                                <td>
+                                    <%= orders[i].user.email %>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <% orders[i].orderedItems.forEach(item=> { %>
+                                            <li>
+                                                <%= item.product.productName %>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <% orders[i].orderedItems.forEach(item=> { %>
+                                            <li>
+                                                <%= item.quantity %>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <%= orders[i].createdOn.toLocaleDateString() %>
+                                </td>
+                                <td>₹<%= orders[i].totalPrice.toLocaleString() %>
+                                </td>
+                                <td>
+                                    <%= orders[i].couponCode %>
+                                </td>
+                                <td>₹<%= orders[i].discount.toLocaleString() %>
+                                </td>
+                                <td>₹<%= orders[i].finalAmount.toLocaleString() %>
+                                </td>
+                                <td>
+                                    <%= orders[i].paymentMethod %>
+                                </td>
+                                <td>
+                                    <%= orders[i].status %>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <% salesData.forEach(order => { %>
-                                <tr>
-                                    <td><%= order.orderId %></td>
-                                    <td>
-                                        <%= new Date(order.createdOn).toLocaleDateString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'short', 
-                                            day: 'numeric',
-                                        }) %>
-                                    </td>
-                                    <td><%= order.user.name %></td>                                    
-                                    <td>
-                                        <% order.orderedItems.forEach(item => { %>
-                                          <div><%= item.product.productName %></div> <!-- Display the product category -->
-                                        <% }) %>
-                                      </td>
-                                    <td>₹<%= order.totalPrice %></td>
-                                    <td>₹<%= order.discount.toLocaleString() %></td>
-                                    <td>₹<%= order.finalAmount.toLocaleString() %></td>
-                                    <td>
-                                        <span class="status-badge status-<%= order.status.toLowerCase() %>">
-                                            <%= order.status %>
-                                        </span>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-
-                <br>
-
-                <!-- <div class="pagination" style="padding: 10px 20;">
-                    <button class="btn btn-secondary" disabled>
-                        <i class="fas fa-chevron-left"></i>
-                        Previous
-                    </button>
-                    <span class="page-info">Page 1 of 10</span>
-                    <button class="btn btn-secondary">
-                        Next
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div> -->
-            </section>
+                            <% } %>
+                </tbody>
+            </table>
         </div>
-    </main>
+        <div class="pagination-area my-4">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <% for(let i=1;i<=totalPages;i++){ %>
+                        <li class="page-item <%= (i===page) ? 'active' : '' %>">
+                            <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
+                                <%= i %>
+                            </a>
 
-    <%- include("../../views/partials/admin/footer") %>
 
+                        </li>
+                        <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
     <script>
-        // Initialize Charts
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Revenue',
-                    data: [30000, 35000, 32000, 38000, 42000, 45000],
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+        async function previewPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+
+            const logoURL = '/zoul-frontend/assets/imgs/theme/logo.png';
+            doc.addImage(logoURL, 'PNG', 15, 10, 40, 40);
+            doc.setFontSize(16);
+            doc.text('Sales Report', 70, 30);
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 70, 45);
+
+            doc.autoTable({
+                html: '#salesTable',
+                startY: 60,
+                theme: 'grid',
+                headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontSize: 8 },
+                bodyStyles: { fontSize: 8, cellPadding: 3, minCellWidth: 45 },
+                styles: { overflow: 'linebreak', valign: 'middle', halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 30, halign: 'center' },
+                    1: { cellWidth: 50, halign: 'left' },
+                    2: { cellWidth: 40, halign: 'left' },
+                    3: { cellWidth: 40, halign: 'center' },
+                    4: { cellWidth: 40, halign: 'center' },
+                    5: { cellWidth: 40, halign: 'right' },
+                    6: { cellWidth: 40, halign: 'center' },
+                    7: { cellWidth: 40, halign: 'center' },
+                    8: { cellWidth: 40, halign: 'center' },
+                    9: { cellWidth: 40, halign: 'center' },
+                    10: { cellWidth: 40, halign: 'center' },
+                    11: { cellWidth: 40, halign: 'center' }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            borderDash: [2],
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
+                didParseCell: function (data) {
+                    if (!data.cell.text || data.cell.text.length === 0) {
+                        data.cell.text = '-';
+                        return;
+                    }
+                 
+                },
+
+                willDrawCell: function (data) {
+                    if (data.cell.text.length > 20) {
+                        data.cell.styles.fontSize = 4;
                     }
                 }
+            });
+
+            const pdfBlob = doc.output('blob');
+            showPDFPreview(pdfBlob);
+        }
+        async function showPDFPreview(pdfBlob) {
+            try {
+                const pdfCanvas = document.getElementById('pdfCanvas');
+                const pdfCtx = pdfCanvas.getContext('2d');
+
+                const pdfData = await pdfBlob.arrayBuffer();
+                const pdfDocument = await pdfjsLib.getDocument({ data: pdfData }).promise;
+                const page = await pdfDocument.getPage(1);
+
+                const viewport = page.getViewport({ scale: 1.3 });
+                pdfCanvas.width = viewport.width;
+                pdfCanvas.height = viewport.height;
+
+                await page.render({
+                    canvasContext: pdfCtx,
+                    viewport: viewport,
+                }).promise;
+
+                $('#pdfPreviewModal').modal('show');
+            } catch (error) {
+                console.error('Error showing PDF preview:', error);
+                alert('Failed to load PDF preview. Please try again.');
             }
-        });
-
-        // Date Range Picker
-        document.getElementById('dateRange').addEventListener('change', function() {
-            const customInputs = document.querySelectorAll('.custom-date-input');
-            customInputs.forEach(input => {
-                input.style.display = this.value === 'custom' ? 'block' : 'none';
-            });
-        });
-
-        // Export Functions
-        function exportData(format) {
-            const dateRange = document.getElementById('dateRange').value;
-            const region = document.getElementById('region').value;
-            const product = document.getElementById('product').value;
-
-            const params = new URLSearchParams({
-                format,
-                dateRange,
-                region,
-                product
-            });
-
-            window.location.href = `/api/sales/export?${params.toString()}`;
         }
 
-        // Real-time Updates
-        function initializeWebSocket() {
-            const ws = new WebSocket('wss://your-websocket-server');
 
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                updateMetrics(data);
-            };
-
-            ws.onerror = function(error) {
-                console.error('WebSocket Error:', error);
-            };
-
-            ws.onclose = function() {
-                setTimeout(initializeWebSocket, 5000);
-            };
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            doc.save('sales-report.pdf');
         }
 
-        function updateMetrics(data) {
-            // Update metrics in real-time
-            document.querySelectorAll('.metric-value').forEach(metric => {
-                const key = metric.dataset.key;
-                if (data[key]) {
-                    metric.textContent = formatValue(data[key]);
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            const logoURL = '/zoul-frontend/assets/imgs/theme/logo.png';
+            doc.addImage(logoURL, 'PNG', 15, 10, 40, 40);
+            doc.setFontSize(16);
+            doc.text('Sales Report', 70, 30);
+            doc.setFontSize(10);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 70, 45);
+
+            const rupeeSymbol = '₹';
+            doc.setFont('CustomFont', 'normal');
+
+            doc.autoTable({
+                html: '#salesTable',
+                startY: 60,
+                theme: 'grid',
+                headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontSize: 8 },
+                bodyStyles: { fontSize: 6, cellPadding: 3, minCellWidth: 50 },
+                styles: { overflow: 'linebreak', valign: 'middle', halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 30, halign: 'center' },
+                    1: { cellWidth: 50, halign: 'left' },
+                    2: { cellWidth: 40, halign: 'left' },
+                    3: { cellWidth: 40, halign: 'center' },
+                    4: { cellWidth: 40, halign: 'center' },
+                    5: { cellWidth: 40, halign: 'right' },
+                    6: { cellWidth: 40, halign: 'center' },
+                    7: { cellWidth: 40, halign: 'center' },
+                    8: { cellWidth: 40, halign: 'center' },
+                    9: { cellWidth: 40, halign: 'center' },
+                    10: { cellWidth: 40, halign: 'center' },
+                    11: { cellWidth: 40, halign: 'center' }
+                },
+                didParseCell: function (data) {
+                    if (data.cell.text === undefined || data.cell.text === null) {
+                        data.cell.text = '';
+                    }
+
+                },
+                willDrawCell: function (data) {
+                    if (data.cell.text.length > 20) {
+                        data.cell.styles.fontSize = 5;
+                    }
                 }
             });
+
+            // Save the PDF
+            doc.save('sales-report.pdf');
         }
 
-        function formatValue(value) {
-            return typeof value === 'number' 
-                ? value.toLocaleString('en-US', {
+        function exportToExcel() {
+            const table = document.getElementById('salesTable');
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Sales Report" });
+            XLSX.writeFile(wb, 'sales-report.xlsx');
+        }
+
+        function initializeDateFilter() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const table = document.getElementById('salesTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = tbody.getElementsByTagName('tr');
+            const dateRangeSelect = document.getElementById('dateRangeSelect');
+
+            function parseDate(dateStr) {
+                const [day, month, year] = dateStr.split('/').map(Number);
+                return new Date(year, month - 1, day);
+            }
+
+            function formatCurrency(amount) {
+                return amount.toLocaleString('en-IN', {
                     style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 2
-                  })
-                : value;
-        }
+                    currency: 'INR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).replace('₹', 'INR');
+            }
 
-        // Initialize tooltips
-        const tooltips = document.querySelectorAll('[data-tooltip]');
-        tooltips.forEach(tooltip => {
-            new Tooltip(tooltip, {
-                placement: 'top',
-                trigger: 'hover'
-            });
-        });
+            function filterTable() {
+                const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+                const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
 
-        // Initialize the dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize WebSocket for real-time updates
-            initializeWebSocket();
+                if (startDate) startDate.setHours(0, 0, 0, 0);
+                if (endDate) endDate.setHours(23, 59, 59, 999);
 
-            // Load initial data
-            updateDashboard();
-        });
+                let visibleRows = 0;
+                let totalSales = 0;
+                let totalDiscount = 0;
+                const uniqueCustomers = new Set();
 
-        function updateDashboard() {
-            const dateRange = document.getElementById('dateRange').value;
-            const region = document.getElementById('region').value;
-            const product = document.getElementById('product').value;
+                // Loop through each row to filter by date and sum values
+                for (const row of rows) {
+                    const dateCell = row.cells[5].textContent.trim();
+                    const rowDate = parseDate(dateCell);
 
-            // Update chart data
-            fetch(`/api/sales/analytics?dateRange=${dateRange}&region=${region}&product=${product}`)
-                .then(response => response.json())
-                .then(data => {
-                    updateChartData(data.chartData);
-                    updateMetrics(data.metrics);
-                    updateTable(data.transactions);
-                })
-                .catch(error => {
-                    console.error('Error updating dashboard:', error);
-                    showErrorNotification('Failed to update dashboard');
+                    // Skip if no date or outside of range
+                    if (!rowDate) continue;
+
+                    let showRow = true;
+                    if (startDate && rowDate < startDate) showRow = false;
+                    if (endDate && rowDate > endDate) showRow = false;
+
+                    // Show or hide row based on date filter
+                    row.style.display = showRow ? '' : 'none';
+
+                    // Aggregate only if the row is within the date range
+                    if (showRow) {
+                        visibleRows++;
+
+                        // Parse and accumulate final amount and discount values
+                        const finalAmount = parseFloat(row.cells[9].textContent.replace(/[₹,]/g, '')) || 0;
+                        const discount = parseFloat(row.cells[8].textContent.replace(/[₹,]/g, '')) || 0;
+
+                        totalSales += finalAmount;
+                        totalDiscount += discount;
+
+                        // Use a unique customer identifier for counting
+                        const customerId = row.cells[1].getAttribute('data-customer-id');
+                        if (customerId) uniqueCustomers.add(customerId);
+                    }
+                }
+
+                // Format the total sales and discount as currency
+                const formatCurrency = (amount) => {
+                    return amount.toLocaleString('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).replace('INR', '₹');
+                };
+
+                const summaryCards = document.querySelectorAll('.card .card-body');
+                summaryCards.forEach(card => {
+                    const title = card.querySelector('h6').textContent.trim();
+                    const valueSpan = card.querySelector('h3');
+
+                    switch (title) {
+                        case 'Total Sales':
+                            valueSpan.textContent = formatCurrency(totalSales);
+                            break;
+                        case 'Total Orders':
+                            valueSpan.textContent = visibleRows;
+                            break;
+                        case 'Total Discount':
+                            valueSpan.textContent = formatCurrency(totalDiscount);
+                            break;
+                        case 'Total Customers':
+                            valueSpan.textContent = uniqueCustomers.size;
+                            break;
+                    }
                 });
+            }
+
+
+            function handleDateRangeSelection(e) {
+                e.preventDefault();
+
+                const today = new Date();
+
+
+                const startDate = new Date(today);
+
+                switch (this.value) {
+                    case 'today':
+                        startDateInput.value = today.toISOString().split('T')[0];
+                        endDateInput.value = today.toISOString().split('T')[0];
+                        break;
+                    case 'week':
+                        startDate.setDate(today.getDate() - 7);
+                        startDateInput.value = startDate.toISOString().split('T')[0];
+                        endDateInput.value = today.toISOString().split('T')[0];
+                        break;
+                    case 'month':
+                        startDate.setMonth(today.getMonth() - 1);
+                        startDateInput.value = startDate.toISOString().split('T')[0];
+                        endDateInput.value = today.toISOString().split('T')[0];
+                        break;
+                    case 'year':
+                        startDate.setFullYear(today.getFullYear() - 1);
+                        startDateInput.value = startDate.toISOString().split('T')[0];
+                        endDateInput.value = today.toISOString().split('T')[0];
+                        break;
+                    default:
+                        startDateInput.value = '';
+                        endDateInput.value = '';
+                        break;
+                }
+                filterTable();
+            }
+
+            dateRangeSelect.addEventListener('change', handleDateRangeSelection);
+            startDateInput.addEventListener('change', filterTable);
+            endDateInput.addEventListener('change', filterTable);
+
+            filterTable();
         }
 
-        function showErrorNotification(message) {
-            // Implementation for showing error notifications
-            console.error(message);
-        }
+        document.addEventListener('DOMContentLoaded', initializeDateFilter);
     </script>
-</body>
-</html>
+
+
+    <%- include('../partials/admin/footer') %>
