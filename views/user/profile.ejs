@@ -481,6 +481,131 @@
       background: #fff3e0;
       color: #ef6c00;
     }
+     /* Updated Address Section Styles */
+     .address-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+
+    .add-address-btn {
+      background: #b68b40;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .add-address-btn:hover {
+      background: #9a7535;
+      transform: translateY(-1px);
+    }
+
+    .address-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      padding: 1rem;
+    }
+
+    .address-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .address-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .address-type {
+      background: #f8f9fa;
+      color: #b68b40;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .address-info {
+      margin-bottom: 1.5rem;
+    }
+
+    .address-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .address-details {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .address-contact {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+
+    .phone-number {
+      color: #666;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .address-actions {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: 1px solid #b68b40;
+      color: #b68b40;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+      background: #b68b40;
+      color: white;
+    }
+
+    .action-btn.delete {
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+
+    .action-btn.delete:hover {
+      background: #dc3545;
+      color: white;
+    }
   
   </style>
 </head>
@@ -525,34 +650,53 @@
 
       <!-- Address Section -->
       <div id="address" class="dashboard-section">
-        <h2 class="section-title">My Addresses</h2>
-        <a href="/addAddress">
-          <button class="btn btn-primary">+ Add New Address</button>
-        </a>
+        <div class="address-section-header">
+          <h2 class="section-title">My Addresses</h2>
+          <a href="/addAddress" style="text-decoration: none;">
+            <button class="add-address-btn">
+              <i class="fas fa-plus"></i>
+              Add New Address
+            </button>
+          </a>
+        </div>
         
         <div class="address-grid">
           <%userAddress.address.forEach((addr)=>{%>
-            <div class="address-card"> 
+            <div class="address-card">
+              <span class="address-type"><%= addr.addressType %></span>
+              
+              <div class="address-info">
+                <h3 class="address-name"><%= addr.name %></h3>
+                <div class="address-details">
+                  <p><%= addr.landMark %></p>
+                  <p><%= addr.city %>, <%= addr.state %></p>
+                  <p>PIN: <%= addr.pincode %></p>
+                </div>
+              </div>
+              
+              <div class="address-contact">
+                <div class="phone-number">
+                  <i class="fas fa-phone"></i>
+                  <%= addr.phone %>
+                </div>
+                <% if(addr.altPhone) { %>
+                  <div class="phone-number">
+                    <i class="fas fa-phone"></i>
+                    <%= addr.altPhone %> (Alternative)
+                  </div>
+                <% } %>
+              </div>
+              
               <div class="address-actions">
                 <a href="/editAddress?id=<%= addr._id %>">
-                  <button class="btn btn-outline">Edit</button>
+                  <button class="action-btn">Edit</button>
                 </a>
                 <a href="/deleteAddress?id=<%= addr._id %>" onclick="return confirmDelete(event)">
-                  <button class="btn btn-outline">Delete</button>
-               </a>
+                  <button class="action-btn delete">Delete</button>
+                </a>
               </div>
-              <h3><%= addr.addressType %></h3><br>
-              <p><%= addr.name %></p>
-              <p><%= addr.city %></p>
-              <p><%= addr.landMark %></p>
-              <p><%= addr.state %></p>
-              <p><%= addr.pincode %></p>
-              <p><%= addr.phone %></p>
-              <p><%= addr.altPhone %></p>
             </div>
           <%})%>
-          
-          
         </div>
       </div>
 

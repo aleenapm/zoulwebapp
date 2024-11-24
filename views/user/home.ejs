@@ -9,6 +9,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        
     }
     
     .sort-wrapper label {
@@ -105,6 +106,60 @@
 .wishlist-btn:hover i {
     color: #ff6f61; /* Change color on hover */
 }
+/* Add styles for search container */
+.search-container {
+        position: relative;
+        min-width: 550px;
+        margin-right: 150px;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 8px 35px 8px 12px;
+        font-size: 14px;
+        border: 1px solid #e2e2e2;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+    }
+    
+    .search-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        pointer-events: none;
+    }
+    
+    .sort-wrapper label {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .custom-select {
+        position: relative;
+        min-width: 200px;
+    }
+    /* Mobile Responsiveness Update */
+    @media (max-width: 768px) {
+        .sort-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .search-container,
+        .custom-select {
+            width: 100%;
+        }
+    }
     </style>
 
     <main class="main">       
@@ -168,19 +223,27 @@
                     </div>
                 </div>
             </div>
-            <div class="slider-arrow hero-slider-1-arrow"></div>
+            <div class="slider-arrow hero-slider-1-arrow" id="prosection"></div>
         </section>
-       
         
-
-
-        <section class="product-tabs section-padding position-relative wow fadeIn animated" id="prosection">
+        <section class="product-tabs section-padding position-relative wow fadeIn animated" >
             <div class="bg-square"></div>
             <div class="container">
 
                 <!-- Sort Dropdown Section -->
                 <div class="sort-container">
                     <div class="sort-wrapper">
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                id="product-search" 
+                                class="search-input" 
+                                placeholder="Search products..."
+                                onkeyup="searchProducts()"
+                            >
+                            <i class="fi-rs-search search-icon"></i>
+                        </div>
+    
                         <label for="sort-select">Sort by:</label>
                         <div class="custom-select">
                             <select id="sort-select" onchange="sortProducts()">
@@ -197,17 +260,17 @@
                             <span class="select-arrow"></span>
                         </div>
                         <!-- filter Dropdown Section -->
-                <div class="custom-select">
-                    <select id="cat-filter" class="sort-select" onchange="catFilter()">
-                        <option value="all-categories">All Categories</option>
-                        <%for(let i=0;i<categories.length;i++){%>
-                            <option value="<%=categories[i]._id%>">
-                                <%=categories[i].name%>
-                            </option>
-                            <%}%>
-                    </select>
-                    <span class="select-arrow"></span>
-                </div>
+                        <div class="custom-select">
+                            <select id="cat-filter" class="sort-select" onchange="catFilter()">
+                                <option value="all-categories">All Categories</option>
+                                <%for(let i=0;i<categories.length;i++){%>
+                                    <option value="<%=categories[i]._id%>">
+                                        <%=categories[i].name%>
+                                    </option>
+                                    <%}%>
+                            </select>
+                            <span class="select-arrow"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -261,6 +324,25 @@
     </main>
 
     <script>
+        function searchProducts() {
+        const searchQuery = document.getElementById('product-search').value.toLowerCase();
+        
+        fetch(`/searchProducts?query=${encodeURIComponent(searchQuery)}`, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            updateProductList(data.products);
+        })
+        .catch(error => {
+            console.error('Error searching products:', error);
+        });
+    }
         function catFilter() {
             const selectedCategory = document.getElementById('cat-filter').value;
             console.log("Selected Category:", selectedCategory);

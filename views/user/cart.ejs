@@ -197,7 +197,7 @@
 
 <br>
             <!-- Cart Total -->
-            <div class="subtotal" style="margin-right: 100px; font-weight: bold; font-size: 20px;">
+            <div class="subtotal" id="subtotal" style="margin-right: 100px; font-weight: bold; font-size: 20px;">
               Subtotal ₹ <%= cart.reduce((acc, item)=> acc + item.totalPrice, 0).toFixed(2) %>
             </div>
 
@@ -222,59 +222,58 @@
 
       <script>
         function updateQuantity(productId, change) {
-          const quantityElement = document.getElementById(`quantity-${productId}`);
+    const quantityElement = document.getElementById(`quantity-${productId}`);
+    const currentQuantity = parseInt(quantityElement.value);
+    const newQuantity = currentQuantity + change;
 
-          // Use .value for input fields, instead of .textContent
-          const currentQuantity = parseInt(quantityElement.value);
-          const newQuantity = currentQuantity + change;
-          console.log("currentQuantity:",currentQuantity);
-          console.log("newQuantity:",newQuantity);
-          console.log("change:",change);
-          if (newQuantity < 1) {
+    if (newQuantity < 1) {
+        Swal.fire({
+            icon: "warning",
+            title: 'Minimum Quantity Reached',
+            text: "The minimum quantity is 1"
+        });
+        return;
+    } else if (newQuantity > 5) {
+        Swal.fire({
+            icon: "warning",
+            title: 'Maximum Quantity Reached',
+            text: "The maximum quantity is 5"
+        });
+        return;
+    }
+
+    fetch('/updateCartQuantity', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId, quantity: newQuantity })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the input field value
+            quantityElement.value = data.newQuantity;
+
+            // Update the item's total price in real-time
+            document.querySelector(`[data-product-id="${productId}"] .total-price`).textContent = `₹ ${data.newTotalPrice.toFixed(2)}`;
+
+            // Update the cart subtotal in real-time
+            document.getElementById("subtotal").textContent = `Subtotal ₹ ${data.totalPrice.toFixed(2)}`;
+
+        } else {
             Swal.fire({
-              icon: "warning",
-              title: 'Minimum Quantity Reached',
-              text: "The minimum quantity is 1"
-            });
-            return;
-          } else if (newQuantity > 5) {
-            Swal.fire({
-              icon: "warning",
-              title: 'Maximum Quantity Reached',
-              text: "The maximum quantity is 5"
-            });
-            return;
-          }
-
-          fetch('/updateCartQuantity', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ productId, quantity: newQuantity })
-
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                // Update the input field value, not textContent
-                quantityElement.value = data.newQuantity;
-                document.getElementById(`quantity-${productId}`).textContent = data.newQuantity;
-                document.getElementById(`subtotal-${productId}`).textContent = `₹ ${data.newSubtotal.toLocaleString()}`;
-                document.getElementById("total-price").textContent = `₹ ${data.totalPrice.toLocaleString()}`;
-
-              } else {
-                Swal.fire({
-                  icon: "error",
-                  title: "Error",
-                  text: data.message,
-                });
-              }
-            })
-            .catch(error => {
-              console.error("Error:", error);
+                icon: "error",
+                title: "Error",
+                text: data.message,
             });
         }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+
         
         function removeProduct(productId) {
           fetch("/removeProduct", {

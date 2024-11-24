@@ -1,0 +1,84 @@
+<%- include('../partials/user/header') %>
+
+<style>
+    .about-container {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        color: #4a4a4a;
+        background-color: #faf7f4;
+    }
+
+    .about-header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #666;
+        padding-top: 40px;
+    }
+
+    .profile-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .profile-circle {
+        width: 30px;
+        height: 30px;
+        background: #d3d3d3;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .profile-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .description {
+        text-align: center;
+        max-width: 1000px;
+        margin: 0 auto;
+        line-height: 1.6;
+        font-size: 15px;
+        padding: 0 20px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .gallery-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<main class="about-container">
+    <div class="about-header">
+        <h1>About ZOUL</h1>
+        <div class="profile-info">
+            <div class="profile-circle">
+                <img src="/zoul-frontend/assets/imgs/theme/founder.jpg" alt="Founder">
+            </div>
+            <span>Aleena P M | Founder of Zoul</span>
+        </div>
+    </div>
+
+    <div class="description">
+        <p>Welcome to Zoul! Founded in 2020 by Aleena P M, Zoul is your trusted destination for high-quality, personalized jewelry crafted for daily wear. Each piece in our collection is made from premium stainless steel, ensuring it's anti-tarnish, waterproof, and designed to last. We offer a diverse selection of elegant and meaningful jewelry, perfect for any occasion and an ideal choice for gifting. Zoul proudly delivers worldwide, bringing our blend of style, durability, and personal connection to customers across the globe. Thank you for choosing Zoul – where quality meets individuality, no matter where you are!</p>
+    </div>
+    <br>
+
+    <div class="gallery-grid">
+        <img src="/zoul-frontend/assets/imgs/theme/about.png" alt="About Zoul">
+    </div>
+</main>
+
+<%- include('../partials/user/footer') %>

@@ -35,6 +35,7 @@ router.get("/pageNotFound", userController.pageNotFound);
 
 //home page
 router.get("/", userController.loadHomepage);
+router.get("/about",userController.loadAbout);
 
 //signup management
 router.get("/signup", userController.loadSignup);
@@ -56,7 +57,8 @@ router.get("/logout", userController.logout);
 //product management
 router.get("/productDetails", userController.productDetails);
 router.get("/sortProducts", sortController.sortProducts);
-router.get('/filter-by-category',userController.catFilter)
+router.get('/filter-by-category',userController.catFilter);
+router.get("/searchProducts",userController.searchProducts);
 
 //profile management
 router.get("/forgot-password", profileController.getForgotPassPage);

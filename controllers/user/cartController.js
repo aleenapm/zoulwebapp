@@ -96,20 +96,15 @@ const loadCheckout = async (req, res) => {
 };
 
 
-
 const addToCart = async (req, res) => {
     try {
         const userId = req.session.user;
-
         const productId = req.body.id || req.query.id;
-        console.log("cart:",productId);
+        const quantity = parseInt(req.body.quantity) || 1;
 
         if (!userId) {
             return res.status(401).json({ message: 'Please log in to add products to the cart.' });
         }
-
-        
-        const quantity = parseInt(req.body.quantity) || 1;
 
         const product = await Product.findById(productId);
         if (!product) {
@@ -117,31 +112,20 @@ const addToCart = async (req, res) => {
         }
 
         let cartDoc = await Cart.findOne({ userId });
-
         if (cartDoc) {
-          
             const existingItem = cartDoc.items.find(item => item.productId.toString() === productId);
 
             if (existingItem) {
-                
-                const newQuantity = parseInt(existingItem.quantity) + quantity;
-                // console.log("Existing Quantity in Cart:", existingItem.quantity);
-                // console.log("Requested Quantity:", quantity);
-                // console.log("New Quantity after Addition:", newQuantity);
-                // console.log("Available Stock:", product.quantity);
-
+                const newQuantity = existingItem.quantity + quantity;
                 if (newQuantity > product.quantity) {
                     return res.status(400).json({ message: `Only ${product.quantity} items available in stock.` });
                 }
-
                 existingItem.quantity = newQuantity;
                 existingItem.totalPrice = newQuantity * product.salePrice;
             } else {
-             
                 if (quantity > product.quantity) {
                     return res.status(400).json({ message: `Only ${product.quantity} items available in stock.` });
                 }
-
                 cartDoc.items.push({
                     productId,
                     quantity,
@@ -150,11 +134,9 @@ const addToCart = async (req, res) => {
                 });
             }
         } else {
-            
             if (quantity > product.quantity) {
                 return res.status(400).json({ message: `Only ${product.quantity} items available in stock.` });
             }
-
             cartDoc = new Cart({
                 userId,
                 items: [{
@@ -166,15 +148,10 @@ const addToCart = async (req, res) => {
             });
         }
 
-        
         await cartDoc.save();
-
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-            return res.json({ message: "Product added to cart successfully" });
-        } else {
-            return res.redirect('/getCart');
-        }
-
+        return req.xhr || req.headers.accept.indexOf('json') > -1
+            ? res.json({ message: "Product added to cart successfully" })
+            : res.redirect('/getCart');
     } catch (error) {
         console.error("Error saving to cart:", error);
         return res.status(500).json({ message: "Internal Server Error" });

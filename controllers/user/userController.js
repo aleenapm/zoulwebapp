@@ -128,6 +128,18 @@ const loadLogin = async (req,res) => {
     
 }
 
+const loadAbout = async (req,res) => {
+    try {
+       
+        return res.render("about")
+        
+    } catch (error) {
+        res.redirect("/pageNotFound")
+        
+    }
+    
+}
+
 const loadShopping = async (req,res) => {
     try {
         return res.render("shop");
@@ -301,11 +313,29 @@ const catFilter = async (req, res) => {
       res.status(500).json({ message: 'Error fetching products' });
     }
   }
+
+  const searchProducts = async (req,res) => {
+    try {
+        const searchQuery = req.query.query.toLowerCase();
+        
+        // Search products by name
+        const products = await Product.find({
+            productName: { $regex: searchQuery, $options: 'i' }
+        });
+        
+        res.json({ products });
+    } catch (error) {
+        console.error('Error searching products:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+    
+  }
 module.exports = {
     loadHomepage,
     pageNotFound,
     loadSignup,
     loadLogin,
+    loadAbout,
     loadShopping,
     signup,
     login,
@@ -313,6 +343,6 @@ module.exports = {
     resendOtp,
     logout,
     productDetails,
-    catFilter
-    
+    catFilter,
+    searchProducts
 }
