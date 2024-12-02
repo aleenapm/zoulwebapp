@@ -1,5 +1,4 @@
 <footer class="main">
-    
     <section class="section-padding footer-mid">
         <div class="container pt-15 pb-20">
             <div class="row">
@@ -9,21 +8,16 @@
                             <a href="index.html"><img src="/zoul-frontend/assets/imgs/theme/logo.png" alt="logo"></a>
                         </div>
                         <h5 class="mt-20 mb-10 fw-600 text-grey-4 wow fadeIn animated">Contact</h5>
-                        <p class="wow fadeIn animated">
-                            <strong>Address: </strong>Thrissur, Kerala, India
-                        </p>
-                        <p class="wow fadeIn animated">
-                            <strong>Phone: </strong>+91 9048817082
-                        </p>
-                        <p class="wow fadeIn animated">
-                            <strong>Hours: </strong>10:00 - 18:00, Mon - Sat
-                        </p>
+                        <div class="contact-info wow fadeIn animated">
+                            <p><i class="fas fa-map-marker-alt me-2"></i><strong>Address: </strong>Thrissur, Kerala, India</p>
+                            <p><i class="fas fa-phone me-2"></i><strong>Phone: </strong><a href="tel:+919048817082">+91 9048817082</a></p>
+                        </div>
                         <h5 class="mb-10 mt-30 fw-600 text-grey-4 wow fadeIn animated">Follow Us</h5>
                         <div class="mobile-social-icon wow fadeIn animated mb-sm-5 mb-md-0">
-                            <a href="#"><img src="/zoul-frontend/assets/imgs/theme/icons/icon-facebook.svg" alt=""></a>
-                            <a href="#"><img src="/zoul-frontend/assets/imgs/theme/icons/icon-instagram.svg" alt=""></a>
-                            <a href="#"><img src="/zoul-frontend/assets/imgs/theme/icons/icon-pinterest.svg" alt=""></a>
-                            <a href="#"><img src="/zoul-frontend/assets/imgs/theme/icons/icon-youtube.svg" alt=""></a>
+                            <a href="#" class="hover-up"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/zoulaccessories/?__pwa=1" class="hover-up"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="hover-up"><i class="fab fa-pinterest"></i></a>
+                            <a href="#" class="hover-up"><i class="fab fa-youtube"></i></a>
                         </div>
                     </div>
                 </div>
@@ -38,7 +32,7 @@
                         <li><a href="#">Support Center</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-2  col-md-3">
+                <div class="col-lg-2 col-md-3">
                     <h5 class="widget-title wow fadeIn animated">My Account</h5>
                     <ul class="footer-list wow fadeIn animated">
                         <li><a href="#">Sign In</a></li>
@@ -53,30 +47,143 @@
                     <h5 class="widget-title wow fadeIn animated">Secured Payment Gateways</h5>
                     <div class="row">
                         <div class="col-md-4 col-lg-12 mt-md-3 mt-lg-0">
-                            <img class="wow fadeIn animated" src="/zoul-frontend/assets/imgs/theme/payment-method.png" alt="">
+                            <img class="wow fadeIn animated payment-img" src="/zoul-frontend/assets/imgs/theme/payment-method.png" alt="payment methods">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    
 </footer>
+
 <!-- Preloader Start -->
 <div id="preloader-active">
     <div class="preloader d-flex align-items-center justify-content-center">
-        <div class="preloader-inner position-relative">
-            <div class="text-center">
-                <h5 class="mb-10">Now Loading</h5>
-                <div class="loader">
-                    <div class="bar bar1"></div>
-                    <div class="bar bar2"></div>
-                    <div class="bar bar3"></div>
-                </div>
-            </div>
+        <div class="pulse-dots">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
     </div>
 </div>
+<!-- Preloader End -->
+
+<!-- Add Font Awesome CDN before other scripts -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    /* Footer Styles */
+    .footer-list li a {
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        color: #555;
+    }
+    
+    .footer-list li a:hover {
+        color: #b68b40;
+        transform: translateX(5px);
+    }
+    
+    .mobile-social-icon a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-social-icon a:hover {
+        background: #b68b40;
+        color: white;
+        transform: translateY(-3px);
+    }
+    
+    .contact-info p {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .payment-img {
+        max-width: 100%;
+        height: auto;
+        transition: transform 0.3s ease;
+    }
+    
+    .payment-img:hover {
+        transform: scale(1.05);
+    }
+
+    #preloader-active {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        z-index: 9999;
+    }
+
+    .preloader {
+        width: 100%;
+        height: 100%;
+    }
+
+    .pulse-dots {
+        display: flex;
+        gap: 8px;
+    }
+
+    .pulse-dots span {
+        width: 10px;
+        height: 10px;
+        background-color: #b68b40;
+        border-radius: 50%;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .pulse-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .pulse-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+    }
+
+
+    .hover-up {
+        transition: all 0.3s ease;
+    }
+
+    .hover-up:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
+<script>
+    // Hide preloader when page is loaded
+    window.addEventListener('load', function() {
+        const preloader = document.getElementById('preloader-active');
+        preloader.style.display = 'none';
+    });
+</script>
+
 <!-- Vendor JS-->
 <script src="/zoul-frontend/assets/js/vendor/modernizr-3.6.0.min.js"></script>
 <script src="/zoul-frontend/assets/js/vendor/jquery-3.6.0.min.js"></script>

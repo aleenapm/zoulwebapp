@@ -171,7 +171,6 @@
                 <div class="name">
                   <%= item.productId.productName %>
                 </div>
-                ₹ <%= item.price %>
               </div>
             </div>
             <div>₹ <%= item.price %>
@@ -275,30 +274,58 @@
 }
 
         
-        function removeProduct(productId) {
-          fetch("/removeProduct", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id: productId }) // Send productId in the request body
-          })
+function removeProduct(productId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to remove this product from your cart?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // User confirmed removal
+            fetch("/removeProduct", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: productId }) // Send productId in the request body
+            })
             .then(response => response.json())
             .then(data => {
-              if (data.success) {
-                // Reload the cart page to reflect the removed item
-                window.location.reload();
-              } else {
-                Swal.fire({
-                  icon: "error",
-                  title: "Error",
-                  text: data.message,
-                });
-              }
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Removed",
+                        text: "Product has been removed from your cart.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Reload the page after the Swal
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: data.message,
+                    });
+                }
             })
             .catch(error => {
-              console.error("Error removing product from cart:", error);
+                console.error("Error removing product from cart:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Failed to remove the product. Please try again.",
+                });
             });
         }
+    });
+}
 
-      </script>
+
+</script>

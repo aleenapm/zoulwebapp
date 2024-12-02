@@ -1,165 +1,204 @@
 <%- include("../partials/user/header.ejs") %> 
 <style>
-    .sort-container {
-        margin: 20px 0 30px;
-        padding: 0 15px;
-    }
-    
-    .sort-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        
-    }
-    
-    .sort-wrapper label {
-        font-size: 14px;
-        color: #333;
-        font-weight: 500;
-    }
-    
-    .custom-select {
-        position: relative;
-        min-width: 200px;
-    }
-    
-    .custom-select select {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 100%;
-        padding: 8px 35px 8px 12px;
-        font-size: 14px;
-        border: 1px solid #e2e2e2;
-        border-radius: 4px;
-        background-color: #fff;
-        cursor: pointer;
-        color: #333;
-        transition: all 0.3s ease;
-    }
-    
-    .custom-select select:hover {
-        border-color: #999;
-    }
-    
-    .custom-select select:focus {
-        outline: none;
-        border-color: #4a90e2;
-        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
-    }
-    
-    .select-arrow {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px solid #666;
-        pointer-events: none;
-    }
-    
-    /* Hover effect for the select */
-    .custom-select:hover .select-arrow {
-        border-top-color: #333;
-    }
-    
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-        .sort-wrapper {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
-        }
-        
-        .custom-select {
-            width: 100%;
-        }
-    }
-    
-    /* Optional Animation for dropdown */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    select option {
-        padding: 10px;
-        animation: fadeIn 0.2s ease;
-    }
-    .wishlist-btn {
-    margin-left: 10px; /* Add some space between add to cart and wishlist buttons */
+  
+    .jewelry-sections {
+  padding: 60px 0;
+  background-color: #f8f8f8;
 }
 
-.wishlist-btn i {
-    color: #999; /* Default heart icon color */
-    transition: color 0.3s ease;
+.jewelry-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 30px;
 }
 
-.wishlist-btn:hover i {
-    color: #ff6f61; /* Change color on hover */
+.jewelry-image {
+  height: 200px;
+  overflow: hidden;
 }
-/* Add styles for search container */
-.search-container {
-        position: relative;
-        min-width: 550px;
-        margin-right: 150px;
+
+.jewelry-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jewelry-content {
+  padding: 20px;
+}
+
+.jewelry-content h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.jewelry-content p {
+  margin-bottom: 20px;
+}
+
+.view-more-btn {
+  display: inline-block;
+  background-color: #333;
+  color: #fff;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.view-more-btn:hover {
+  background-color: #555;
+}
+
+@media (max-width: 767px) {
+  .jewelry-card {
+    max-width: 360px;
+    margin: 0 auto 30px;
+  }
+}
+
+.video-section {
+  padding: 60px 0;
+  background-color: #f8f8f8;
+}
+
+.section-title{
+    font-size: 50px;
+    font-weight: 400; 
+    text-align: center;
+    line-height: 70px;
+    font-family: Soligant;
+    text-transform: none;
+    text-transform: capitalize;
+    margin-bottom: 10px;
+}
+
+.video-reel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 15px;
+  padding: 0;
+  justify-content: center;   
+}
+
+.video-reel::-webkit-scrollbar {
+  display: none;
+}
+
+.video-card {
+  flex: 0 0 auto;
+  width: 270px;
+  height: 480px;
+  scroll-snap-align: start;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.video-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.video-thumbnail video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .video-card {
+    width: 200px;
+    height: 360px;
+  }
+}
+
+.features-container {
+    background-color: #b68b40;
+    padding: 30px 0;
+    width: 100%;
+}
+
+.features-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+}
+
+.feature-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.feature-text h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    text-transform: uppercase;
+}
+
+.feature-text p {
+    font-size: 14px;
+    margin: 0;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .features-wrapper {
+        flex-direction: column;
+        gap: 20px;
     }
     
-    .search-input {
-        width: 100%;
-        padding: 8px 35px 8px 12px;
-        font-size: 14px;
-        border: 1px solid #e2e2e2;
-        border-radius: 4px;
-        transition: all 0.3s ease;
+    .feature-item {
+        justify-content: center;
     }
-    
-    .search-input:focus {
-        outline: none;
-        border-color: #4a90e2;
-        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
-    }
-    
-    .search-icon {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #666;
-        pointer-events: none;
-    }
-    
-    .sort-wrapper label {
-        font-size: 14px;
-        color: #333;
-        font-weight: 500;
-    }
-    
-    .custom-select {
-        position: relative;
-        min-width: 200px;
-    }
-    /* Mobile Responsiveness Update */
-    @media (max-width: 768px) {
-        .sort-wrapper {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .search-container,
-        .custom-select {
-            width: 100%;
-        }
-    }
+}
+.center {
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.mt-4 {
+    margin-top: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 30px;
+    background-color: #333;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    background-color: #555;
+}
     </style>
 
     <main class="main">       
@@ -223,64 +262,76 @@
                     </div>
                 </div>
             </div>
-            <div class="slider-arrow hero-slider-1-arrow" id="prosection"></div>
+            <div class="slider-arrow hero-slider-1-arrow" ></div>
         </section>
-        
-        <section class="product-tabs section-padding position-relative wow fadeIn animated" >
-            <div class="bg-square"></div>
-            <div class="container">
 
-                <!-- Sort Dropdown Section -->
-                <div class="sort-container">
-                    <div class="sort-wrapper">
-                        <div class="search-container">
-                            <input 
-                                type="text" 
-                                id="product-search" 
-                                class="search-input" 
-                                placeholder="Search products..."
-                                onkeyup="searchProducts()"
-                            >
-                            <i class="fi-rs-search search-icon"></i>
+        <section class="jewelry-sections">
+            <div class="container">
+                <h2 class="section-title" style="font-family: Soligant;">Our Collections</h2>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="jewelry-card">
+                            <div class="jewelry-image">
+                                <img src="/zoul-frontend/assets/imgs/theme/bracelets.jpg" alt="Bracelets">
+                            </div>
+                            <div class="jewelry-content">
+                                <h3>Bracelets</h3>
+                                <p>Everyday, Waterproof Bracelets.</p>
+                                <a href="/shop?category=Bracelets" class="view-more-btn">VIEW MORE</a>                            
+                            </div>
                         </div>
-    
-                        <label for="sort-select">Sort by:</label>
-                        <div class="custom-select">
-                            <select id="sort-select" onchange="sortProducts()">
-                                <option value="featured">Default</option>
-                                <option value="featured">Featured</option>
-                                <option value="popularity">Popularity</option>
-                                <option value="price-low">Price: Low to High</option>
-                                <option value="price-high">Price: High to Low</option>
-                                <option value="rating">Average Ratings</option>
-                                <option value="new">New Arrivals</option>
-                                <option value="az">Name: A to Z</option>
-                                <option value="za">Name: Z to A</option>
-                            </select>
-                            <span class="select-arrow"></span>
+                    </div>
+        
+                    <div class="col-md-3">
+                        <div class="jewelry-card">
+                            <div class="jewelry-image">
+                                <img src="/zoul-frontend/assets/imgs/theme/necklaces.jpg" alt="Necklaces">
+                            </div>
+                            <div class="jewelry-content">
+                                <h3>Necklaces</h3>
+                                <p>Explore Daily Wear Necklaces.</p>
+                                <a href="/shop?category=Necklaces" class="view-more-btn">VIEW MORE</a>
+                            </div>
                         </div>
-                        <!-- filter Dropdown Section -->
-                        <div class="custom-select">
-                            <select id="cat-filter" class="sort-select" onchange="catFilter()">
-                                <option value="all-categories">All Categories</option>
-                                <%for(let i=0;i<categories.length;i++){%>
-                                    <option value="<%=categories[i]._id%>">
-                                        <%=categories[i].name%>
-                                    </option>
-                                    <%}%>
-                            </select>
-                            <span class="select-arrow"></span>
+                    </div>
+        
+                    <div class="col-md-3">
+                        <div class="jewelry-card">
+                            <div class="jewelry-image">
+                                <img src="/zoul-frontend/assets/imgs/theme/earrings.jpg" alt="Earrings">
+                            </div>
+                            <div class="jewelry-content">
+                                <h3>Earrings</h3>
+                                <p>A Wide Range Of Exquisite Earrings.</p>
+                                <a href="/shop?category=Earrings" class="view-more-btn">VIEW MORE</a>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <div class="col-md-3">
+                        <div class="jewelry-card">
+                            <div class="jewelry-image">
+                                <img src="/zoul-frontend/assets/imgs/theme/rings.jpg" alt="Rings">
+                            </div>
+                            <div class="jewelry-content">
+                                <h3>Rings</h3>
+                                <p>Rings That Stay With You Forever.</p>
+                                <a href="/shop?category=Rings" class="view-more-btn">VIEW MORE</a>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+        
 
-
-                
-                
+          <section class="product-tabs section-padding position-relative wow fadeIn animated">
+            <div class="bg-square"></div>
+            <div class="container">
+                <h2 class="section-title">Personalised Collections</h2>
                 <!--End nav-tabs-->
                 <div class="tab-content wow fadeIn animated" id="myTabContent">
                     <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
-                        
                         <div class="row product-grid-4" id="product-grid">
                             <% for(let i = 0; i < products.length; i++) { %>
                                 <div class="product-cart-wrap mb-30" style="flex: 1 1 23%; box-sizing: border-box; margin: 10px;">
@@ -295,13 +346,11 @@
                                         <h6><%= products[i].productName %></h6>
                                         <h6>₹ <%= products[i].salePrice.toLocaleString() %></h6>
                                         <% if(products[i].quantity != 0){ %>
-                                        <h6 style="color:green">Stocks:<%=products[i].quantity%></h6>
+                                            <h6 style="color:green">Stocks:<%=products[i].quantity%></h6>
                                         <% }else{ %>
                                             <h6 style="color:rgb(255, 0, 0)"><%= products[i].status %></h6>
-                                            <% } %>
+                                        <% } %>
                                     </div>
-
-
                                     <div class="product-action-1 show">
                                         <a href="/getCart" aria-label="Add To Cart" class="action-btn hover-up" style="margin-top: 10px;" onclick="addToCart('<%= products[i]._id %>')">
                                             <i class="fi-rs-shopping-bag-add"></i>
@@ -310,114 +359,129 @@
                                             <i class="fi-rs-heart"></i>
                                         </a>
                                     </div>
-
-
-
                                 </div>
                             <% } %>
-                        </div> 
+                        </div>
                         <!--End product-grid-4-->
+                    </div>
+                    <div class="center mt-4">
+                        <a href="/shop?category=Personalised collection" class="view-more-btn">VIEW MORE</a>
                     </div>
                 </div>
             </div>
-        </section>
+        </section> 
+
+        
+
+        
+
+          <section class="video-section">
+            <div class="container">
+              <h2 class="section-title">Our Latest Videos</h2>
+              <div class="video-reel">
+                <div class="video-card">
+                  <div class="video-thumbnail">
+                    <video 
+                      class="custom-video-player"
+                      disablePictureInPicture
+                      loop
+                      muted
+                      autoplay
+                    >
+                      <source src="/zoul-frontend/assets/vdo/vdo1.mp4" type="video/mp4">
+                    </video>
+                  </div>
+                </div>
+                <div class="video-card">
+                  <div class="video-thumbnail">
+                    <video 
+                      class="custom-video-player"
+                      disablePictureInPicture
+                      loop
+                      muted
+                      autoplay
+                    >
+                      <source src="/zoul-frontend/assets/vdo/vdo2.mp4" type="video/mp4">
+                    </video>
+                  </div>
+                </div>
+                <div class="video-card">
+                  <div class="video-thumbnail">
+                    <video 
+                      class="custom-video-player"
+                      disablePictureInPicture
+                      loop
+                      muted
+                      autoplay
+                    >
+                      <source src="/zoul-frontend/assets/vdo/vdo3.mp4" type="video/mp4">
+                    </video>
+                  </div>
+                </div>
+                <div class="video-card">
+                  <div class="video-thumbnail">
+                    <video 
+                      class="custom-video-player"
+                      disablePictureInPicture
+                      loop
+                      muted
+                      autoplay
+
+                    >
+                      <source src="/zoul-frontend/assets/vdo/vdo4.mp4" type="video/mp4">
+                    </video>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="features-container">
+            <div class="features-wrapper">
+                <!-- Feature 1 -->
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <img src="/zoul-frontend/assets/imgs/theme/delivery.png" alt="" style="width: 300px;">
+                    </div>
+                    <div class="feature-text">
+                        <h3>WE SEND YOUR PURCHASE</h3>
+                        <p>Receive your new jewels wherever you are</p>
+                    </div>
+                </div>
+        
+                <!-- Feature 2 -->
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>PAY AS YOU WISH</h3>
+                        <p>Online payment or Cash on delivery</p>
+                    </div>
+                </div>
+        
+                <!-- Feature 3 -->
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                        </svg>
+                    </div>
+                    <div class="feature-text">
+                        <h3>OFFERS AVAILABLE</h3>
+                        <p>Use coupons to claim discounts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
     </main>
 
     <script>
-        function searchProducts() {
-        const searchQuery = document.getElementById('product-search').value.toLowerCase();
         
-        fetch(`/searchProducts?query=${encodeURIComponent(searchQuery)}`, {
-            method: 'GET',
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            updateProductList(data.products);
-        })
-        .catch(error => {
-            console.error('Error searching products:', error);
-        });
-    }
-        function catFilter() {
-            const selectedCategory = document.getElementById('cat-filter').value;
-            console.log("Selected Category:", selectedCategory);
-            fetch(`/filter-by-category?category=${selectedCategory}`, {
-                method: 'GET',
-            })
-                .then(response => response.json())
-                .then(data => {
-                    updateProductList(data.products);
-                })
-                .catch(error => console.error('Error:', error));
-        }
-        // Function to sort products based on the selected option
-        function sortProducts() {
-            const sortOption = document.getElementById('sort-select').value;
-
-            // Fetch sorted products from the server
-            fetch(`/sortProducts?sort=${sortOption}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Ensure data.products is an array
-                    if (!Array.isArray(data.products)) {
-                        console.error('Products data is not an array:', data.products);
-                        return;
-                    }
-
-                    // Clear the existing product grid
-                    const productGrid = document.getElementById('product-grid');
-                    productGrid.innerHTML = '';
-
-                    // Populate the product grid with sorted products
-                    data.products.forEach(product => {
-                        const productHTML = `
-                            <div class="product-cart-wrap mb-30" style="flex: 1 1 23%; box-sizing: border-box; margin: 10px;">
-                                <div class="product-img-action-wrap">
-                                    <div class="product-img product-img-zoom">
-                                        <a href="/productDetails?id=${product._id}">
-                                            <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="product-content-wrap">
-                                    <h6>${product.productName}</h6>
-                                    <h6>₹ ${product.salePrice.toLocaleString()}</h6>
-                                    ${product.quantity === 0 ? `
-                                        <h6 style="color: red;">Out of Stock</h6>
-                                        <div class="product-action-1 show">
-                                            <button class="action-btn disabled" disabled></button>
-                                        </div>
-                                    ` : `
-                                        <h6 style="color: green;">Stocks: ${product.quantity}</h6>
-                                        <div class="product-action-1 show">
-                                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/cart?id=${product._id}">
-                                                <i class="fi-rs-shopping-bag-add"></i>
-                                            </a>
-                                            <a href="#" aria-label="Add To Wishlist" class="action-btn hover-up wishlist-btn" onclick="addToWishlist('${product._id}')">
-                                                <i class="fi-rs-heart"></i>
-                                            </a>
-                                        </div>
-                                    `}
-                                </div>
-                            </div>
-                        `;
-                        productGrid.innerHTML += productHTML;
-                    });
-                })
-                .catch(error => console.error('Error fetching sorted products:', error));
-        }
-
-
         function addToCart(productId) {
             console.log("hello");
             console.log(productId);
@@ -442,138 +506,102 @@
             .catch(error => console.error('Error adding product to cart:', error));
         }
         function addToWishlist(productId) {
-    console.log("Adding to wishlist:", productId);
-    fetch('/addToWishlist', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ id: productId })
-    })
-    .then(response => {
-        if (!response.ok) {
-            console.error(`Server responded with error status: ${response.status}`);
-            return response.json().then(data => {
-                // Check for specific error message
-                if (data.message === 'Product already in wishlist') {
-                    throw new Error('Product already in wishlist');
-                }
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Success notification with more engaging design
-        Swal.fire({
-            title: 'Wishlist Updated!',
-            html: `
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <i class="fas fa-heart" style="color: #ff6b6b; font-size: 3rem; margin-bottom: 15px;"></i>
-                    <p>Product successfully added to your wishlist.</p>
-                    <p>You can view all your saved items in the wishlist.</p>
-                </div>
-            `,
-            icon: 'success',
-            confirmButtonText: 'Continue Shopping',
-            confirmButtonColor: '#3085d6',
-            showCancelButton: true,
-            cancelButtonText: 'View Wishlist',
-            cancelButtonColor: '#d33',
-            didClose: () => {
-                // Optional: You can add logic to redirect to wishlist or continue shopping
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Continue shopping logic
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                // Redirect to wishlist page
-                window.location.href = '/getWishlist';
-            }
-        });
-
-        console.log('Product added to wishlist:', data);
-    })
-    .catch(error => {
-        if (error.message === 'Product already in wishlist') {
-            // Notification for already existing product
-            Swal.fire({
-                title: 'Oops! Duplicate Item',
-                html: `
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <i class="fas fa-heart-broken" style="color: #ffa500; font-size: 3rem; margin-bottom: 15px;"></i>
-                        <p>This product is already in your wishlist.</p>
-                        <p>Check your wishlist to view or manage your saved items.</p>
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonText: 'View Wishlist',
-                confirmButtonColor: '#3085d6',
-                showCancelButton: true,
-                cancelButtonText: 'Continue Shopping',
-                cancelButtonColor: '#d33'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Redirect to wishlist
-                    window.location.href = '/getWishlist';
-                }
-            });
-        } else {
-            // Error notification
-            Swal.fire({
-                title: 'Wishlist Error',
-                html: `
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <i class="fas fa-exclamation-triangle" style="color: #ff4500; font-size: 3rem; margin-bottom: 15px;"></i>
-                        <p>Failed to add product to wishlist.</p>
-                        <p>Please try again or contact support if the issue persists.</p>
-                    </div>
-                `,
-                icon: 'error',
-                confirmButtonText: 'Try Again',
-                confirmButtonColor: '#3085d6',
-                
-            });
-        }
-    });
-}
-
-        function updateProductList(products) {
-    const productsContainer = document.getElementById('product-grid');
-    productsContainer.innerHTML = '';
-
-    if (products.length === 0) {
-        productsContainer.innerHTML = '<p>No products found.</p>';
-        return;
-    }
-
-    products.forEach(product => {
-        const productHTML = `
-            <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                <div class="product-cart-wrap mb-30">
-                    <div class="product-img-action-wrap">
-                        <div class="product-img product-img-zoom">
-                            <a href="/productdetails?id=${product._id}">
-                                <img class="default-img" src="/uploads/re-image/${product.productImage[0]}" alt="${product.productName}">
-                            </a>
-                        </div>
-                        <div class="product-action-1">
-                            <a aria-label="Add To Cart" class="action-btn hover-up" href="/getCart?id=${product._id}"><i class="fi-rs-shopping-bag-add"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-content-wrap">
-                        <h6>${product.productName}</h6>
-                        <h5>₹${product.salePrice.toLocaleString()}</h5>
-                        ${product.quantity > 0
-                            ? `<span style="color: green;">${product.quantity} stocks left</span>`
-                            : `<span class="text-danger">Out of Stock</span>`
+            console.log("Adding to wishlist:", productId);
+            fetch('/addToWishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: productId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`Server responded with error status: ${response.status}`);
+                    return response.json().then(data => {
+                        // Check for specific error message
+                        if (data.message === 'Product already in wishlist') {
+                            throw new Error('Product already in wishlist');
                         }
-                    </div>
-                </div>
-            </div>
-        `;
-        productsContainer.insertAdjacentHTML('beforeend', productHTML);
-    });
-}
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Success notification with more engaging design
+                Swal.fire({
+                    title: 'Wishlist Updated!',
+                    html: `
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <i class="fas fa-heart" style="color: #ff6b6b; font-size: 3rem; margin-bottom: 15px;"></i>
+                            <p>Product successfully added to your wishlist.</p>
+                            <p>You can view all your saved items in the wishlist.</p>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonText: 'Continue Shopping',
+                    confirmButtonColor: '#3085d6',
+                    showCancelButton: true,
+                    cancelButtonText: 'View Wishlist',
+                    cancelButtonColor: '#d33',
+                    didClose: () => {
+                        // Optional: You can add logic to redirect to wishlist or continue shopping
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Continue shopping logic
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        // Redirect to wishlist page
+                        window.location.href = '/getWishlist';
+                    }
+                });
+
+                console.log('Product added to wishlist:', data);
+            })
+            .catch(error => {
+                if (error.message === 'Product already in wishlist') {
+                    // Notification for already existing product
+                    Swal.fire({
+                        title: 'Oops! Duplicate Item',
+                        html: `
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <i class="fas fa-heart-broken" style="color: #ffa500; font-size: 3rem; margin-bottom: 15px;"></i>
+                                <p>This product is already in your wishlist.</p>
+                                <p>Check your wishlist to view or manage your saved items.</p>
+                            </div>
+                        `,
+                        icon: 'info',
+                        confirmButtonText: 'View Wishlist',
+                        confirmButtonColor: '#3085d6',
+                        showCancelButton: true,
+                        cancelButtonText: 'Continue Shopping',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Redirect to wishlist
+                            window.location.href = '/getWishlist';
+                        }
+                    });
+                } else {
+                    // Error notification
+                    Swal.fire({
+                        title: 'Wishlist Error',
+                        html: `
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <i class="fas fa-exclamation-triangle" style="color: #ff4500; font-size: 3rem; margin-bottom: 15px;"></i>
+                                <p>Failed to add product to wishlist.</p>
+                                <p>Please try again or contact support if the issue persists.</p>
+                            </div>
+                        `,
+                        icon: 'error',
+                        confirmButtonText: 'Try Again',
+                        confirmButtonColor: '#3085d6',
+                        
+                    });
+                }
+            });
+        }
+
+        
     </script>
   <%- include("../partials/user/footer.ejs") %> 

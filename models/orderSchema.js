@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const {Schema} = mongoose;
-const {v4:uuidv4} = require('uuid');
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require('uuid');
 
 const orderSchema = new Schema({
     orderId: {
@@ -36,9 +36,18 @@ const orderSchema = new Schema({
         type: Number,
         default: 0
     },
+    shippingCharges: {
+        type: Number,
+        default: 70, // Default shipping charge
+        required: true
+    },
+    GST: {
+        type: Number,
+        required: true // Will store 18% of totalPrice
+    },
     finalAmount: {
         type: Number,
-        required: true
+        required: true // Final amount after adding GST and shipping, and deducting discount
     },
     address: {
         type: Schema.Types.ObjectId,
@@ -83,12 +92,11 @@ const orderSchema = new Schema({
         type: Boolean,
         default: false
     },
-    couponCode:{
-        type:String,
-        required:false,
-        default:null
-    }
-    ,
+    couponCode: {
+        type: String,
+        required: false,
+        default: null
+    },
     paymentMethod: {
         type: String,
         enum: ["COD", "Online"],
@@ -96,6 +104,6 @@ const orderSchema = new Schema({
     }
 });
 
-const Order = mongoose.model("Order",orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 
 module.exports = Order;

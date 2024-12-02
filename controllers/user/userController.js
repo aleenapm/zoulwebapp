@@ -1,6 +1,7 @@
 const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
+const Wallet = require("../../models/walletSchema");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt")
@@ -10,11 +11,21 @@ const pageNotFound = async (req,res) => {
     try {
         res.render("page-404")
     } catch (error) {
-        res.redirect("/pageNotFound")
-        
-    }
-    
+        res.redirect("/pageNotFound")  
+    } 
 }
+
+function generateReferalCode(length) {
+    let result = '';
+    const characters = 'abcdef0123456789';
+
+    for (let i = 0; i < length; i++) {
+        result += characters[Math.floor(Math.random() * characters.length)];
+    }
+    return result;
+}
+
+
 function generateOtp(){
     return Math.floor(100000 + Math.random()*900000).toString();
 }
@@ -62,6 +73,7 @@ const login = async(req,res)=>{
         if(!passwordMatch){
             return res.render("login",{message:"Incorrect Password"});
         }
+        findUser.setLoggedIn();
         req.session.user = findUser._id;
         res.redirect("/")
     } catch (error) {
@@ -73,7 +85,7 @@ const login = async(req,res)=>{
 
 const signup = async (req,res) => {
     try {
-        const {name,phone,email,password,cPassword} = req.body
+        const {name,phone,email,referal,password,cPassword} = req.body
         if(password !== cPassword){
             return res.render("signup",{message:"Passwords do not match"})
         }
@@ -90,7 +102,7 @@ const signup = async (req,res) => {
         }
 
         req.session.userOtp = otp;
-        req.session.userData = {name,phone,email,password};
+        req.session.userData = {name,phone,email,password,referal};
 
         res.render("verify-otp");
         console.log("OTP Sent",otp);
@@ -117,7 +129,9 @@ const loadSignup = async (req,res) => {
 const loadLogin = async (req,res) => {
     try {
         if(!req.session.user){
-            return res.render("login")
+            return res.render("login",{
+                message: ""
+            })
         }else{
             res.redirect("/")
         }
@@ -139,23 +153,67 @@ const loadAbout = async (req,res) => {
     }
     
 }
-
-const loadShopping = async (req,res) => {
+const loadShopping = async (req, res) => {
     try {
-        return res.render("shop");
-    } catch (error) {
-        console.log("shopping page not loading:",error);
-        res.status(500).send("Server Error")
-        
+        // Fetch categories for the UI
+        const categories = await Category.find();
+
+        // Extract category name and page number from query parameters
+        const categoryName = req.query.category;
+        const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+
+        // Fetch the category object by name
+        const category = categoryName ? await Category.findOne({ name: categoryName }) : null;
+
+        if (categoryName && !category) {
+            return res.status(404).send('Category not found');
+        }
+
+        // Pagination setup
+        const itemsPerPage = 12; // Set how many products per page
+        const skip = (page - 1) * itemsPerPage;
+
+        // Fetch products based on category and pagination
+        let products;
+        if (category) {
+            products = await Product.find({ category: category._id }) // Filter by category
+                .skip(skip)
+                .limit(itemsPerPage);
+        } else {
+            products = await Product.find() // Fetch all products if no category is selected
+                .skip(skip)
+                .limit(itemsPerPage);
+        }
+
+        const totalProducts = category 
+            ? await Product.countDocuments({ category: category._id })
+            : await Product.countDocuments();
+
+        const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+        res.render('shop', {
+            products,
+            categories,
+            selectedCategory: categoryName || '',
+            page,           // Pass current page
+            totalPages,     // Pass total number of pages
+        });
+    } catch (err) {
+        console.error('Error fetching products or categories:', err);
+        res.status(500).send('Internal Server Error');
     }
-    
-}
+};
+
+
+
+
+
 
 const loadHomepage = async(req,res)=>{
     try{
         const user = req.session.user;
         // console.log(user)
-        const categories = await Category.find({isListed:true});
+        const categories = await Category.find({isListed:true, name: "Personalised collection"});
         let productData = await Product.find(
             {isBlocked:false,
                 category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
@@ -166,8 +224,7 @@ const loadHomepage = async(req,res)=>{
         productData = productData.slice(0);
         if(user){
             const userData = await User.findById(user);
-            console.log(userData);
-            res.render("home",{user:userData,products:productData, categories});
+            return res.render("home",{user:userData,products:productData, categories});
         }else{
             return res.render("home",{products:productData, categories});
         }
@@ -191,43 +248,78 @@ const securePassword = async (password)=>{
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
-        console.log("Received OTP:", otp);
-        console.log("Stored OTP:", req.session.userOtp);
-        
-        // Compare with userOtp instead of user
-        if (otp === req.session.userOtp) {
+        console.log("User entered OTP:", otp);
+        console.log("Session OTP:", req.session.userOtp);
+
+        if (otp ==req.session.userOtp) {
             const user = req.session.userData;
+            console.log(user)
             const passwordHash = await securePassword(user.password);
-            
+            const referalCode = generateReferalCode(8);
+
+            let refererBonus = 120;
+            let newUserBonus = 100;
+            if (user) {
+                const refererUser = await User.findOne({ referalCode: user.referal });
+        
+                if (refererUser) {
+                  await Wallet.findOneAndUpdate(
+                    { userId: refererUser._id },
+                    {
+                      $inc: { balance: refererBonus },
+                      $push: {
+                        transactions: {
+                          type: "referal",
+                          amount: refererBonus,
+                          description: "Referral bonus for referring a new user"
+                        }
+                      }
+                    },
+                    { upsert: true }
+                  );
+                }
+            }
             const saveUserData = new User({
-                name: user.name,
+                name: user.name,   
                 email: user.email,
                 phone: user.phone,
                 password: passwordHash,
+                referalCode
             });
-            
-            await saveUserData.save();
-            req.session.user = saveUserData._id;
-            // Clear the OTP after successful verification
-            req.session.userOtp = null;
-            req.session.userData = null;
 
-            
-            res.json({ success: true, redirectUrl: "/" });
+            await saveUserData.save();
+            await Wallet.create({
+                userId: saveUserData._id,
+                balance: user.referal ? newUserBonus : 0,
+                transactions: user.referal
+                  ? [{
+                    type: "referal",
+                    amount: newUserBonus,
+                    description: "Referral bonus for signing up with a referral code"
+                  }]
+                  : []
+              });
+            req.session.user = saveUserData._id;
+
+            return res.json({
+                success: true,
+                redirectUrl: '/'
+            });
+
         } else {
-            res.status(400).json({ 
-                success: false, 
-                message: "Invalid OTP, Please try again" 
+            res.status(400).json({
+                success: false,
+                message: 'Invalid OTP, please try again'
             });
         }
     } catch (error) {
-        console.error("Error Verifying OTP:", error);
-        res.status(500).json({ 
-            success: false, 
-            message: "An error occurred" 
+        console.error('OTP verification error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred'
         });
     }
-}
+};
 const resendOtp = async (req, res) => {
     try {
         const { email } = req.session.userData || {};
@@ -265,15 +357,31 @@ const resendOtp = async (req, res) => {
     }
 }
 
-const logout = async (req,res) => {
+const logout = async (req, res) => {
     try {
-        req.session.user = null;
-        res.redirect("/login")
+        // Check if req.session.user exists before finding the user
+        if (req.session.user) {
+            const user = await User.findById(req.session.user);
+            if (user) {
+                user.setLoggedOut();
+                await user.save();
+            }
+            
+            // Destroy the session
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error("Error destroying session:", err);
+                }
+                res.redirect("/login");
+            });
+        } else {
+            // If no user in session, simply redirect to login
+            res.redirect("/login");
+        }
     } catch (error) {
-        console.error("Error in logout",error);
+        console.error("Error in logout", error);
         res.redirect("/pageNotFound");
     }
-    
 }
 
 const productDetails = async (req,res) => {
@@ -281,12 +389,15 @@ const productDetails = async (req,res) => {
         const productId = req.query.id;
         const user = req.session.user
         const product = await Product.findById(productId);
+        const categoryId = product.category;
+        const recommendedProducts = await Product.find({category: categoryId});
         const category = await Category.findById(product.category);
         const userData = await User.findById(user);
      
         res.render("productview",{product,
             cat:category,
             user:userData,
+            recommended:recommendedProducts 
         });
     } catch (error) {
         console.error("Error in productDetails",error);
@@ -330,6 +441,59 @@ const catFilter = async (req, res) => {
     }
     
   }
+  const loadCategoryProducts = async (req, res) => {
+    try {
+        // Fetch all categories for UI
+        const categories = await Category.find();
+
+        // Extract category name from query
+        const categoryName = req.query.category;
+        if (!categoryName) {
+            console.error('Category not specified');
+            return res.status(400).send('Category not specified');
+        }
+
+        // Find category by name (case-insensitive)
+        const category = await Category.findOne({ name: categoryName});
+        if (!category) {
+            console.error(`Category '${categoryName}' not found`);
+            return res.status(404).send('Category not found');
+        }
+
+        // Pagination settings
+        const itemsPerPage = 12;
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1); // Ensure valid page
+        const skip = (page - 1) * itemsPerPage;
+
+        // Fetch products belonging to the category using the ObjectId
+        const products = await Product.find({ category: category._id })
+            .skip(skip)
+            .limit(itemsPerPage);
+
+        // Count total products for pagination
+        const totalProducts = await Product.countDocuments({ category: category._id });
+        const totalPages = Math.ceil(totalProducts / itemsPerPage);
+        
+        // Render the shop page
+        res.render('shop', {
+            products,
+            categories,
+            page,
+            totalPages,
+            selectedCategory: categoryName,
+        });
+    } catch (err) {
+        console.error("Error fetching products or categories:", err);
+        res.status(500).send('Server error');
+    }
+};
+
+
+
+
+
+
+
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -344,5 +508,6 @@ module.exports = {
     logout,
     productDetails,
     catFilter,
-    searchProducts
+    searchProducts,
+    loadCategoryProducts
 }

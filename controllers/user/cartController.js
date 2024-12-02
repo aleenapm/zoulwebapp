@@ -10,6 +10,9 @@ const mongoose = require('mongoose');
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user;
+        if (!userId) {
+            return res.redirect('/login');
+        }
         const cart = await Cart.findOne({ userId: userId }).populate('items.productId').sort({ createdOn: -1 });;
         return res.render("cart", { cart: cart ? cart.items : [] });
     } catch (error) {
@@ -17,21 +20,25 @@ const loadCart = async (req, res) => {
         res.status(500).send("Server Error");
     }
 };
-
-const loadCheckout = async (req, res) => {
+const loadCheckout = async (req, res) => {     
     try {
         const user = req.session.user;
         if (!user) {
             return res.redirect('/login');
         }
 
+        const SHIPPING_CHARGE = 70; // Fixed shipping charge
+        const GST_RATE = 0.18; // 18% GST
+
         const addressDoc = await Addresses.findOne({ userId: user });
         const addresses = addressDoc ? addressDoc.address : [];
 
         let subtotal = 0;
         let products = [];
-        let discount = 0; 
-        let totalPriceAfterDiscount = 0; 
+        let discount = 0;
+        let shippingCharges = SHIPPING_CHARGE;
+        let gstAmount = 0;
+        let totalPriceAfterDiscount = 0;
 
         if (req.query.id) {
             // Single product checkout
@@ -42,10 +49,8 @@ const loadCheckout = async (req, res) => {
             }
 
             subtotal = product.salePrice * quantity;
-
-            // Apply discount calculation here if any coupon is used
-            discount = 0; // Set your discount here if needed
-            totalPriceAfterDiscount = subtotal - discount;
+            gstAmount = subtotal * GST_RATE;
+            totalPriceAfterDiscount = subtotal + shippingCharges + gstAmount - discount;
 
             return res.render('checkout', {
                 cart: null,
@@ -54,6 +59,8 @@ const loadCheckout = async (req, res) => {
                 address: addresses,
                 subtotal,
                 discount,
+                shippingCharges,
+                gstAmount,
                 totalPriceAfterDiscount,
                 products: []
             });
@@ -65,19 +72,20 @@ const loadCheckout = async (req, res) => {
                     cart: null,
                     products: [],
                     address: addresses,
-                    subtotal,
-                    discount,
-                    totalPriceAfterDiscount,
+                    subtotal: 0,
+                    discount: 0,
+                    shippingCharges,
+                    gstAmount: 0,
+                    totalPriceAfterDiscount: shippingCharges,
                     product: null
                 });
             }
 
             subtotal = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0);
             products = cartItems.items;
-
-            // Apply discount calculation here if any coupon is used
-            discount = 0; // Set your discount here if needed
-            totalPriceAfterDiscount = subtotal - discount;
+            
+            gstAmount = subtotal * GST_RATE;
+            totalPriceAfterDiscount = subtotal + shippingCharges + gstAmount - discount;
 
             return res.render('checkout', {
                 cart: cartItems,
@@ -85,6 +93,8 @@ const loadCheckout = async (req, res) => {
                 address: addresses,
                 subtotal,
                 discount,
+                shippingCharges,
+                gstAmount,
                 totalPriceAfterDiscount,
                 product: null
             });
@@ -92,23 +102,29 @@ const loadCheckout = async (req, res) => {
     } catch (error) {
         console.error("Error loading checkout page:", error);
         res.redirect('/page-not-found');
-    }
+    } 
 };
-
 
 const addToCart = async (req, res) => {
     try {
         const userId = req.session.user;
+        if (!userId) {
+            return res.redirect('/login');
+        }
+
+
         const productId = req.body.id || req.query.id;
         const quantity = parseInt(req.body.quantity) || 1;
 
-        if (!userId) {
-            return res.status(401).json({ message: 'Please log in to add products to the cart.' });
-        }
-
+        
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
+        }
+
+        // Check if the product is out of stock
+        if (product.quantity === 0) {
+            return res.status(400).json({ message: "Oops! Product is out of stock." });
         }
 
         let cartDoc = await Cart.findOne({ userId });
@@ -149,9 +165,7 @@ const addToCart = async (req, res) => {
         }
 
         await cartDoc.save();
-        return req.xhr || req.headers.accept.indexOf('json') > -1
-            ? res.json({ message: "Product added to cart successfully" })
-            : res.redirect('/getCart');
+        return res.json({ message: "Product added to cart successfully" });
     } catch (error) {
         console.error("Error saving to cart:", error);
         return res.status(500).json({ message: "Internal Server Error" });

@@ -2,43 +2,45 @@ const Wishlist = require('../../models/wishlistSchema');
 const Product = require('../../models/productSchema');
 
 const getWishList = async (req, res) => {
-    try {
+  try {
       const user = req.session.user;
       if (!user) {
-        return res.redirect('/login');
+          return res.redirect('/login');
       }
-  
+
       // Find the wishlist document and populate product details
-      const wishlistDoc = await Wishlist.findOne({ userId: user })
-        .populate('products.productId');
-  
-      console.log("wishdoc:", wishlistDoc);
-  
+      const wishlistDoc = await Wishlist.findOne({ userId: user }).populate('products.productId');
+
       if (wishlistDoc) {
-        // Sort products by `addedOn` in descending order
-        wishlistDoc.products.sort((a, b) => b.addedOn - a.addedOn);
-  
-        // Render the wishlist view with sorted products
-        return res.render('wishlist', { products: wishlistDoc.products });
+          // Filter out products where productId is null
+          const validProducts = wishlistDoc.products.filter(product => product.productId);
+
+          // Sort valid products by `addedOn` in descending order
+          validProducts.sort((a, b) => b.addedOn - a.addedOn);
+
+          // Render the wishlist view with valid, sorted products
+          return res.render('wishlist', { products: validProducts });
       } else {
-        // Render an empty wishlist view if no products found
-        return res.render('wishlist', { products: null });
+          // Render an empty wishlist view if no products found
+          return res.render('wishlist', { products: null });
       }
-    } catch (error) {
+  } catch (error) {
       console.error("Error loading wishlist", error);
       res.redirect('/page-not-found');
-    }
-  };
-  
+  }
+};
+
 
 const addToWishlist = async (req, res) => {
     try {
       const productId = req.body.id;
       console.log("wishlist:",productId);
-      const userId = req.session.user; // Assuming `userId` is stored as `user` in session
+      const userId = req.session.user;
+      console.log(userId); // Assuming `userId` is stored as `user` in session
   
       // Check if product already in wishlist
       const existingWishlistItem = await Wishlist.findOne({ userId: userId, "products.productId": productId });
+      console.log(existingWishlistItem);
       if (existingWishlistItem) {
         return res.status(400).json({ message: 'Product already in wishlist' });
       }

@@ -9,6 +9,7 @@ const orderController = require("../controllers/admin/orderController");
 const stockController = require('../controllers/admin/stockController');
 const couponController = require("../controllers/admin/couponController");
 const salesController = require("../controllers/admin/salesController");
+const dashboardController = require('../controllers/admin/dashboardController');
 
 const { userAuth, adminAuth } = require("../middlewares/auth");
 const multer = require("multer");
@@ -21,8 +22,14 @@ router.get("/pageerror", admincontroller.pageerror);
 //login management 
 router.get("/login", admincontroller.loadLogin);
 router.post("/login", admincontroller.login);
-router.get("/dashboard", adminAuth, admincontroller.loadDashboard);
 router.get("/logout", admincontroller.logout);
+
+// API routes for dashboard data
+router.get('/dashboard',adminAuth,dashboardController.dashboard);
+router.get('/bestSellingProducts', adminAuth, dashboardController.getBestSellingProducts);
+router.get('/bestSellingCategories', adminAuth, dashboardController.getBestSellingCategories);
+router.get('/bestSellingBrands', adminAuth, dashboardController.getBestSellingBrands);
+router.get('/overview',adminAuth, dashboardController.getDashboardOverview);
 
 //customer management
 router.get("/customers", adminAuth, customerController.customerInfo);
@@ -33,7 +40,7 @@ router.get("/unblockCustomer", adminAuth, customerController.customerunBlocked);
 router.get("/category", adminAuth, categoryController.categoryInfo);
 router.post("/addCategory", adminAuth, categoryController.addCategory);
 router.post("/addCategoryOffer",adminAuth,categoryController.addCategoryOffer);
-router.post("/removeCategoryOffer",adminAuth,categoryController.removeCategoryOffer);
+router.post("/removeCategoryOffer",adminAuth,categoryController.removeCategoryOffer); 
 router.get("/listCategory", adminAuth, categoryController.getListcategory);
 router.get("/unlistCategory", adminAuth, categoryController.getUnlistcategory);
 router.get("/editCategory", adminAuth, categoryController.getEditcategory);
@@ -50,7 +57,7 @@ router.get("/deleteBrand", adminAuth, brandController.deleteBrand);
 router.get("/addProducts", adminAuth, productController.getProductAddPage);
 router.post("/addProducts",adminAuth,uploads.array("images", 4),productController.addProducts);
 router.get("/products", adminAuth, productController.getAllProducts);
-router.post("/addProductOffer", adminAuth, productController.addProductOffer);
+router.post("/addProductOffer", adminAuth, productController.addProductOffer); 
 router.post("/removeProductOffer",adminAuth,productController.removeProductOffer);
 router.get("/blockProduct", adminAuth, productController.blockProduct);
 router.get("/unblockProduct", adminAuth, productController.unblockProduct);

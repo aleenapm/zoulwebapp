@@ -166,33 +166,44 @@ const postNewPassword = async (req,res) => {
 const userProfile = async (req, res) => {
     try {
         const userId = req.session.user;
-        const userData = await User.findById(userId);
-        const addressData = await Address.findOne({ userId });
-        const walletData = await Wallet.findOne({ userId })
-        .populate({
-            path: 'transactions.orderId',
-            populate: { path: 'orderedItems.product', select: 'productName' }
-        });
 
-        
+        // Fetch user data
+        const userData = await User.findById(userId);
+
+        // Fetch address data, with a default value if none is found
+        const addressData = (await Address.findOne({ userId })) || { address: [] };
+        const walletData = await Wallet.findOne({ userId })
+            .populate({
+                path: 'transactions.orderId',
+                populate: {
+                    path: 'orderedItems.product',
+                    select: 'productName',
+                },
+            });
+        if (walletData && walletData.transactions) {
+            walletData.transactions = walletData.transactions.sort(
+                (a, b) => new Date(b.date) - new Date(a.date)
+            );
+        }
         const orderData = await Order.find({ user: userId })
             .sort({ createdOn: -1 })
             .populate({
-                path: 'orderedItems.product', // Populate product name here too
-                select: 'productName'
+                path: 'orderedItems.product',
+                select: 'productName',
             });
-        
+            console.log(walletData)
         res.render("profile", {
             user: userData,
             userAddress: addressData,
             orders: orderData,
-            walletData: walletData || { balance: 0, transactions: [] }
+            walletData: walletData || { balance: 0, transactions: [] },
         });
     } catch (error) {
         console.error("Error retrieving profile data:", error);
         res.redirect("/pageNotFound");
     }
 };
+
 
 
 

@@ -23,83 +23,76 @@ const getCouponList = async (req,res) => {
   
   const applyCoupon = async (req, res) => {
     try {
-      const { couponCode, totalPrice } = req.body;
-      console.log("reqbody:",req.body);
-      
-      const userId = req.session.user;
-  
-      const coupon = await Coupon.findOne({
-        name: couponCode,
-        isList: true,
-        expireOn: { $gt: new Date() }
-      });
-  
-      if (!coupon) {
-        return res.json({
-          success: false,
-          message: 'Invalid or expired coupon code'
-        });
-      }
-  
-      if (coupon.userId.includes(userId)) {
-        return res.json({
-          success: false,
-          message: 'Coupon has already been used by this user'
-        });
-      }
-  
-      let discountAmount = (totalPrice*coupon.offerPercentage)/100;
-      console.log("discount:",discountAmount);
-      
-  
-      if (coupon.minimumPrice && totalPrice < coupon.minimumPrice) {
-        return res.json({
-          success: false,
-          message: `Minimum purchase amount of ${coupon.minimumPrice} required`
-        });
-      }
-  
-      const discountedTotal = totalPrice - discountAmount;
-      console.log("discounttotal:",discountedTotal);
-      
-  
-  
-      return res.json({
-        success: true,
-        message: 'Coupon applied successfully!',
-        discountedTotal: discountedTotal.toFixed(2),
-        discountAmount: discountAmount.toFixed(2)
-      });
-  
-    } catch (error) {
-      console.error('Error applying coupon:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to apply coupon'
-      });
-    }
-  };
-  
-  const removeCoupon = async (req, res) => {
-    try {
-  
-      const { totalPrice } = req.body;
-  
-      const discountAmount = 0;
-      const finalTotal = totalPrice;
-  
-      res.json({
-        success: true,
-        discountAmount,
-        finalTotal,
-      });
-  
-    } catch (error) {
-      console.error("Error removing coupon", error);
-      res.status(500);
-    }
-  }
+        const { couponCode, totalPrice } = req.body;
+        const userId = req.session.user;
 
+        const coupon = await Coupon.findOne({
+            name: couponCode,
+            isList: true,
+            expireOn: { $gt: new Date() }
+        });
+
+        if (!coupon) {
+            return res.json({
+                success: false,
+                message: 'Invalid or expired coupon code'
+            });
+        }
+
+        // Additional validation checks
+        if (coupon.userId && coupon.userId.includes(userId)) {
+            return res.json({
+                success: false,
+                message: 'Coupon has already been used by this user'
+            });
+        }
+
+        // Check minimum price requirement
+        if (coupon.minimumPrice && totalPrice < coupon.minimumPrice) {
+            return res.json({
+                success: false,
+                message: `Minimum purchase amount of ₹${coupon.minimumPrice} required`
+            });
+        }
+
+        // Calculate discount amount
+        let discountAmount = Math.min(
+            (totalPrice * coupon.offerPercentage) / 100,
+            coupon.maximumDiscount || Infinity
+        );
+
+        // Ensure discount is not more than total price
+        discountAmount = Math.min(discountAmount, totalPrice);
+
+        return res.json({
+            success: true,
+            message: 'Coupon applied successfully!',
+            discountAmount: discountAmount.toFixed(2)
+        });
+    } catch (error) {
+        console.error('Error applying coupon:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to apply coupon'
+        });
+    }
+};
+const removeCoupon = async (req, res) => {
+  try {
+      const { totalPrice, shippingCharges, gstAmount } = req.body;
+      
+      res.json({
+          success: true,
+          message: 'Coupon removed successfully'
+      });
+  } catch (error) {
+      console.error("Error removing coupon", error);
+      res.status(500).json({
+          success: false,
+          message: "Failed to remove coupon"
+      });
+  }
+};
 
   module.exports = {
     getCouponList,

@@ -2,47 +2,54 @@ const Product = require('../../models/productSchema');
 
 const sortProducts = async (req, res) => {
     try {
-        const { sort } = req.query;
-        let sortCriteria = {};
+        const sortOption = req.query.sort;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 12;
+        const skipIndex = (page - 1) * limit;
 
-        switch (sort) {
-            case 'featured':
-                sortCriteria = {}; 
-                break;
-            case 'popularity':
-                sortCriteria = { popularity: -1 }; 
-                break;
+        let sortCriteria = {};
+        switch(sortOption) {
             case 'price-low':
-                sortCriteria = { salePrice: 1 }; 
+                sortCriteria = { salePrice: 1 };
                 break;
             case 'price-high':
-                sortCriteria = { salePrice: -1 }; 
-                break;
-            case 'rating':
-                sortCriteria = { averageRating: -1 }; 
-                break;
-            case 'new':
-                sortCriteria = { createdAt: -1 }; 
+                sortCriteria = { salePrice: -1 };
                 break;
             case 'az':
-                sortCriteria = { productName: 1 }; 
+                sortCriteria = { productName: 1 };
                 break;
             case 'za':
-                sortCriteria = { productName: -1 }; 
+                sortCriteria = { productName: -1 };
+                break;
+            case 'rating':
+                sortCriteria = { averageRating: -1 };
+                break;
+            case 'new':
+                sortCriteria = { createdAt: -1 };
                 break;
             default:
-                sortCriteria = {}; 
+                sortCriteria = { createdAt: -1 }; // Default sort
         }
 
-      
-        const products = await Product.find().sort(sortCriteria);
-        res.json({ products });
-    } catch (error) {
-        console.error('Error fetching sorted products:', error.message);
-        res.status(500).json({
-            error: 'Failed to fetch sorted products',
-            message: error.message, 
+        const totalProducts = await Product.countDocuments();
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        const products = await Product.find()
+            .sort(sortCriteria)
+            .skip(skipIndex)
+            .limit(limit);
+
+        res.json({
+            products,
+            currentPage: page,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            nextPage: page + 1,
+            prevPage: page - 1
         });
+    } catch (error) {
+        res.status(500).json({ message: 'Error sorting products', error });
     }
 };
 

@@ -1,162 +1,436 @@
-<%- include('../partials/user/header') %>
+<%- include("../partials/user/header.ejs") %>
 
-<style>
-    .order-details-section {
-        padding-top: 50px;
-    }
 
-    .store-order-summary h2.store-name {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
+    <style>
+        :root {
+            --primary-color: #b68b40;
+            --primary-light: #d1a666;
+            --primary-dark: #8c6f33;
+            --text-color: #333;
+            --background-color: #f4f4f4;
+            --neutral-light: #f9f5f0;
+            --neutral-dark: #4a4a4a;
+        }
 
-    .order-total h3 {
-        font-size: 1.25rem;
-    }
+        body {
+            background-color: var(--background-color);
+            font-family: 'Arial', sans-serif;
+            color: var(--neutral-dark);
+            line-height: 1.6;
+        }
 
-    .shipment-status .card-body {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+        .order-details-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: white;
+            box-shadow: 0 6px 12px rgba(182, 139, 64, 0.1);
+            border-radius: 12px;
+        }
 
-    .order-products .product-item {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-    }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
 
-    .product-image {
-        border-radius: 8px;
-    }
+        .invoice-download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
 
-    .order-summary .card-body {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-    }
+        .invoice-download-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(182, 139, 64, 0.2);
+        }
 
-    .shipping-details,
-    .payment-method,
-    .order-summary-details {
-        width: 30%;
-    }
-</style>
+        .badge {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        .order-status-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background-color: var(--neutral-light);
+            padding: 1rem;
+            border-radius: 8px;
+        }
 
-<main class="main">
-    <!-- Order Details Section -->
-    <section class="order-details-section position-relative pt-50">
-        <div class="container">
-            <!-- Return to Orders Link -->
-            <div class="return-link mb-4">
-                <a href="/userProfile#orders" class="text-muted"><i class="fi-rs-angle-left"></i> Return to Orders</a>
+        .product-list .product-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e9e3d8;
+        }
+
+        .product-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+            box-shadow: 0 4px 6px rgba(182, 139, 64, 0.1);
+        }
+
+        .order-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .summary-card {
+            background-color: var(--neutral-light);
+            padding: 1.25rem;
+            border-radius: 8px;
+        }
+
+        /* Status Badge Colors */
+        .badge-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge-processing {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .badge-completed {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .badge-failed {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .badge-shipped {
+            background-color: #E0E7FF;
+            color: #3730A3;
+        }
+
+        .badge-delivered {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .order-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .order-header,
+            .order-status-section {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        /* Override Bootstrap's btn-primary class */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+    </style>
+
+    <div id="orderDetails" class="order-details-container">
+        <!-- Order Header -->
+        <div class="order-header">
+            <div>
+                <h2 class="mb-2">Order Details</h2>
+                <p class="text-muted">Order ID: <%= orders.orderId %> | Placed on: <%= new
+                            Date(orders.createdOn).toLocaleString() %>
+                </p>
             </div>
+            <div>
+                <!-- <button id="downloadInvoiceBtn" class="invoice-download-btn">
+                    <i class="bi bi-download"></i> Download Invoice
+                </button> -->
+                <button id="downloadInvoice" class="btn"> Download Invoice</button>
 
-            <!-- Store and Order Summary -->
-            <div class="store-order-summary d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="store-name">Order Details</h2>
-                    <br>
-                    <p>Order ID: <%= orders.orderId %> <br>Payment Status:
-                        <span class="badge text-dark ms-2 
-                            <% if (orders.paymentStatus === 'Pending') { %> bg-secondary 
-                            <% } else if (orders.paymentStatus === 'Processing') { %> bg-info 
-                            <% } else if (orders.paymentStatus === 'Completed') { %> bg-success 
-                            <% } else if (orders.paymentStatus === 'Failed') { %> bg-danger 
-                            <% } %>">
-                            <%= orders.paymentStatus %>
-                        </span>&nbsp;&nbsp;&nbsp;
-                        <% if (orders.paymentStatus === 'Pending' && orders.paymentMethod === 'Online') { %>
-                            <button id="continuePaymentButton" class="btn btn-primary"
-                                onclick="retryPayment('<%= orders._id %>')">Continue Payment</button>
-                        <% } %>
-                    </p>
-                    <br>
-                    <p>Placed on: <%= new Date(orders.createdOn).toLocaleString() %></p>
-                </div>
-                <div class="order-total">
-                    <h3>Total: <span class="text-primary">₹ <%= orders.finalAmount.toLocaleString() %></span></h3>
-                </div>
-            </div>
-
-            <!-- Shipment Status -->
-            <div class="shipment-status card mb-4">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5>Shipment Status: <span class="badge text-dark ms-2 
-                            <% if (orders.status === 'Pending') { %> bg-secondary 
-                            <% } else if (orders.status === 'Processing') { %> bg-info 
-                            <% } else if (orders.status === 'Shipped') { %> bg-primary 
-                            <% } else if (orders.status === 'Delivered') { %> bg-success 
-                            <% } else if (orders.status === 'Cancelled') { %> bg-danger 
-                            <% } else if (orders.status === 'Return Request') { %> bg-warning 
-                            <% } else if (orders.status === 'Returned') { %> bg-dark 
-                            <% } %>">
-                            <%= orders.status %>
-                        </span>
-                        </h5>
-                    </div>
-                    <a href="#" class="btn btn-outline-success btn-success">Track Order</a>
-                </div>
-            </div>
-
-            <!-- Products in Order -->
-            <div class="order-products card mb-4">
-                <div class="card-body">
-                    <% for (let i = 0; i < orders.orderedItems.length; i++) { %>
-                        <div class="product-item d-flex align-items-center mb-4">
-                            <img src="uploads/re-image/<%= orders.orderedItems[i].product.productImage[0] %>"
-                                alt="<%= orders.orderedItems[i].product.productName %>" class="product-image me-3" width="80">
-                            <div class="product-details">
-                                <h5>
-                                    <%= orders.orderedItems[i].product.productName %>
-                                </h5>
-                                <p>Qty: <%= orders.orderedItems[i].quantity %></p>
-                            </div>
-                            <div class="product-price ms-auto">
-                                <h5>₹ <%= orders.orderedItems[i].price.toLocaleString() %></h5>
-                            </div>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
-
-            <!-- Order Summary and Shipping Details -->
-            <div class="order-summary card">
-                <div class="card-body d-flex justify-content-between">
-                    <div class="shipping-details">
-                        <h6>Shipping Details</h6><hr>
-                        <% if (address && address.length > 0) { %>
-                            <% address.forEach(function(addr) { %>
-                                <p><%= addr.name %></p>
-                                <p><%= addr.addressType %>, <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %></p>
-                                <p>Phone: <%= addr.phone %></p>
-                                <p>Alt Phone: <%= addr.altPhone %></p>
-                            <% }); %>
-                        <% } else { %>
-                            <p>No shipping address available.</p>
-                        <% } %>                                               
-                    </div>
-
-                    <div class="payment-method text-center">
-                        <h6>Payment Method</h6> <hr>
-                        <p><strong>
-                            <%= orders.paymentMethod %>
-                        </strong></p>
-                    </div>
-
-                    <div class="order-summary-details">
-                        <h6>Order Summary</h6> <hr>
-                        <p>Subtotal: ₹<%= orders.totalPrice.toLocaleString() %></p>
-                        <p>Discount: ₹<%= orders.discount.toLocaleString() %></p>
-                        <hr>
-                        <h5>Total: ₹<%= orders.finalAmount.toLocaleString() %></h5>
-                    </div>
-                </div>
             </div>
         </div>
-    </section>
-</main>
 
-<%- include('../partials/user/footer') %>
+        <!-- Order Status -->
+        <div class="order-status-section">
+            <div>
+                <h5>Payment Status:
+                    <span class="badge 
+                        <%= orders.paymentStatus === 'Pending' ? 'badge-pending' : 
+                            orders.paymentStatus === 'Processing' ? 'badge-processing' : 
+                            orders.paymentStatus === 'Completed' ? 'badge-completed' : 
+                            'badge-failed' %>">
+                        <%= orders.paymentStatus %>
+                    </span>
+
+                </h5>
+                <br>
+                <h5>Shipment Status:
+                    <span class="badge 
+                        <%= orders.status === 'Pending' ? 'badge-pending' : 
+                            orders.status === 'Processing' ? 'badge-processing' : 
+                            orders.status === 'Shipped' ? 'badge-shipped' : 
+                            orders.status === 'Delivered' ? 'badge-delivered' : 
+                            'badge-failed' %>">
+                        <%= orders.status %>
+                    </span>
+                </h5>
+            </div>
+            <div>
+                <h4 class="text-primary">Total: ₹ <%= orders.finalAmount.toLocaleString() %>
+                </h4>
+                <% if (orders.paymentStatus==='Payment failed' && orders.paymentMethod==='Online' ) { %>
+                    <button class="btn btn-primary mt-2" onclick="retryPayment('<%= orders.finalAmount %>','<%= orders._id%>')">
+                        Continue Payment
+                    </button>
+                    <% } %>
+            </div>
+        </div>
+
+        <!-- Product List -->
+        <div class="product-list">
+            <h4 class="mb-3">Ordered Items</h4>
+            <% orders.orderedItems.forEach(function(item) { %>
+                <div class="product-item">
+                    <img src="uploads/re-image/<%= item.product.productImage[0] %>"
+                        alt="<%= item.product.productName %>" class="product-image">
+                    <div class="flex-grow-1">
+                        <h5>
+                            <%= item.product.productName %>
+                        </h5>
+                        <p class="text-muted">Quantity: <%= item.quantity %>
+                        </p>
+                    </div>
+                    <div>
+                        <h5>₹ <%= item.price.toLocaleString() %>
+                        </h5>
+                    </div>
+                </div>
+                <% }); %>
+        </div>
+
+        <!-- Order Summary Grid -->
+        <div class="order-summary-grid">
+            <!-- Shipping Details -->
+            <div class="summary-card">
+                <h5>Shipping Details</h5> <br>
+                <% if (address && address.length> 0) { %>
+                    <% address.forEach(function(addr) { %>
+                        <p>
+                            <%= addr.name %>
+                        </p>
+                        <p>
+                            <%= addr.addressType %>, <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %>
+                        </p>
+                        <p>Phone: <%= addr.phone %>
+                        </p>
+                        <% }); %>
+                            <% } else { %>
+                                <p>No shipping address available.</p>
+                                <% } %>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="summary-card">
+                <h5>Payment Method</h5> <br>
+                <p><strong>
+                        <%= orders.paymentMethod %>
+                    </strong></p>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="summary-card">
+                <h4>Order Summary</h4>
+                <br>
+                <div class="order-summary-details">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>₹ <%= orders.totalPrice.toLocaleString() %></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Discount:</span>
+                        <span>₹ <%= orders.discount.toLocaleString() %></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping Charges:</span>
+                        <span>₹ <%= orders.shippingCharges.toLocaleString() %></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>GST (18%):</span>
+                        <span>₹ <%= orders.GST.toLocaleString() %></span>
+                    </div>
+                    <hr>
+                    <div class="summary-row total-row">
+                        <h4>Total</h4>
+                        <h4 class="text-primary">₹ <%= orders.finalAmount.toLocaleString() %>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- Required Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById('downloadInvoice').addEventListener('click', function () {
+            const orderId = '<%= orders._id%>'; // Dynamically set order ID
+            if (orderId) {
+                window.open(`/downloadInvoice?id=${orderId}`, '_blank');
+            } else {
+                alert('Order ID is missing. Cannot download the invoice.');
+            }
+        });
+        async function retryPayment(Amount,orderId) {
+            const createOrderResponse = await fetch('/createRazorpay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: parseFloat(Amount),
+                    currency: 'INR'
+                })
+            });
+            console.log("create",createOrderResponse)
+            if (!createOrderResponse.ok) {
+                const errorData = await createOrderResponse.json().catch(() => null);
+                const errorMessage = errorData?.error || await createOrderResponse.text();
+                console.error(`Create order failed: ${errorMessage}`);
+                throw new Error(errorMessage);
+            }
+            const order = await createOrderResponse.json();
+            console.log('Razorpay Order:', order);
+
+            const options = {
+                key: 'rzp_test_4NiseW7Wqk146s',
+                amount: order.amount,
+                currency: order.currency,
+                name: 'Zoul',
+                description: 'Purchase Transaction',
+                order_id: order.id,
+                handler: async function (response) {
+                    console.log("enterd handler function response:", response);
+                    try {
+                        const paymentDetails = {
+                            paymentId: response.razorpay_payment_id,
+                            orderId: orderId,
+                            status: "payment completed",
+                            razorpayId: response.razorpay_order_id,
+                            signature: response.razorpay_signature,
+                        };
+
+                        const updateResponse = await fetch('/updatePayment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(paymentDetails),
+                        });
+
+                        const updateResult = await updateResponse.json();
+                        console.log("updateResult", updateResult)
+
+                        if (updateResponse && updateResult.success) {
+
+                            window.location.href = `/order/?id=${updateResult.orderId}`;
+                        } else {
+                            throw new Error(updateResult.message || 'Payment status update failed.');
+                        }
+                    } catch (error) {
+                        console.error('Error updating payment status:', error);
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Payment Error',
+                            text: error.message,
+                            confirmButtonText: 'Okay',
+                            confirmButtonColor: '#007bff',
+                        });
+                    }
+                },
+                theme: { color: '#39b4ac' },
+                modal: {
+                    ondismiss: function () {
+                        console.log('Checkout form closed');
+                        // Handle modal dismissal - maybe cleanup or show message
+                    }
+                }
+            };
+
+            console.log("Initializing Razorpay instance...");
+            const rzp = new Razorpay(options);
+
+            rzp.on('payment.failed', async function (response) {
+                console.error('Payment failed:', response.error);
+                const paymentDetails = {
+                    paymentId: response.razorpay_payment_id,
+                    orderId: orderId,
+                    status: "payment completed",
+                    razorpayId: response.razorpay_order_id,
+                    signature: response.razorpay_signature,
+                };
+
+                const updateResponse = await fetch('/updatePayment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(paymentDetails),
+                });
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: 'Payment is Failed Please Retry From Order Detials',
+                    confirmButtonColor: '#39b4ac',
+                }).then(() => {
+                    window.location.href = '/'
+                })
+            });
+
+            console.log("Opening Razorpay modal...");
+            rzp.open();
+
+        }
+
+
+    </script>
+
+
+
+
+    <%- include("../partials/user/footer.ejs") %>

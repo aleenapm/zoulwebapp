@@ -147,14 +147,14 @@
                                 <td>
                                     <%= orders[i].createdOn.toLocaleDateString() %>
                                 </td>
-                                <td>₹<%= orders[i].totalPrice.toLocaleString() %>
+                                <td>Rs<%= orders[i].totalPrice.toLocaleString() %>
                                 </td>
                                 <td>
                                     <%= orders[i].couponCode %>
                                 </td>
-                                <td>₹<%= orders[i].discount.toLocaleString() %>
+                                <td>Rs<%= orders[i].discount.toLocaleString() %>
                                 </td>
-                                <td>₹<%= orders[i].finalAmount.toLocaleString() %>
+                                <td>Rs<%= orders[i].finalAmount.toLocaleString() %>
                                 </td>
                                 <td>
                                     <%= orders[i].paymentMethod %>
@@ -169,7 +169,7 @@
         </div>
         <div class="pagination-area my-4">
             <nav>
-                <ul class="pagination justify-content-center">
+                <ul class="pagination justify-content-center"> 
                     <% for(let i=1;i<=totalPages;i++){ %>
                         <li class="page-item <%= (i===page) ? 'active' : '' %>">
                             <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
@@ -282,7 +282,7 @@
             doc.setFontSize(10);
             doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 70, 45);
 
-            const rupeeSymbol = '₹';
+            const rupeeSymbol = 'Rs ';
             doc.setFont('CustomFont', 'normal');
 
             doc.autoTable({
@@ -348,7 +348,7 @@
                     currency: 'INR',
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0
-                }).replace('₹', 'INR');
+                }).replace('Rs', 'INR');
             }
 
             function filterTable() {

@@ -4,63 +4,89 @@ const Product = require("../../models/productSchema");
 const User = require("../../models/userSchema");
 const Coupon = require("../../models/couponSchema");
 const Wallet = require("../../models/walletSchema");
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
 
 const getOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const orderId = req.query.id;  // Get orderId from the URL parameters
-        // console.log("getOrder userId:", userId, "orderId:", orderId);
+        const orderId = req.query.id; // Get orderId from the URL parameters
 
-        const order = await Order.findOne({ _id: orderId, user: userId }) 
+        // Fetch the order details for the logged-in user
+        const order = await Order.findOne({ _id: orderId, user: userId })
             .populate('orderedItems.product');
 
         if (!order) {
             return res.status(404).send("Order not found");
         }
 
+        // Calculate amounts based on order details
         const subtotal = order.orderedItems.reduce((total, item) => total + item.price * item.quantity, 0);
-        const shipping = order.shipping || 0;
+        const shippingCharges = order.shippingCharges || 70; // Default to 70
+        const GST = order.GST || (subtotal * 0.18); // Calculate GST if not stored
         const discount = order.discount || 0;
-        const totalAmount = subtotal - discount + shipping;
+        const totalAmount = subtotal + GST + shippingCharges - discount;
 
+        // Render the order details on the "order" page
         return res.render("order", {
             products: order.orderedItems,
             subtotal,
-            shipping,
+            shippingCharges,
+            GST: GST.toFixed(2),
             discount,
             totalAmount,
             email: order.address.email,
             phone: order.address.phone,
             shippingAddress: order.address,
             paymentMethod: order.paymentMethod,
-            orderStatus: order.status
+            orderStatus: order.status,
         });
     } catch (error) {
-        console.log("Order page not loading:", error);
+        console.error("Order page not loading:", error);
         res.status(500).send("Server Error");
     }
 };
 
-
 const createOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        let { cart, totalAmount, couponCode, paymentMethod, discount, addressId, singleProduct } = req.body;
-        console.log("rebody:",req.body);
-        
+        let {
+            cart,
+            subtotal,
+            totalAmount,
+            couponCode,
+            paymentMethod,
+            discount,
+            addressId,
+            singleProduct,
+            gstAmount,
+            shippingCharges
+        } = req.body;
 
-        // Validate addressId
-        if (!addressId) {
-            return res.status(400).json({ error: "Address is required." });
-        }
+        console.log("Incoming request data:", {
+            subtotal,
+            totalAmount,
+            discount,
+            gstAmount,
+            shippingCharges,
+            cart,
+            singleProduct
+        });
 
-        // Find the Address document for the given userId
+        // Ensure all numerical values are properly parsed
+        subtotal = parseFloat(subtotal) || 0;
+        discount = parseFloat(discount) || 0;
+        gstAmount = parseFloat(gstAmount) || 0;
+        shippingCharges = parseFloat(shippingCharges) || 70;
+
+        // Find the user's address first
         const userAddressDoc = await Address.findOne({ userId: userId });
         if (!userAddressDoc) {
             return res.status(400).json({ error: "Address not found." });
         }
 
-        // Find the specific address inside the address array by matching addressId
+        // Match the specific address by ID
         const specificAddress = userAddressDoc.address.find(
             (addr) => addr._id.toString() === addressId
         );
@@ -68,101 +94,87 @@ const createOrder = async (req, res) => {
             return res.status(404).json({ error: "Address with provided ID not found." });
         }
 
+        // Prepare ordered items
         let orderedItems = [];
-
-        // Add ordered items
         if (singleProduct) {
             const product = JSON.parse(singleProduct);
             orderedItems.push({
                 product: product._id,
                 quantity: 1,
-                price: product.salePrice,
+                price: parseFloat(product.salePrice)
             });
-        } else {
-            // Check if `cart` is provided and is a valid JSON string
-            try {
-                const cartItems = JSON.parse(cart);
-                
-                // Ensure `cartItems` is an array before using `.map()`
-                if (Array.isArray(cartItems)) {
-                    orderedItems = cartItems.map(item => ({
-                        product: item.productId,
-                        quantity: item.quantity,
-                        price: item.totalPrice / item.quantity,
-                    }));
-                } else {
-                    return res.status(400).json({ error: "Cart items should be an array." });
-                }
-            } catch (err) {
-                return res.status(400).json({ error: "Invalid cart data format." });
+            // Update subtotal if it's 0
+            if (subtotal <= 0) {
+                subtotal = parseFloat(product.salePrice);
+            }
+        } else if (cart) {
+            const cartItems = JSON.parse(cart);
+            orderedItems = cartItems.map(item => ({
+                product: item.productId,
+                quantity: parseInt(item.quantity),
+                price: parseFloat(item.totalPrice) / parseInt(item.quantity)
+            }));
+            // Update subtotal if it's 0
+            if (subtotal <= 0) {
+                subtotal = cartItems.reduce((total, item) => total + parseFloat(item.totalPrice), 0);
             }
         }
 
-        const couponApplied = Boolean(couponCode && couponCode.trim() !== "");
-        const parsedTotalPrice = Number(totalAmount) || 0;
-        const parsedDiscount = Number(discount) || 0;
-
-        let fullAmount = parsedTotalPrice + parsedDiscount;
-        let convTotal = Number(fullAmount);
-        let finAmount = totalAmount;
-        let convfin = Number(finAmount);
-
-        console.log("fullamt:",fullAmount);
-        console.log("finalAmt:",finAmount);
+        // Calculate GST if not provided
+        const GST = gstAmount || (subtotal * 0.18);
         
-        if (discount == 0) {
-            couponCode = undefined;
-        }
+        // Calculate final amount
+        const calculatedTotalAmount = parseFloat(
+            (subtotal + GST + shippingCharges - discount).toFixed(2)
+        );
 
-        // Prepare order data
+        // Debug log the calculations
+        console.log("Calculation breakdown:", {
+            subtotal,
+            GST,
+            shippingCharges,
+            discount,
+            calculatedTotalAmount
+        });
+
+        // Create the order data object
         const orderData = {
             orderedItems,
-            totalPrice: convTotal.toFixed(2),
-            finalAmount: convfin.toFixed(2),
-            couponCode: couponCode,
-            discount,
-            couponApplied,
+            totalPrice: subtotal.toFixed(2),
+            discount: discount.toFixed(2),
+            GST: GST.toFixed(2),
+            shippingCharges: shippingCharges.toFixed(2),
+            finalAmount: calculatedTotalAmount.toFixed(2),
+            couponCode,
+            couponApplied: Boolean(couponCode),
             user: userId,
             address: specificAddress,
             paymentMethod,
+            status: 'Pending',
+            paymentStatus:'Pending',
         };
-        
 
-        if (paymentMethod === 'COD') {
-            orderData.status = 'Pending';
-            orderData.paymentStatus = 'Pending';
-        } else if (paymentMethod === 'Online') {
-            orderData.status = 'Pending';
-            orderData.paymentStatus = 'Completed';
-        }
+        // Debug log the final order data
+        console.log("Final order data:", orderData);
 
-        // Save coupon if applied
-        if (discount !== 0) {
-            await User.findByIdAndUpdate(userId, { $push: { redeemedcoupon: couponCode } });
-        }
-
-        // Create and save the order
+        // Save the new order to the database
         const newOrder = new Order(orderData);
         await newOrder.save();
 
-        // Process post-order creation based on payment method
+        // Redirect or respond based on payment method
         if (paymentMethod === 'COD') {
-            if (singleProduct) {
-                const product = JSON.parse(singleProduct);
-                await Product.findByIdAndUpdate(product._id, { $inc: { quantity: -1 } });
-            }
-            res.redirect(`/order?id=${newOrder._id}`);
+            return res.redirect(`/order?id=${newOrder._id}`);
         } else {
-            res.json({ orderId: newOrder._id, finalAmount: finAmount });
+            return res.json({ 
+                orderId: newOrder._id, 
+                finalAmount: calculatedTotalAmount 
+            });
         }
-
     } catch (error) {
         console.error("Error in placing order:", error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).json({ error: error.message || "Internal Server Error" });
     }
 };
-
-
 
 const getUserOrders = async (req, res) => {
     try {
@@ -243,10 +255,9 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-
 const orderDetails = async (req, res) => {
     try {
-        const orderId = req.query.id; 
+        const orderId = req.query.id;
         const userId = req.session.user;
 
         if (!userId) {
@@ -255,26 +266,211 @@ const orderDetails = async (req, res) => {
 
         const orderData = await Order.findById(orderId)
             .populate({
-                path: 'orderedItems.product', 
+                path: 'orderedItems.product',
             })
             .sort({ createdOn: -1 });
-        
-            const address = await Address.findOne({userId}); 
-
-            const findAddress = address.address.filter(addr => addr._id.toString() === orderData.address.toString());
-
-            
 
         if (!orderData) {
             return res.status(404).send("Order not found.");
         }
 
-        res.render('orderDetails', { orders: orderData,address:findAddress });
+        const address = await Address.findOne({ userId });
+        const findAddress = address.address.filter(addr => 
+            addr._id.toString() === orderData.address.toString()
+        );
+
+        res.render('orderDetails', { 
+            orders: orderData, 
+            address: findAddress 
+        });
     } catch (error) {
         console.error("Error fetching order details:", error);
         res.redirect('/pageNotFound');
     }
 };
+
+const getInvoice = async (req, res) => {
+    const orderId = req.query.id;
+
+    const formatCurrency = (amount) => `Rs ${amount.toFixed(2)}`;
+
+    try {
+        const order = await Order.findById(orderId)
+            .populate('user', 'name email')
+            .populate('orderedItems.product', 'productName productCode');
+
+        if (!order) {
+            return res.status(404).send("Order not found.");
+        }
+
+        const address = await Address.findOne({ 'address._id': order.address });
+
+        if (!address) {
+            return res.status(404).send("Address not found.");
+        }
+
+        const selectedAddress = address.address.find(
+            (addr) => addr._id.toString() === order.address.toString()
+        );
+
+        const doc = new PDFDocument({
+            margin: 50,
+            size: 'A4',
+            font: 'Helvetica'
+        });
+
+        const fileName = `ZOUL-Invoice-${order._id}.pdf`;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        doc.pipe(res);
+
+        // Color palette
+        const colors = {
+            primary: '#6D4C3E',
+            secondary: '#b68b40',
+            accent: '#8B4513',
+            highlight: '#F5E6D3',
+            text: '#4A3F35',
+            background: 'white',
+            border: '#D2B48C'
+        };
+
+        // Elegant border
+        doc.lineWidth(1)
+            .strokeColor(colors.border)
+            .rect(40, 40, doc.page.width - 80, doc.page.height - 80)
+            .stroke();
+
+        // Logo and header
+        doc.font('Helvetica-Bold')
+            .fontSize(32)
+            .fillColor(colors.primary)
+            .text('ZOUL', 0, 100, { align: 'center' })
+            .fontSize(16)
+            .fillColor(colors.secondary)
+            .text('Everyday wear | Personalised jewellery', 0, 140, { align: 'center' });
+
+        // Company details
+        doc.font('Helvetica')
+            .fontSize(10)
+            .fillColor(colors.text)
+            .text('Zoul Jewelry Pvt Ltd', 0, 160, { align: 'center' })
+            .text('Thrissur, Kerala - 680568', 0, 175, { align: 'center' })
+            .text('GSTIN: 29AABCU9603R1ZX', 0, 190, { align: 'center' });
+
+        // Decorative line
+        doc.moveTo(50, 220)
+            .lineTo(550, 220)
+            .strokeColor(colors.accent)
+            .strokeOpacity(0.8)
+            .lineWidth(2)
+            .stroke();
+
+        // Invoice Details
+        doc.font('Helvetica')
+            .fontSize(10)
+            .fillColor(colors.text)
+            .text(`Invoice No: ZOUL-${orderId.slice(-8)}`, 360, 250)
+            .text(`Date: ${new Date(order.createdOn).toLocaleDateString('en-IN')}`, 360, 265)
+            .text(`Order ID: ${orderId}`, 360, 280);
+
+        // Customer Details
+        doc.font('Helvetica-Bold')
+            .fontSize(12)
+            .text('BILLED TO:', 50, 250)
+            .font('Helvetica')
+            .fontSize(10)
+            .text(order.user.name, 50, 270)
+            .text(order.user.email, 50, 285)
+            .text(
+                `${selectedAddress.name}, ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.pincode}`,
+                50,
+                300
+            );
+
+        // Items Table
+        const tableTop = 350;
+        doc.save()
+            .rect(50, tableTop, 500, 35)
+            .fillColor(colors.secondary)
+            .fill()
+            .restore();
+
+        doc.fillColor('white')
+            .font('Helvetica-Bold')
+            .text('PRODUCT', 60, tableTop + 12)
+            .text('QTY', 350, tableTop + 12)
+            .text('PRICE', 430, tableTop + 12)
+            .text('TOTAL', 490, tableTop + 12);
+
+        let yPosition = tableTop + 50;
+        order.orderedItems.forEach((item, index) => {
+            if (index % 2 === 0) {
+                doc.save()
+                    .rect(50, yPosition - 5, 500, 25)
+                    .fillColor(colors.highlight)
+                    .opacity(0.5)
+                    .fill()
+                    .restore();
+            }
+
+            doc.font('Helvetica')
+                .fontSize(10)
+                .fillColor(colors.text)
+                .text(item.product.productName, 60, yPosition)
+                .text(item.quantity.toString(), 350, yPosition)
+                .text(formatCurrency(item.price), 430, yPosition)
+                .text(formatCurrency(item.price * item.quantity), 490, yPosition);
+
+            yPosition += 30;
+        });
+
+        // Summary Section
+        doc.save()
+            .rect(350, yPosition + 20, 200, 100)
+            .fillColor(colors.highlight)
+            .opacity(0.3)
+            .fill()
+            .restore();
+
+        doc.font('Helvetica')
+            .fontSize(10)
+            .fillColor(colors.text)
+            .text('Subtotal', 360, yPosition + 30)
+            .text(formatCurrency(order.totalPrice), 490, yPosition + 30, { align: 'right' })
+            .text('Delivery', 360, yPosition + 45)
+            .text(formatCurrency(order.shippingCharges), 490, yPosition + 45, { align: 'right' })
+            .text('GST', 360, yPosition + 60)
+            .text(formatCurrency(order.GST), 490, yPosition + 60, { align: 'right' });
+
+        if (order.discount > 0) {
+            doc.text('Discount', 360, yPosition + 75)
+                .text(formatCurrency(order.discount), 490, yPosition + 75, { align: 'right' });
+        }
+
+        doc.font('Helvetica-Bold')
+            .fontSize(12)
+            .fillColor(colors.primary)
+            .text('TOTAL', 360, yPosition + 95)
+            .text(formatCurrency(order.finalAmount), 480, yPosition + 95, { align: 'right' });
+
+        // Footer
+        doc.font('Helvetica')
+            .fontSize(9)
+            .fillColor(colors.text)
+            .text('Thank you for choosing ZOUL - Where Every Piece Tells a Story', 0, 750, { align: 'center' })
+            .font('Helvetica-Bold')
+            .text('www.zoul.jewelry', 0, 765, { align: 'center' })
+            .text('For any queries, contact: support@zoul.jewelry', 0, 780, { align: 'center' });
+
+        doc.end();
+    } catch (error) {
+        console.error("Error generating invoice:", error);
+        res.status(500).send("Error generating invoice.");
+    }
+};
+
+
 
 
 
@@ -283,5 +479,6 @@ module.exports = {
     getOrder,
     getUserOrders,
     cancelOrder,
-    orderDetails
+    orderDetails,
+    getInvoice
 };
