@@ -183,25 +183,30 @@
                   <%})%>
                 </tbody>
               </table>
+              <div class="pagination-area my-4">
+                <nav>
+                    <ul class="pagination justify-content-center"> 
+                        <% for(let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= (i === +page) ? 'active' : '' %>">
+                                <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+              </div>
             </div>
           </div>
         </div>
+        
       </div>
+      
     </div>
 
-    <div class="pagination-container">
-      <% if (currentPage > 1) { %>
-      <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
-      <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
-      currentPage) { %>
-      <span class="current-page"><%= i %></span>
-      <% } else { %>
-      <a href="?page=<%= i %>"><%= i %></a>
-      <% } %> <% } %> <% if (currentPage < totalPages) { %>
-      <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
-      <% } %>
-    </div>
     
+  
+
   </section>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

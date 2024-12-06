@@ -24,6 +24,11 @@ const bannerSchema = new Schema({
     endDate:{
         type:Date,
         required:true
+    },
+    hidden: { type: Boolean, default: false },
+    createdAt:{
+        type:Date,
+        default:Date.now
     }
 })
 

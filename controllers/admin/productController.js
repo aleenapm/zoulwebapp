@@ -74,76 +74,92 @@ const addProducts = async (req,res) => {
     }
 }
 
-const getAllProducts = async (req,res) => {
+const getAllProducts = async (req, res) => {
     try {
         const search = req.query.search || "";
-        const page = req.query.page || 1;
-        const limit = 4;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const skip = (page - 1) * limit;
 
-        const productData = await Product.find({
-            $or:[
-                {productName:{$regex: new RegExp(".*"+search+".*","i")}},
-                {brand:{$regex:new RegExp(".*"+search+".*","i")}},
-            ],
-        }).limit(limit*1).skip((page-1)*limit).populate('category').exec();
-
+        // Count documents before applying pagination
         const count = await Product.find({
-            $or:[
-                {productName:{$regex: new RegExp(".*"+search+".*","i")}},
-                {brand:{$regex: new RegExp(".*"+search+".*","i")}}
-            ],
+            $or: [
+                { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
+                { brand: { $regex: new RegExp(".*" + search + ".*", "i") } }
+            ]
         }).countDocuments();
 
-        const category = await Category.find({isListed:true});
-        const brand = await Brand.find({isBlocked:false});
+        // Fetch paginated product data
+        const productData = await Product.find({
+            $or: [
+                { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
+                { brand: { $regex: new RegExp(".*" + search + ".*", "i") } }
+            ]
+        })
+            .populate('category')
+            .skip(skip)
+            .limit(limit)
+            .exec();
 
-        if(category && brand){
-            res.render("products",{
-                data:productData,
-                currentPage:page,
-                totalPages:page,
-                totalPages:Math.ceil(count/limit),
-                cat:category,
-                brand:brand,
+        const totalPages = Math.ceil(count / limit);
 
-            })
-        }else{
+        const category = await Category.find({ isListed: true });
+        const brand = await Brand.find({ isBlocked: false });
+
+        if (category && brand) {
+            res.render("products", {
+                data: productData,
+                totalPages,
+                page,
+                cat: category,
+                brand: brand,
+                search
+            });
+        } else {
             res.render("page-404");
         }
     } catch (error) {
-
+        console.error("Error in getAllProducts:", error);
         res.redirect("/admin/pageerror");
-        
     }
-    
-}
+};
 
-const addProductOffer = async (req,res) => {
+
+const addProductOffer = async (req, res) => {
     try {
-        const {productId,percentage} = req.body;
-        const findProduct = await Product.findOne({_id:productId});
-        const findCategory = await Category.findOne({_id:findProduct.category});
-        if(findCategory.categoryOffer > percentage){
-            return res.json({status:false,message:"This products category already has a category Offer"})
+        const { productId, percentage } = req.body;
+        const findProduct = await Product.findOne({ _id: productId });
+        if (!findProduct) {
+            return res.status(404).json({ status: false, message: "Product not found" });
         }
-        findProduct.salePrice = findProduct.salePrice - Math.floor(findProduct.regularPrice*(percentage/100));
+
+        const findCategory = await Category.findOne({ _id: findProduct.category });
+        if (!findCategory) {
+            return res.status(404).json({ status: false, message: "Category not found" });
+        }
+
+        if (findCategory.categoryOffer > percentage) {
+            return res.json({ status: false, message: "This product's category already has a category offer" });
+        }
+
+        findProduct.salePrice =
+            findProduct.regularPrice - Math.floor(findProduct.regularPrice * (percentage / 100));
         findProduct.productOffer = parseInt(percentage);
         await findProduct.save();
-        findCategory.categoryOffer=0;
-        await findCategory.save();
-        res.json({status:true});
 
+        findCategory.categoryOffer = 0; // Reset category offer
+        await findCategory.save();
+
+        return res.json({ status: true, message: "Product offer added successfully" });
     } catch (error) {
-        res.redirect("/admin/pageerror");
-        res.status(500).json({status:false,message:"Internal Server Error"})
+        console.error("Error in addProductOffer:", error);
+        return res.status(500).json({ status: false, message: "Internal Server Error" });
     }
-}
+};
 
 const removeProductOffer = async (req, res) => {
     try {
         const productId = req.body.productId;
-        console.log("Product ID received: ", productId);  
-
 
         const findProduct = await Product.findById(productId);
         if (!findProduct) {
@@ -152,23 +168,22 @@ const removeProductOffer = async (req, res) => {
 
         const percentage = findProduct.productOffer;
 
-      
-        if (typeof findProduct.salePrice === 'number' && typeof findProduct.regularPrice === 'number') {
-            findProduct.salePrice = findProduct.salePrice + Math.floor(findProduct.regularPrice * (percentage / 100));
+        if (typeof findProduct.salePrice === "number" && typeof findProduct.regularPrice === "number") {
+            findProduct.salePrice =
+                findProduct.salePrice + Math.floor(findProduct.regularPrice * (percentage / 100));
             findProduct.productOffer = 0;
 
-       
             await findProduct.save();
-            res.json({ status: true, message: "Product offer removed successfully" });
+            return res.json({ status: true, message: "Product offer removed successfully" });
         } else {
-            res.status(400).json({ status: false, message: "Invalid product price data" });
+            return res.status(400).json({ status: false, message: "Invalid product price data" });
         }
-
     } catch (error) {
-        console.error("Error in removeProductOffer: ", error); 
-        res.redirect("/admin/pageerror");
-    }
+        console.error("Error in removeProductOffer:", error);
+        return res.status(500).json({ status: false, message: "Internal Server Error" });
+    }
 };
+
 
 const blockProduct = async (req,res) => {
     try {
@@ -262,7 +277,6 @@ const editProduct = async (req, res) => {
             color: data.color
         };
 
-        // If new images are uploaded, add them to the productImage array
         if (req.files.length > 0) {
             updatefields.$push = { productImage: { $each: images } };
         }

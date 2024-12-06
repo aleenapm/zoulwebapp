@@ -10,6 +10,7 @@ const stockController = require('../controllers/admin/stockController');
 const couponController = require("../controllers/admin/couponController");
 const salesController = require("../controllers/admin/salesController");
 const dashboardController = require('../controllers/admin/dashboardController');
+const bannerController = require("../controllers/admin/bannerController");
 
 const { userAuth, adminAuth } = require("../middlewares/auth");
 const multer = require("multer");
@@ -26,10 +27,7 @@ router.get("/logout", admincontroller.logout);
 
 // API routes for dashboard data
 router.get('/dashboard',adminAuth,dashboardController.dashboard);
-router.get('/bestSellingProducts', adminAuth, dashboardController.getBestSellingProducts);
-router.get('/bestSellingCategories', adminAuth, dashboardController.getBestSellingCategories);
-router.get('/bestSellingBrands', adminAuth, dashboardController.getBestSellingBrands);
-router.get('/overview',adminAuth, dashboardController.getDashboardOverview);
+
 
 //customer management
 router.get("/customers", adminAuth, customerController.customerInfo);
@@ -78,6 +76,16 @@ router.post('/update-stock',adminAuth,stockController.updateStock);
 router.get('/coupons',adminAuth,couponController.getCouponPage);
 router.post('/saveCoupon',adminAuth,couponController.addCoupon);
 router.get('/deleteCoupon',adminAuth,couponController.deleteCoupon);
+
+//Banner management
+router.get('/banner',adminAuth,bannerController.getBannerPage);
+router.get('/addBanner',adminAuth,bannerController.getAddBannerPage);
+router.post('/addBanner',adminAuth,uploads.single("images"),bannerController.addBanner);
+router.get('/deleteBanner',adminAuth,bannerController.deleteBanner);
+router.post('/toggleBannerVisibility',adminAuth,bannerController.toggleBannerVisibility);
+router.get('/editBanner', adminAuth, bannerController.getEditBannerPage);
+router.post('/editBanner', adminAuth, uploads.single("image"), bannerController.editBanner);
+
 
 //sales report
 router.get('/salesReport',adminAuth,salesController.getSalesReport);

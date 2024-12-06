@@ -5,13 +5,12 @@ const loadOrders = async (req, res) => {
     if (req.session.admin) {
         try {
             const page = parseInt(req.query.page) || 1;
-            const limit = 5;
+            const limit = 6;
             const skip = (page - 1) * limit;
 
             const totalOrders = await Order.countDocuments();
             const totalPages = Math.ceil(totalOrders / limit);
 
-            // Fetch paginated orders
             const orders = await Order.find()
                 .populate('user', 'name email')
                 .populate('address')
@@ -46,7 +45,6 @@ const loadOrders = async (req, res) => {
     }
 };
 
-// Update order status function
 const updateOrderStatus = async (req, res) => {
     if (!req.session.admin) {
         return res.status(401).json({ message: "Unauthorized. Please log in as an admin." });
@@ -63,7 +61,6 @@ const updateOrderStatus = async (req, res) => {
             return res.status(400).json({ message: "Order ID and status are required and must be strings." });
         }
 
-        // Update the order status in the database
         const updatedOrder = await Order.findOneAndUpdate({orderId:orderId}, { status }, { new: true });
 
         if (!updatedOrder) {

@@ -2,6 +2,7 @@ const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Wallet = require("../../models/walletSchema");
+const Banner = require("../../models/bannerSchema");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt")
@@ -155,39 +156,34 @@ const loadAbout = async (req,res) => {
 }
 const loadShopping = async (req, res) => {
     try {
-        // Fetch categories for the UI
         const categories = await Category.find();
 
-        // Extract category name and page number from query parameters
         const categoryName = req.query.category;
-        const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+        const page = parseInt(req.query.page) || 1;
 
-        // Fetch the category object by name
         const category = categoryName ? await Category.findOne({ name: categoryName }) : null;
 
         if (categoryName && !category) {
             return res.status(404).send('Category not found');
         }
 
-        // Pagination setup
-        const itemsPerPage = 12; // Set how many products per page
+        const itemsPerPage = 12; 
         const skip = (page - 1) * itemsPerPage;
 
-        // Fetch products based on category and pagination
         let products;
         if (category) {
-            products = await Product.find({ category: category._id }) // Filter by category
+            products = await Product.find({ category: category._id, isBlocked: false }) // Exclude blocked products
                 .skip(skip)
                 .limit(itemsPerPage);
         } else {
-            products = await Product.find() // Fetch all products if no category is selected
+            products = await Product.find({ isBlocked: false }) // Exclude blocked products
                 .skip(skip)
                 .limit(itemsPerPage);
         }
 
         const totalProducts = category 
-            ? await Product.countDocuments({ category: category._id })
-            : await Product.countDocuments();
+            ? await Product.countDocuments({ category: category._id, isBlocked: false }) // Count unblocked products
+            : await Product.countDocuments({ isBlocked: false }); // Count unblocked products
 
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
@@ -195,8 +191,8 @@ const loadShopping = async (req, res) => {
             products,
             categories,
             selectedCategory: categoryName || '',
-            page,           // Pass current page
-            totalPages,     // Pass total number of pages
+            page,        
+            totalPages,   
         });
     } catch (err) {
         console.error('Error fetching products or categories:', err);
@@ -207,33 +203,51 @@ const loadShopping = async (req, res) => {
 
 
 
+const loadHomepage = async(req,res)=>{ 
+    try {
+        const today = new Date().toISOString();
+        
+        const findBanner = await Banner.find({
+            hidden: false,  
+            startDate: { $lt: new Date(today) },
+            endDate: { $gt: new Date(today) }
+        });
 
-
-const loadHomepage = async(req,res)=>{
-    try{
         const user = req.session.user;
-        // console.log(user)
-        const categories = await Category.find({isListed:true, name: "Personalised collection"});
-        let productData = await Product.find(
-            {isBlocked:false,
-                category:{$in:categories.map(category=>category._id)},quantity:{$gt:0}
-            }
-        )
+        const categories = await Category.find({
+            isListed: true, 
+            name: "Personalised collection"
+        });
 
-        productData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+        let productData = await Product.find({
+            isBlocked: false, // Exclude blocked products
+            category: { $in: categories.map(category => category._id) },
+            quantity: { $gt: 0 }
+        });
+
+        productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
         productData = productData.slice(0);
-        if(user){
-            const userData = await User.findById(user);
-            return res.render("home",{user:userData,products:productData, categories});
-        }else{
-            return res.render("home",{products:productData, categories});
-        }
 
-    }catch(error){
-        console.log("Home page not loading",error);
+        if (user) {
+            const userData = await User.findById(user);
+            return res.render("home", {
+                user: userData,
+                products: productData,
+                categories,
+                banners: findBanner || []
+            });
+        } else {
+            return res.render("home", {
+                products: productData,
+                categories,
+                banners: findBanner || []
+            });
+        }
+    } catch (error) {
+        console.log("Home page not loading", error);
         res.status(500).send("Server error");
     }
-}
+};
 
 const securePassword = async (password)=>{
     try {
@@ -359,7 +373,6 @@ const resendOtp = async (req, res) => {
 
 const logout = async (req, res) => {
     try {
-        // Check if req.session.user exists before finding the user
         if (req.session.user) {
             const user = await User.findById(req.session.user);
             if (user) {
@@ -367,7 +380,6 @@ const logout = async (req, res) => {
                 await user.save();
             }
             
-            // Destroy the session
             req.session.destroy((err) => {
                 if (err) {
                     console.error("Error destroying session:", err);
@@ -375,7 +387,6 @@ const logout = async (req, res) => {
                 res.redirect("/login");
             });
         } else {
-            // If no user in session, simply redirect to login
             res.redirect("/login");
         }
     } catch (error) {
@@ -384,26 +395,38 @@ const logout = async (req, res) => {
     }
 }
 
-const productDetails = async (req,res) => {
+const productDetails = async (req, res) => {
     try {
         const productId = req.query.id;
-        const user = req.session.user
-        const product = await Product.findById(productId);
+        const user = req.session.user;
+
+        const product = await Product.findOne({ _id: productId, isBlocked: false }); // Exclude blocked products
+        if (!product) {
+            return res.status(404).send("Product not found or is blocked");
+        }
+
         const categoryId = product.category;
-        const recommendedProducts = await Product.find({category: categoryId});
+        const recommendedProducts = await Product.find({
+            category: categoryId,
+            isBlocked: false, // Exclude blocked products
+            _id: { $ne: productId } // Exclude the current product
+        });
+
         const category = await Category.findById(product.category);
         const userData = await User.findById(user);
      
-        res.render("productview",{product,
-            cat:category,
-            user:userData,
-            recommended:recommendedProducts 
+        res.render("productview", {
+            product,
+            cat: category,
+            user: userData,
+            recommended: recommendedProducts 
         });
     } catch (error) {
-        console.error("Error in productDetails",error);
+        console.error("Error in productDetails", error);
+        res.status(500).send("Server error");
     }
-    
-}
+};
+
 
 const catFilter = async (req, res) => {
     try {
@@ -429,7 +452,6 @@ const catFilter = async (req, res) => {
     try {
         const searchQuery = req.query.query.toLowerCase();
         
-        // Search products by name
         const products = await Product.find({
             productName: { $regex: searchQuery, $options: 'i' }
         });
@@ -443,38 +465,29 @@ const catFilter = async (req, res) => {
   }
   const loadCategoryProducts = async (req, res) => {
     try {
-        // Fetch all categories for UI
         const categories = await Category.find();
 
-        // Extract category name from query
         const categoryName = req.query.category;
         if (!categoryName) {
             console.error('Category not specified');
             return res.status(400).send('Category not specified');
         }
 
-        // Find category by name (case-insensitive)
-        const category = await Category.findOne({ name: categoryName});
+        const category = await Category.findOne({ name: categoryName });
         if (!category) {
             console.error(`Category '${categoryName}' not found`);
             return res.status(404).send('Category not found');
         }
 
-        // Pagination settings
         const itemsPerPage = 12;
-        const page = Math.max(parseInt(req.query.page, 10) || 1, 1); // Ensure valid page
-        const skip = (page - 1) * itemsPerPage;
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1); 
 
-        // Fetch products belonging to the category using the ObjectId
-        const products = await Product.find({ category: category._id })
-            .skip(skip)
+        const products = await Product.find({ category: category._id, isBlocked: false }) // Exclude blocked products
             .limit(itemsPerPage);
 
-        // Count total products for pagination
-        const totalProducts = await Product.countDocuments({ category: category._id });
+        const totalProducts = await Product.countDocuments({ category: category._id, isBlocked: false }); // Count unblocked products
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
         
-        // Render the shop page
         res.render('shop', {
             products,
             categories,
@@ -487,7 +500,6 @@ const catFilter = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
-
 
 
 

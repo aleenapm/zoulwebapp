@@ -11,9 +11,8 @@ const path = require('path');
 const getOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const orderId = req.query.id; // Get orderId from the URL parameters
+        const orderId = req.query.id; 
 
-        // Fetch the order details for the logged-in user
         const order = await Order.findOne({ _id: orderId, user: userId })
             .populate('orderedItems.product');
 
@@ -21,14 +20,12 @@ const getOrder = async (req, res) => {
             return res.status(404).send("Order not found");
         }
 
-        // Calculate amounts based on order details
         const subtotal = order.orderedItems.reduce((total, item) => total + item.price * item.quantity, 0);
-        const shippingCharges = order.shippingCharges || 70; // Default to 70
-        const GST = order.GST || (subtotal * 0.18); // Calculate GST if not stored
+        const shippingCharges = order.shippingCharges || 70;
+        const GST = order.GST || (subtotal * 0.18); 
         const discount = order.discount || 0;
         const totalAmount = subtotal + GST + shippingCharges - discount;
 
-        // Render the order details on the "order" page
         return res.render("order", {
             products: order.orderedItems,
             subtotal,
@@ -41,6 +38,7 @@ const getOrder = async (req, res) => {
             shippingAddress: order.address,
             paymentMethod: order.paymentMethod,
             orderStatus: order.status,
+            orderData: order,
         });
     } catch (error) {
         console.error("Order page not loading:", error);
@@ -74,19 +72,16 @@ const createOrder = async (req, res) => {
             singleProduct
         });
 
-        // Ensure all numerical values are properly parsed
         subtotal = parseFloat(subtotal) || 0;
         discount = parseFloat(discount) || 0;
         gstAmount = parseFloat(gstAmount) || 0;
         shippingCharges = parseFloat(shippingCharges) || 70;
 
-        // Find the user's address first
         const userAddressDoc = await Address.findOne({ userId: userId });
         if (!userAddressDoc) {
             return res.status(400).json({ error: "Address not found." });
         }
 
-        // Match the specific address by ID
         const specificAddress = userAddressDoc.address.find(
             (addr) => addr._id.toString() === addressId
         );
@@ -94,7 +89,6 @@ const createOrder = async (req, res) => {
             return res.status(404).json({ error: "Address with provided ID not found." });
         }
 
-        // Prepare ordered items
         let orderedItems = [];
         if (singleProduct) {
             const product = JSON.parse(singleProduct);
@@ -103,7 +97,6 @@ const createOrder = async (req, res) => {
                 quantity: 1,
                 price: parseFloat(product.salePrice)
             });
-            // Update subtotal if it's 0
             if (subtotal <= 0) {
                 subtotal = parseFloat(product.salePrice);
             }
@@ -114,21 +107,17 @@ const createOrder = async (req, res) => {
                 quantity: parseInt(item.quantity),
                 price: parseFloat(item.totalPrice) / parseInt(item.quantity)
             }));
-            // Update subtotal if it's 0
             if (subtotal <= 0) {
                 subtotal = cartItems.reduce((total, item) => total + parseFloat(item.totalPrice), 0);
             }
         }
 
-        // Calculate GST if not provided
         const GST = gstAmount || (subtotal * 0.18);
         
-        // Calculate final amount
         const calculatedTotalAmount = parseFloat(
             (subtotal + GST + shippingCharges - discount).toFixed(2)
         );
 
-        // Debug log the calculations
         console.log("Calculation breakdown:", {
             subtotal,
             GST,
@@ -137,7 +126,6 @@ const createOrder = async (req, res) => {
             calculatedTotalAmount
         });
 
-        // Create the order data object
         const orderData = {
             orderedItems,
             totalPrice: subtotal.toFixed(2),
@@ -154,14 +142,11 @@ const createOrder = async (req, res) => {
             paymentStatus:'Pending',
         };
 
-        // Debug log the final order data
         console.log("Final order data:", orderData);
 
-        // Save the new order to the database
         const newOrder = new Order(orderData);
         await newOrder.save();
 
-        // Redirect or respond based on payment method
         if (paymentMethod === 'COD') {
             return res.redirect(`/order?id=${newOrder._id}`);
         } else {
@@ -264,8 +249,7 @@ const orderDetails = async (req, res) => {
             return res.redirect('/login');
         }
 
-        const orderData = await Order.findById(orderId)
-            .populate({
+        const orderData = await Order.findById(orderId).populate({
                 path: 'orderedItems.product',
             })
             .sort({ createdOn: -1 });
@@ -324,7 +308,6 @@ const getInvoice = async (req, res) => {
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
         doc.pipe(res);
 
-        // Color palette
         const colors = {
             primary: '#6D4C3E',
             secondary: '#b68b40',
@@ -335,13 +318,11 @@ const getInvoice = async (req, res) => {
             border: '#D2B48C'
         };
 
-        // Elegant border
         doc.lineWidth(1)
             .strokeColor(colors.border)
             .rect(40, 40, doc.page.width - 80, doc.page.height - 80)
             .stroke();
 
-        // Logo and header
         doc.font('Helvetica-Bold')
             .fontSize(32)
             .fillColor(colors.primary)
@@ -350,7 +331,6 @@ const getInvoice = async (req, res) => {
             .fillColor(colors.secondary)
             .text('Everyday wear | Personalised jewellery', 0, 140, { align: 'center' });
 
-        // Company details
         doc.font('Helvetica')
             .fontSize(10)
             .fillColor(colors.text)
@@ -358,7 +338,6 @@ const getInvoice = async (req, res) => {
             .text('Thrissur, Kerala - 680568', 0, 175, { align: 'center' })
             .text('GSTIN: 29AABCU9603R1ZX', 0, 190, { align: 'center' });
 
-        // Decorative line
         doc.moveTo(50, 220)
             .lineTo(550, 220)
             .strokeColor(colors.accent)
@@ -366,7 +345,6 @@ const getInvoice = async (req, res) => {
             .lineWidth(2)
             .stroke();
 
-        // Invoice Details
         doc.font('Helvetica')
             .fontSize(10)
             .fillColor(colors.text)
@@ -374,7 +352,6 @@ const getInvoice = async (req, res) => {
             .text(`Date: ${new Date(order.createdOn).toLocaleDateString('en-IN')}`, 360, 265)
             .text(`Order ID: ${orderId}`, 360, 280);
 
-        // Customer Details
         doc.font('Helvetica-Bold')
             .fontSize(12)
             .text('BILLED TO:', 50, 250)
@@ -388,7 +365,7 @@ const getInvoice = async (req, res) => {
                 300
             );
 
-        // Items Table
+        
         const tableTop = 350;
         doc.save()
             .rect(50, tableTop, 500, 35)
@@ -425,7 +402,6 @@ const getInvoice = async (req, res) => {
             yPosition += 30;
         });
 
-        // Summary Section
         doc.save()
             .rect(350, yPosition + 20, 200, 100)
             .fillColor(colors.highlight)
@@ -454,7 +430,6 @@ const getInvoice = async (req, res) => {
             .text('TOTAL', 360, yPosition + 95)
             .text(formatCurrency(order.finalAmount), 480, yPosition + 95, { align: 'right' });
 
-        // Footer
         doc.font('Helvetica')
             .fontSize(9)
             .fillColor(colors.text)

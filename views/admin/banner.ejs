@@ -1,0 +1,209 @@
+<%- include("../../views/partials/admin/header") %>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container-fluid px-4" style="margin-top: 15px;">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="page-title">Banner Management</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="/admin/addBanner" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i>Add New Banner
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Banner Image</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Visibility</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(locals.data && data.length > 0){ %>
+                            <% data.forEach(function(banner){ %>
+                                <tr>
+                                    <td>
+                                        <img src="/uploads/re-image/<%= banner.image %>" 
+                                             class="img-thumbnail rounded" 
+                                             style="width: 100px; height: 60px; object-fit: cover; ">
+                                    </td>
+                                    <td><%= banner.title %></td>
+                                    <td class="text-muted"><%= banner.description %></td>
+                                    <% 
+                                    const now = Date.now();
+                                    const isActive = banner.startDate < now && 
+                                                   banner.endDate > now && 
+                                                   !banner.hidden;
+                                    %>
+                                    <td>
+                                        <span class="badge <%= isActive ? 'bg-success' : 'bg-danger' %>">
+                                            <%= isActive ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= !isActive || banner.hidden ? 'bg-danger' : 'bg-success' %>">
+                                            <%= !isActive || banner.hidden ? 'Hidden' : 'Visible' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/admin/editBanner?id=<%= banner._id %>" 
+                                               class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-sm <%= banner.hidden ? 'btn-success' : 'btn-warning' %> toggle-visibility"
+                                                    data-id="<%= banner._id %>" 
+                                                    data-hidden="<%= banner.hidden %>">
+                                                <i class="fas <%= banner.hidden ? 'fa-eye' : 'fa-eye-slash' %>"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger delete-banner ms-2" 
+                                                    data-url="/admin/deleteBanner?id=<%= banner._id %>">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="fas fa-image me-2"></i>No Banners Found
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="pagination-area my-4">
+            <nav>
+                <ul class="pagination justify-content-center"> 
+                    <% for(let i=1;i<=totalPages;i++){ %>
+                        <li class="page-item <%= (i===page) ? 'active' : '' %>">
+                            <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
+                                <%= i %>
+                            </a>
+
+
+                        </li>
+                        <% } %>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleVisibilityButtons = document.querySelectorAll('.toggle-visibility');
+
+    toggleVisibilityButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bannerId = this.getAttribute('data-id');
+            const isHidden = this.getAttribute('data-hidden') === 'true';
+
+            Swal.fire({
+                title: isHidden ? 'Show Banner?' : 'Hide Banner?',
+                text: isHidden 
+                    ? "This banner will be visible to users."
+                    : "This banner will be hidden from users.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+            }).then(result => {
+                if (result.isConfirmed) {
+                    fetch('/admin/toggleBannerVisibility', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            id: bannerId,
+                            hidden: !isHidden,
+                        }),
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Updated!', data.message, 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error!', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error!', 'Failed to update banner visibility.', 'error');
+                    });
+                }
+            });
+        });
+    });
+
+    const deleteBannerButtons = document.querySelectorAll('.delete-banner');
+
+    deleteBannerButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const deleteUrl = this.getAttribute('data-url');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        });
+    });
+});
+</script>
+
+<style>
+.page-title {
+    color: #3a4d5c;
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.btn-group .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    padding: 0;
+}
+
+.img-thumbnail {
+    transition: transform 0.3s ease;
+}
+
+.img-thumbnail:hover {
+    transform: scale(1.1);
+}
+</style>
+
+<%- include("../../views/partials/admin/footer") %>

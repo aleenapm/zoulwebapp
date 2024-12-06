@@ -2,31 +2,31 @@ const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 
 
-const categoryInfo = async (req,res) => {
+const categoryInfo = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; 
-        const limit = 4;
-        const skip = (page-1)*limit;
+        const page = parseInt(req.query.page) || 1; // Convert page to a number
+        const limit = 10;
+        const skip = (page - 1) * limit;
 
         const categoryData = await Category.find({})
-        .sort({createdAt:-1})
-        .skip(skip)
-        .limit(limit);
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
-        const totalCategories = await Category.countDocuments();
-        const totalPages = Math.ceil(totalCategories/limit);
-        res.render("category",{
-            cat:categoryData,
-            currentPage:page,
-            totalPages:totalPages,
-            totalCategories:totalCategories
+        const count = await Category.countDocuments();
+        const totalPages = Math.ceil(count / limit);
+
+        res.render("category", {
+            cat: categoryData,
+            totalPages,
+            page,
         });
     } catch (error) {
-
-        console.log(error);
-        res.redirect("/admin/pageerror")
+        console.error(error);
+        res.redirect("/admin/pageerror");
     }
-}
+};
+
 
 const addCategory = async (req,res) => {
     const {name,description} = req.body;
@@ -72,30 +72,39 @@ const addCategoryOffer = async (req,res) => {
 }
 
 
-const removeCategoryOffer = async (req,res) => {
+const removeCategoryOffer = async (req, res) => {
     try {
         const categoryId = req.body.categoryId;
+        console.log("Received categoryId:", categoryId);
+
         const category = await Category.findById(categoryId);
-        if(!category){
-            return res.status(404).json({status:false,message:"Category not found"});
+        if (!category) {
+            console.error("Category not found for ID:", categoryId);
+            return res.status(404).json({ status: false, message: "Category not found" });
         }
+
         const percentage = category.categoryOffer;
-        const products = await Product.find({category:category._id});
-       
-        if(products.length > 0){
-            for(const product of products){
-                product.salePrice +=Math.floor(product.regularPrice * (percentage/100));
+        const products = await Product.find({ category: category._id });
+
+        if (products.length > 0) {
+            for (const product of products) {
+                console.log(`Updating product: ${product._id}`);
+                product.salePrice += Math.floor(product.regularPrice * (percentage / 100));
                 product.productOffer = 0;
                 await product.save();
             }
         }
+
         category.categoryOffer = 0;
         await category.save();
-        res.json({status:true});
+        console.log("Category offer removed successfully");
+        return res.json({ status: true });
     } catch (error) {
-        res.status(500).json({status:false, message:"Internal server Error"});
+        console.error("Error in removeCategoryOffer:", error);
+        return res.status(500).json({ status: false, message: "Internal server error" });
     }
-}
+};
+
 
 const getListcategory = async (req,res) => {
     try {

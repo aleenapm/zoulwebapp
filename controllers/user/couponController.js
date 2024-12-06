@@ -39,7 +39,6 @@ const getCouponList = async (req,res) => {
             });
         }
 
-        // Additional validation checks
         if (coupon.userId && coupon.userId.includes(userId)) {
             return res.json({
                 success: false,
@@ -47,7 +46,6 @@ const getCouponList = async (req,res) => {
             });
         }
 
-        // Check minimum price requirement
         if (coupon.minimumPrice && totalPrice < coupon.minimumPrice) {
             return res.json({
                 success: false,
@@ -55,13 +53,11 @@ const getCouponList = async (req,res) => {
             });
         }
 
-        // Calculate discount amount
         let discountAmount = Math.min(
             (totalPrice * coupon.offerPercentage) / 100,
             coupon.maximumDiscount || Infinity
         );
 
-        // Ensure discount is not more than total price
         discountAmount = Math.min(discountAmount, totalPrice);
 
         return res.json({

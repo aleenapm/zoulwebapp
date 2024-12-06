@@ -28,7 +28,7 @@ const sortProducts = async (req, res) => {
                 sortCriteria = { createdAt: -1 };
                 break;
             default:
-                sortCriteria = { createdAt: -1 }; // Default sort
+                sortCriteria = { createdAt: -1 }; 
         }
 
         const totalProducts = await Product.countDocuments();

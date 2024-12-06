@@ -2,137 +2,171 @@
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
 </head>
-<div class="content-header">
-    <div> 
-        <br>
-        <h2 class="content-title card-title" style="margin-left: 30px;">Products</h2>
-    </div>
-    <div class="d-grid">
-        <a href="/admin/addProducts" class="btn btn-primary mt-20" style="margin-right: 100px;">
-            Add Product
-        </a>
-    </div>
-</div>
-<header class="card-header text-center mb-20">
-    <form action="" method="get" class="d-inline">
-        <div class="input-group input-group-sm" style="width: 500px; margin: 0 auto;">
-            <input 
-                type="text" 
-                class="form-control border-0 rounded-start-pill px-3" 
-                placeholder="Search products or brands" 
-                name="search" 
-                style="box-shadow: none;"
-            >
-            <button 
-                class="btn btn-primary rounded-end-pill" 
-                type="submit" 
-                style="padding: 0 15px;"
-            >
-                Search
-            </button>
+<div class="container-fluid product-management-page">
+    <div class="row mb-4 align-items-center">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-2">Product Management</h1>
+                    <p class="text-muted mb-0">Overview of your product inventory</p>
+                </div>
+                <div>
+                    <a href="/admin/addProducts" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Product
+                    </a>
+                </div>
+            </div>
         </div>
-    </form>
-</header>
-<div class="right mt-5">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col"><b>Product name</b></th>
-                <th scope="col"><b>Brand</b></th>
-                <th scope="col"><b>Category</b></th>
-                <th scope="col"><b>Sale Price</b></th>
-                <th scope="col"><b>Offer Price</b></th>
-                <th scope="col"><b>Offer</b></th>
-                <th scope="col"><b>Quantity</b></th>
-                <th scope="col"><b>Action</b></th>
-                <th scope="col"><b>Delete</b></th>
-                <th scope="col"><b>Edit</b></th>
-            </tr>
-        </thead>
-        <tbody>
+    </div>
 
-            <% for(let i=data.length-1;i>=0;i--){ %>
-            
-            <tr>
-                <td><%= data[i].productName %></td>
-                <td><%= data[i].brand %></td>
-                <td><%= data[i].category.name %></td>
-                <td><%= data[i].salePrice %></td>
-                <td>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form action="" method="get" class="mb-3">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        class="form-control border-start-0" 
+                        placeholder="Search products by name, brand, or category" 
+                        name="search"
+                        value="<%= locals.search || '' %>"
+                    >
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
 
-                    <% if(locals.data[i].productOffer){ %>
-                        <%= data[i].productOffer %>%
-                        <% }else{ %>
-                            0%
-                            <% } %>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Brand</th>
+                            <th>Category</th>
+                            <th>Sale Price</th>
+                            <th>Offer</th>
+                            <th>Quantity</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% data.forEach(function(product){ %>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary text-white me-3 product-avatar">
+                                            <%= product.productName.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <%= product.productName %>
+                                    </div>
+                                </td>
+                                <td><%= product.brand %></td>
+                                <td><%= product.category.name %></td>
+                                <td>₹<%= product.salePrice.toFixed(2) %></td>
+                                <td>
+                                    <% if(product.productOffer === 0 || !product.productOffer){ %>
+                                        <button class="btn btn-sm btn-info" onclick="addOffer('<%= product._id %>')">
+                                            Add Offer
+                                        </button>
+                                    <% } else { %>
+                                        <span class="badge bg-success me-2"><%= product.productOffer %>%</span>
+                                        <button class="btn btn-sm btn-warning" onclick="removeOffer('<%= product._id %>')">
+                                            Remove Offer
+                                        </button>
+                                    <% } %>
+                                </td>
+                                <td><%= product.quantity %></td>
+                                <td class="text-center">
+                                    <% 
+                                    let statusClass = product.isBlocked ? 'bg-danger' : 'bg-success';
+                                    let statusText = product.isBlocked ? 'Blocked' : 'Active';
+                                    %>
+                                    <span class="badge <%= statusClass %>"><%= statusText %></span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/editProduct?id=<%= product._id %>" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </a>
+                                        <a href="/admin/deleteProduct?id=<%= product._id %>" class="btn btn-sm btn-outline-danger delete-product">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </a>
+                                        <% if(!product.isBlocked){ %>
+                                            <a href="/admin/blockProduct?id=<%= product._id %>" class="btn btn-sm btn-outline-warning">
+                                                <i class="fas fa-ban me-1"></i>Block
+                                            </a>
+                                        <% } else { %>
+                                            <a href="/admin/unblockProduct?id=<%= product._id %>" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-check-circle me-1"></i>Unblock
+                                            </a>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-                </td>
-                <td>
+    <div class="pagination-area my-4">
+        <nav>
+            <ul class="pagination justify-content-center"> 
+                <% for(let i=1;i<=totalPages;i++){ %>
+                    <li class="page-item <%= (i===page) ? 'active' : '' %>">
+                        <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
+                            <%= i %>
+                        </a>
 
-                    <% if(locals.data[i].productOffer===0){ %>
-                
-                    <button class="btn btn-info" onclick="addOffer('<%=data[i]._id%>')" style="width: 100px;">
-                        <a href="#" class="text-white">Add Offer</a>
-                    </button>
-                    <% }else{ %>
-        
-                    <button class="btn btn-info" onclick="removeOffer('<%=data[i]._id%>')" style="width: 100px;">
-                        <a href="#" class="text-white">Remove</a>
-                    </button>
 
+                    </li>
                     <% } %>
-                
-                </td>
-                <td><%=data[i].quantity%></td>
-                <td>
-
-                    <% if(data[i].isBlocked===false){ %>
-                
-                    <button class="btn btn-danger" style="width: 80px;">
-                        <a href="/admin/blockProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Block</a>
-                    </button>
-                    <% }else{%>
-                    <button class="btn btn-success" style="width: 80px;">
-                        <a href="/admin/unblockProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
-                    </button>
-                    <% } %>
-                </td>
-                <td>
-                    <button class="btn btn-danger" style="width: 80px;">
-                        <a href="/admin/deleteProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Delete</a>
-                    </button>
-
-                </td>
-        
-                <td>
-                    <button class="btn btn-info" style="width: 80px;">
-                        <a href="/admin/editProduct?id=<%=data[i]._id%>" class="text-white" style="text-decoration: none;">Edit</a>
-                    </button>
-                </td>
-            </tr>
-            <% } %>
-        </tbody>
-
-    </table>
-</div>
-</div>
+            </ul>
+        </nav>
+    </div>
 </div>
 
-<div class="container mt-3">
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
- 
- 
-            <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%=(i === currentPage) ? 'active' : '' %>">
-                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-            </li>
-            <% } %>
- 
- 
-        </ul>
-    </nav>
- </div>
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .product-management-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .product-avatar {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        border-radius: 50%;
+    }
+
+    .table > tbody > tr > td {
+        vertical-align: middle;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,0.04);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    @media (max-width: 768px) {
+        .product-management-page {
+            padding: 10px;
+        }
+    }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -140,60 +174,106 @@
 <script>
     async function addOffer(productId) {
         const {value:amount} = await Swal.fire({
-
-            title:"Offer in percentage",
-            input:"number",
-            inputLabel:"percentage",
-            inputPlaceholder:"%"
-        })
-        $.ajax({
-            url:"/admin/addProductOffer",
-            method:"post",
-            data:{
-                percentage:amount,
-                productId:productId
-            },
-            success:(response)=>{
-                if(response.status===true){
-                    location.reload()
-                    Swal.fire("Offer added","The offer has been removed","success")
-                }else{
-                    alert("failed")
+            title: "Add Offer",
+            input: "number",
+            inputLabel: "Offer Percentage",
+            inputPlaceholder: "%",
+            showCancelButton: true,
+            inputValidator: (value) => {
+                if (!value) {
+                    return "You need to write something!";
+                }
+                if (value < 0 || value > 100) {
+                    return "Percentage must be between 0 and 100";
                 }
             }
-        })
-    }
-    async function removeOffer(productId) {
-    try {
-        const result = await Swal.fire({
-            title: "Remove offer",
-            text: "Are you sure you want to remove this offer?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: "Yes, remove it!"
         });
 
-        if (result.isConfirmed) {
-            const response = await $.ajax({
-                url: "/admin/removeProductOffer",
+        if (amount) {
+            $.ajax({
+                url: "/admin/addProductOffer",
                 method: "post",
-                data: { productId: productId }
+                data: {
+                    percentage: amount,
+                    productId: productId
+                },
+                success: (response) => {
+                    if (response.status === true) {
+                        Swal.fire({
+                            title: "Offer Added",
+                            text: "The offer has been successfully added",
+                            icon: "success"
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Failed", response.message || "Could not add offer", "error");
+                    }
+                },
+                error: () => {
+                    Swal.fire("Error", "Something went wrong", "error");
+                }
+            });
+        }
+    }
+
+    async function removeOffer(productId) {
+        try {
+            const result = await Swal.fire({
+                title: "Remove Offer",
+                text: "Are you sure you want to remove this offer?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: "Yes, remove it!"
             });
 
-            if (response.status === true) {
-                await Swal.fire("Removed!", response.message, "success");
-                location.reload();
-            } else {
-                Swal.fire("Failed", response.message, "error");
-            }
-        }
-    } catch (error) {
-        console.error("Error in removeOffer function:", error);
-        Swal.fire("Error", "Something went wrong", "error");
-    }
-}
+            if (result.isConfirmed) {
+                const response = await $.ajax({
+                    url: "/admin/removeProductOffer",
+                    method: "post",
+                    data: { productId: productId }
+                });
 
+                if (response.status === true) {
+                    await Swal.fire({
+                        title: "Removed!",
+                        text: response.message,
+                        icon: "success"
+                    });
+                    location.reload();
+                } else {
+                    Swal.fire("Failed", response.message, "error");
+                }
+            }
+        } catch (error) {
+            console.error("Error in removeOffer function:", error);
+            Swal.fire("Error", "Something went wrong", "error");
+        }
+    }
+
+    // Add confirmation for delete product
+    $(document).ready(function() {
+        $('.delete-product').on('click', function(e) {
+            e.preventDefault();
+            const deleteUrl = $(this).attr('href');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        });
+    });
 </script>
+
 <%- include("../../views/partials/admin/footer") %>

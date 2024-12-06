@@ -4,9 +4,6 @@ const Addresses = require("../../models/addressSchema");
 const mongoose = require('mongoose'); 
 
 
-
-
-
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -41,7 +38,6 @@ const loadCheckout = async (req, res) => {
         let totalPriceAfterDiscount = 0;
 
         if (req.query.id) {
-            // Single product checkout
             const quantity = req.query.quantity || 1;
             const product = await Product.findById(req.query.id);
             if (!product) {
@@ -65,7 +61,6 @@ const loadCheckout = async (req, res) => {
                 products: []
             });
         } else {
-            // Cart-based checkout
             const cartItems = await Cart.findOne({ userId: user }).populate('items.productId');
             if (!cartItems || !cartItems.items.length) {
                 return res.render('checkout', {
@@ -122,7 +117,6 @@ const addToCart = async (req, res) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        // Check if the product is out of stock
         if (product.quantity === 0) {
             return res.status(400).json({ message: "Oops! Product is out of stock." });
         }
@@ -253,13 +247,11 @@ const removeProduct = async (req, res) => {
             return res.status(404).json({ success: false, message: "Cart not found for the user" });
         }
 
-        // Use $pull to remove the item based on the productId in items array
         const updateResult = await Cart.updateOne(
             { userId },
             { $pull: { items: { productId: cartProductId } } }
         );
 
-        // Check if an item was actually removed
         if (updateResult.modifiedCount === 0) {
             return res.status(404).json({ success: false, message: "Product not found in cart" });
         }

@@ -1,264 +1,255 @@
-// dashboardController.js
 const Order = require('../../models/orderSchema');
-const Product = require("../../models/productSchema");
-const Category = require("../../models/categorySchema");
+const Product = require('../../models/productSchema');
 
-// Helper Functions
-const getDateRange = (period) => {
-    const now = new Date();
-    const start = new Date();
-    
-    switch(period) {
-        case 'yearly':
-            start.setFullYear(start.getFullYear() - 1);
-            break;
-        case 'monthly':
-            start.setMonth(start.getMonth() - 12);
-            break;
-        case 'weekly':
-            start.setDate(start.getDate() - 7);
-            break;
-    }
-    
-    return { start, end: now };
-};
-
-const getGrouping = (period) => {
-    switch(period) {
-        case 'yearly':
-            return { $year: '$createdOn' };
-        case 'monthly':
-            return { 
-                year: { $year: '$createdOn' },
-                month: { $month: '$createdOn' }
-            };
-        case 'weekly':
-            return { 
-                year: { $year: '$createdOn' },
-                week: { $week: '$createdOn' }
-            };
-    }
-};
-
-const formatLabel = (id, period) => {
-    switch(period) {
-        case 'yearly':
-            return `${id}`;
-        case 'monthly':
-            return `${id.year}-${id.month}`;
-        case 'weekly':
-            return `Week ${id.week}, ${id.year}`;
-        default:
-            return id.toString();
-    }
-};
-
-// Controller Functions
-const dashboard = async function(req, res) {
+const dashboard = async (req, res) => {
     try {
-        const [salesData, products, categories, brands, overview] = await Promise.all([
-            getSalesData(),
-            getBestSellingProducts(),
-            getBestSellingCategories(),
-            getBestSellingBrands(),
-            getDashboardOverview()
-        ]);
+        if (req.session.admin) {
+            const salesData = await getTotalSales();
+            const products = await getMostSellingProducts();
+            const categories = await getMostSellingCategories();
+            const brands = await getMostSellingBrands();
+            const totalOrders = await Order.countDocuments();
+            const totalProducts = await Product.countDocuments()
 
-        res.render('dashboard', {
-            salesData,
-            products,
-            categories,
-            brands,
-            totalOrders: overview.totalOrders,
-            totalProducts: await Product.countDocuments(),
-            pageTitle: 'Dashboard'
-        });
-    } catch (error) {
-        console.error('Dashboard render error:', error);
-        res.status(500).render('error', { error: 'Failed to load dashboard' });
-    }
-};
 
-const getSalesData = async function() {
-    try {
-        const periods = ['yearly', 'monthly', 'weekly'];
-        const salesData = {};
-
-        for (const period of periods) {
-            const dateRange = getDateRange(period);
-            const data = await Order.aggregate([
-                {
-                    $match: {
-                        createdOn: { $gte: dateRange.start, $lte: dateRange.end },
-                        status: { $ne: 'Cancelled' }
-                    }
-                },
-                {
-                    $group: {
-                        _id: getGrouping(period),
-                        total: { $sum: '$finalAmount' }
-                    }
-                },
-                { $sort: { '_id': 1 } }
-            ]);
-
-            salesData[period] = {
-                labels: data.map(d => formatLabel(d._id, period)),
-                data: data.map(d => d.total)
-            };
+            res.render('dashboard', { 
+                salesData: JSON.parse(JSON.stringify(salesData)), 
+                products: JSON.parse(JSON.stringify(products)), 
+                categories: JSON.parse(JSON.stringify(categories)), 
+                brands: JSON.parse(JSON.stringify(brands)),
+                totalOrders,
+                totalProducts
+            });
         }
-
-        const totalSalesAmount = await Order.aggregate([
-            { $match: { status: { $ne: 'Cancelled' } } },
-            { $group: { _id: null, total: { $sum: '$finalAmount' } } }
-        ]);
-
-        salesData.totalSalesAmount = totalSalesAmount[0]?.total || 0;
-
-        return salesData;
     } catch (error) {
-        console.error('Error getting sales data:', error);
-        throw error;
+        console.error("Dashboard Error:", error);
+        res.redirect('/pageerror');
     }
-};
+}
 
-const getBestSellingProducts = async function(req, res) {
+async function getTotalSales() {
     try {
-        const bestSellingProducts = await Order.aggregate([
-            { $match: { status: { $ne: 'Cancelled' } } },
-            { $unwind: '$orderedItems' },
+        const totalSales = await Order.aggregate([
             {
                 $group: {
-                    _id: '$orderedItems.product',
-                    totalQuantitySold: { $sum: '$orderedItems.quantity' },
-                    totalRevenue: { $sum: { $multiply: ['$orderedItems.quantity', '$orderedItems.price'] } }
+                    _id: null,
+                    totalSalesAmount: { $sum: "$finalAmount" }
                 }
-            },
-            {
-                $lookup: {
-                    from: 'products',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'productDetails'
-                }
-            },
-            { $unwind: '$productDetails' },
-            {
-                $project: {
-                    productName: '$productDetails.productName',
-                    totalQuantitySold: 1,
-                    totalRevenue: 1
-                }
-            },
-            { $sort: { totalQuantitySold: -1 } },
-            { $limit: 10 }
+            }
         ]);
 
-        return bestSellingProducts;
-    } catch (error) {
-        console.error('Error getting best selling products:', error);
-        throw error;
-    }
-};
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1);
 
-const getBestSellingCategories = async function() {
-    try {
-        const bestSellingCategories = await Order.aggregate([
-            { $match: { status: { $ne: 'Cancelled' } } },
-            { $unwind: '$orderedItems' },
+        const weeklySales = await Order.aggregate([
             {
-                $lookup: {
-                    from: 'products',
-                    localField: 'orderedItems.product',
-                    foreignField: '_id',
-                    as: 'productDetails'
+                $match: {
+                    createdOn: { $gte: startOfYear } 
                 }
             },
-            { $unwind: '$productDetails' },
-            {
-                $lookup: {
-                    from: 'categories',
-                    localField: 'productDetails.category',
-                    foreignField: '_id',
-                    as: 'categoryDetails'
-                }
-            },
-            { $unwind: '$categoryDetails' },
             {
                 $group: {
-                    _id: '$categoryDetails._id',
-                    categoryName: { $first: '$categoryDetails.name' },
-                    totalQuantitySold: { $sum: '$orderedItems.quantity' }
+                    _id: { $week: "$createdOn" },
+                    sales: { $sum: "$finalAmount" }
                 }
             },
-            { $sort: { totalQuantitySold: -1 } },
-            { $limit: 10 }
+            { $sort: { "_id": 1 } }
         ]);
 
-        return bestSellingCategories;
-    } catch (error) {
-        console.error('Error getting best selling categories:', error);
-        throw error;
-    }
-};
-
-const getBestSellingBrands = async function() {
-    try {
-        const bestSellingBrands = await Order.aggregate([
-            { $match: { status: { $ne: 'Cancelled' } } },
-            { $unwind: '$orderedItems' },
+        const monthlySales = await Order.aggregate([
             {
-                $lookup: {
-                    from: 'products',
-                    localField: 'orderedItems.product',
-                    foreignField: '_id',
-                    as: 'productDetails'
+                $match: {
+                    createdOn: { $gte: startOfYear } 
                 }
             },
-            { $unwind: '$productDetails' },
             {
                 $group: {
-                    _id: '$productDetails.brand',
-                    totalQuantitySold: { $sum: '$orderedItems.quantity' }
+                    _id: { $month: "$createdOn" },
+                    sales: { $sum: "$finalAmount" }
                 }
             },
-            { $sort: { totalQuantitySold: -1 } },
-            { $limit: 10 }
+            { $sort: { "_id": 1 } }
         ]);
 
-        return bestSellingBrands;
-    } catch (error) {
-        console.error('Error getting best selling brands:', error);
-        throw error;
-    }
-};
-
-const getDashboardOverview = async function() {
-    try {
-        const [totalRevenue, totalOrders, pendingOrders] = await Promise.all([
-            Order.aggregate([
-                { $match: { status: { $ne: 'Cancelled' } } },
-                { $group: { _id: null, total: { $sum: '$finalAmount' } } }
-            ]),
-            Order.countDocuments({ status: { $ne: 'Cancelled' } }),
-            Order.countDocuments({ status: 'Pending' })
+        const yearlySales = await Order.aggregate([
+            {
+                $group: {
+                    _id: { $year: "$createdOn" },
+                    sales: { $sum: "$finalAmount" }
+                }
+            },
+            { $sort: { "_id": 1 } }
         ]);
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+
+        const weeklyData = {
+            labels: weeklySales.map(item => `Week ${item._id}`),
+            data: weeklySales.map(item => item.sales)
+        };
+
+        const monthlyData = {
+            labels: monthNames,
+            data: Array(12).fill(0)
+        };
+        monthlySales.forEach(item => {
+            if (item._id >= 1 && item._id <= 12) {
+                monthlyData.data[item._id - 1] = item.sales;
+            }
+        });
+
+        const yearlyData = {
+            labels: yearlySales.map(item => item._id.toString()),
+            data: yearlySales.map(item => item.sales)
+        };
 
         return {
-            totalRevenue: totalRevenue[0]?.total || 0,
-            totalOrders,
-            pendingOrders
+            totalSalesAmount: totalSales.length > 0 ? totalSales[0].totalSalesAmount : 0,
+            weekly: weeklyData,
+            monthly: monthlyData,
+            yearly: yearlyData
         };
     } catch (error) {
-        console.error('Error getting dashboard overview:', error);
-        throw error;
+        console.error("Error in getTotalSales:", error);
+        return {
+            totalSalesAmount: 0,
+            weekly: { labels: [], data: [] },
+            monthly: { labels: [], data: [] },
+            yearly: { labels: [], data: [] }
+        };
     }
-};
+}
 
-module.exports = {
+
+async function getMostSellingProducts() {
+    try {
+        const result = await Order.aggregate([
+            { $unwind: "$orderedItems" },
+
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "orderedItems.product",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+
+            { $unwind: "$productDetails" },
+
+            {
+                $group: {
+                    _id: "$orderedItems.product",
+                    productName: { $first: "$productDetails.productName" },
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" }
+                }
+            },
+
+            { $sort: { totalQuantitySold: -1 } },
+
+            { $limit: 10 }
+        ]);
+
+        result.forEach(item => {
+            item._id = item._id.toString();
+        });
+
+        return result;
+    } catch (error) {
+        console.error("Error finding most selling product:", error);
+    }
+}
+
+async function getMostSellingCategories() {
+    try {
+        const result = await Order.aggregate([
+            { $unwind: "$orderedItems" },
+
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "orderedItems.product",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+
+            { $unwind: "$productDetails" },
+
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "productDetails.category",
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+
+            { $unwind: "$categoryDetails" },
+
+            {
+                $group: {
+                    _id: "$productDetails.category",
+                    categoryName: { $first: "$categoryDetails.name" },
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" }
+                }
+            },
+
+            { $sort: { totalQuantitySold: -1 } },
+
+            { $limit: 10 }
+        ]);
+
+        result.forEach(item => {
+            item._id = item._id.toString();
+        });
+
+        return result;
+    } catch (error) {
+        console.error("Error finding most selling category:", error);
+    }
+}
+
+async function getMostSellingBrands() {
+    try {
+        const result = await Order.aggregate([
+            { $unwind: "$orderedItems" },
+
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "orderedItems.product",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+
+            { $unwind: "$productDetails" },
+
+            {
+                $group: {
+                    _id: "$productDetails.brand",
+                    totalQuantitySold: { $sum: "$orderedItems.quantity" }
+                }
+            },
+
+            { $sort: { totalQuantitySold: -1 } },
+
+            { $limit: 10 },
+        ]);
+
+        result.forEach(item => {
+            item._id = item._id.toString();
+        });
+
+        return result;
+    } catch (error) {
+        console.error("Error finding most selling category and brand:", error);
+    }
+}
+
+
+module.exports ={
     dashboard,
-    getBestSellingProducts,
-    getBestSellingCategories,
-    getBestSellingBrands,
-    getDashboardOverview
-};
+}

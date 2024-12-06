@@ -6440,13 +6440,13 @@ h6.post-title {
 .header-style-1 .search-style-2 select {
   border-width: 0 0 3px 0;
   border-style: solid;
-  border-color: #414648;
+  border-color: #b68b40;
   border-radius: 0;
 }
 
 .header-style-1 .header-top-ptb-1 {
   padding: 13px 0;
-  border-bottom: 3px solid #39b4ac;
+  border-bottom: 3px solid #b68b40;
   background-color: #d8f4e2;
   background-image: none;
 }
@@ -6454,7 +6454,7 @@ h6.post-title {
 /* Header style 2 */
 .header-style-2 .header-top-ptb-1 {
   padding: 10px 0;
-  border-bottom: 3px solid #088178 !important;
+  border-bottom: 3px solid #b68b40 !important;
   font-size: 14px;
   line-height: 1;
   background: #fff;
@@ -6472,7 +6472,7 @@ h6.post-title {
 .header-style-2 .select2-container--default .select2-selection--single {
   border-width: 0 1px 0 0;
   border-style: solid;
-  border-color: #e2e9e1;
+  border-color: #b68b40;
   height: 45px;
   padding-left: 20px;
   width: 155px;
@@ -6485,7 +6485,7 @@ h6.post-title {
 }
 
 .header-style-2 .search-style-2 form {
-  border: 1px solid #e2e9e1;
+  border: 1px solid #b68b40;
   border-radius: 4px;
   max-width: 700px;
 }
@@ -6505,8 +6505,8 @@ h6.post-title {
 }
 
 .header-style-3 .main-nav {
-  border-top: 1px solid #e2e9e1;
-  border-bottom: 1px solid #e2e9e1;
+  border-top: 1px solid #b68b40;
+  border-bottom: 1px solid #b68b40;
 }
 
 .header-style-3 .header-top-ptb-1 {
@@ -6544,8 +6544,8 @@ h6.post-title {
 }
 
 .header-style-3 .main-nav {
-  border-top: 1px solid #e2e9e1;
-  border-bottom: 1px solid #e2e9e1;
+  border-top: 1px solid #b68b40;
+  border-bottom: 1px solid #b68b40;
 }
 
 .header-style-3 .sticky-bar.stick.sticky-blue-bg {
@@ -6564,7 +6564,7 @@ h6.post-title {
 .header-style-3 .select2-container--default .select2-selection--single {
   border-width: 0 1px 0 0;
   border-style: solid;
-  border-color: #e2e9e1;
+  border-color: #b68b40;
   height: 45px;
   padding-left: 20px;
   width: 155px;
@@ -6577,7 +6577,7 @@ h6.post-title {
 }
 
 .header-style-3 .search-style-2 form {
-  border: 1px solid #e2e9e1;
+  border: 1px solid #b68b40;
   border-radius: 4px;
   max-width: 700px;
 }
@@ -6623,7 +6623,7 @@ h6.post-title {
 .header-style-4 .select2-container--default .select2-selection--single {
   border-width: 0 1px 0 0;
   border-style: solid;
-  border-color: #e2e9e1;
+  border-color: #b68b40;
   height: 45px;
   padding-left: 20px;
   width: 155px;
@@ -6653,7 +6653,7 @@ h6.post-title {
 .header-style-4 .header-bottom-bg-color {
   background-color: #fff;
   border-top: 1px solid #e2e9e1;
-  border-bottom: 1px solid #e2e9e1;
+  border-bottom: 1px solid #b68b40;
 }
 
 .header-style-4 .main-categori-wrap > a {

@@ -407,12 +407,11 @@
         </div>
 
         
-        <!-- Recommended Products Section -->
         <section class="recommended-section">
             <h2 class="section-title">Recommended Products</h2>
             <div class="product-grid">
                 <% recommended.forEach(product => { %>
-                    <div class="product-card">
+                    <a href="/productDetails?id=<%= product._id %>" class="product-card">
                         <div class="product-card-image">
                             <img src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
                         </div>
@@ -422,19 +421,12 @@
                             <div class="stock-status <%= product.quantity > 0 ? 'in-stock' : 'out-of-stock' %>">
                                 <%= product.quantity > 0 ? `${product.quantity} in stock` : 'Out of stock' %>
                             </div>
-                            <div class="product-card-actions">
-                                <button class="card-action-btn cart" onclick="addToCart('<%= product._id %>')">
-                                    <i class="fi-rs-shopping-bag-add"></i>
-                                </button>
-                                <button class="card-action-btn wishlist" onclick="addToWishlist('<%= product._id %>')">
-                                    <i class="fi-rs-heart"></i>
-                                </button>
-                            </div>
                         </div>
-                    </div>
+                    </a>
                 <% }) %>
             </div>
         </section>
+        
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

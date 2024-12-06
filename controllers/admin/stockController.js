@@ -2,9 +2,14 @@ const Product = require('../../models/productSchema');
 
 const getStocks = async (req,res) => {
     try {
-        
-        const products = await Product.find().populate('category', 'name');
-        res.render('stocks',{products});
+        const page= (req.query.page) || 1;
+        const limit = 10;
+        const skip = (page-1)*limit;
+        const products = await Product.find().populate('category', 'name').skip(skip).limit(limit);
+        const count = await Product.countDocuments();
+        const totalPages =Math.ceil(count/limit);
+
+        res.render('stocks',{products,count:count,totalPages,page});
 
     } catch (error) {
         

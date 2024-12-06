@@ -723,6 +723,114 @@
     cursor: pointer;
     border-radius: 4px;
   }
+  /* Pagination Container */
+.pagination-area {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Pagination List */
+.pagination {
+    list-style: none;
+    display: flex;
+    padding: 0;
+    gap: 10px;
+}
+
+/* Pagination Item */
+.pagination .page-item {
+    display: inline-block;
+}
+
+/* Links */
+.pagination .page-link {
+    display: inline-block;
+    padding: 8px 12px;
+    color: #007bff;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+    background-color: #f9f9f9;
+}
+
+/* Hover Effect */
+.pagination .page-link:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+/* Active Page */
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+    pointer-events: none;
+}
+
+/* Disabled Page (Optional) */
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #e9ecef;
+    border-color: #e9ecef;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+}
+.confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: transparent;
+            top: -10px;
+            z-index: 9999;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        .celebration-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .celebration-modal.show {
+            opacity: 1;
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
     
   </style>
 </head>
@@ -753,36 +861,80 @@
 
     <div class="main-content">
       <!-- Dashboard Section -->
-      <div id="dashboard" class="dashboard-section active"
-        style="max-width: 900px; width: 100%; background-color: #fff; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
+      <div id="dashboard" class="dashboard-section active" style="max-width: 900px; width: 100%; background-color: #fff; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
         <!-- Header -->
-        <div class="header" style=" color: #fff; padding: 20px; text-align: center;">
-          <h2 style="font-size: 1.6em; margin: 0; color: #b68b40;">Dashboard</h2>
-          <p style="font-size: 1em; color: #000000; margin-top: 5px;">Welcome, <%= user.name %>
-          </p>
+        <div class="header" style="background-color: #b68b40; color: #fff; padding: 20px; text-align: center;">
+            <h2 style="font-size: 1.6em; margin: 0; color: #fff;">Dashboard</h2>
+            <p style="font-size: 1em; color: #fff; margin-top: 5px;">Welcome, <%= user.name %></p>
         </div>
 
         <!-- User Info Section -->
         <div class="user-info" style="padding: 20px;">
-          <h3
-            style="font-size: 1.4em; color: #333; margin-bottom: 10px; border-bottom: 2px solid #b68b40; padding-bottom: 5px;">
-            User Profile</h3>
-          <p style="font-size: 1em; color: #555; margin: 10px 0;"><strong style="color: #333;">Phone:</strong>
-            <%= user.phone %>
-          </p>
-          <p style="font-size: 1em; color: #555; margin: 10px 0;"><strong style="color: #333;">Email:</strong>
-            <%= user.email %>
-          </p>
-          <div style="margin-top: 20px; text-align: center;">
-            <a href="/change-email"
-              style="font-size: 0.9em; color: #fff; background-color: #b68b40; padding: 8px 16px; border-radius: 4px; text-decoration: none; transition: background-color 0.3s ease;">Change
-              Email</a>
-            <a href="/change-password"
-              style="font-size: 0.9em; color: #fff; background-color: #b68b40; padding: 8px 16px; border-radius: 4px; text-decoration: none; transition: background-color 0.3s ease; margin-left: 10px;">Change
-              Password</a>
-          </div>
+            <h3 style="font-size: 1.4em; color: #333; margin-bottom: 10px; border-bottom: 2px solid #b68b40; padding-bottom: 5px;">
+                User Profile
+            </h3>
+            <p style="font-size: 1em; color: #555; margin: 10px 0;">
+                <strong style="color: #333;">Phone:</strong> <%= user.phone %>
+            </p>
+            <p style="font-size: 1em; color: #555; margin: 10px 0;">
+                <strong style="color: #333;">Email:</strong> <%= user.email %>
+            </p>
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="/change-email" style="font-size: 0.9em; color: #fff; background-color: #b68b40; padding: 8px 16px; border-radius: 4px; text-decoration: none; transition: background-color 0.3s ease;">
+                    Change Email
+                </a>
+                <a href="/change-password" style="font-size: 0.9em; color: #fff; background-color: #b68b40; padding: 8px 16px; border-radius: 4px; text-decoration: none; transition: background-color 0.3s ease; margin-left: 10px;">
+                    Change Password
+                </a>
+            </div>
+        </div> 
+        <br> <br>
+
+        <!-- Coupon Section -->
+        <% if (latestCoupon) { %>
+        <div class="coupon-section" style="background-color: #f4f4f4; padding: 20px; text-align: center;">
+            <h3 style="font-size: 1.6em; color: #b68b40; margin-bottom: 15px; margin-top: 20px;">
+                Latest Coupon
+            </h3>
+            <div style="background-color: #fff; border: 2px dashed #b68b40; padding: 15px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align: left;">
+                        <p style="font-size: 0.9em; color: #666; margin-bottom: 5px;">Coupon Code</p>
+                        <p id="couponCode" style="font-size: 1.4em; color: #b68b40; font-weight: bold;">
+                            <%= latestCoupon.name %>
+                        </p>
+                    </div>
+                    <button 
+                        onclick="copyCouponWithCelebration()"
+                        style="background-color: #b68b40; color: #fff; padding: 10px 20px; border-radius: 4px; border: none; cursor: pointer;"
+                    >
+                        Copy Coupon
+                    </button>
+                </div>
+                <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                    <p>
+                        <%= latestCoupon.offerPercentage %>% OFF | 
+                        Minimum Purchase: $<%= latestCoupon.minimumPrice %> | 
+                        Maximum Discount: $<%= latestCoupon.maximumPrice %>
+                    </p>
+                    <p>
+                        Valid until: <%= new Date(latestCoupon.expireOn).toLocaleDateString() %>
+                    </p>
+                </div>
+            </div>
         </div>
-      </div>
+        <% } %>
+    </div>
+
+    <!-- Celebration Modal -->
+    <div id="celebrationModal" class="celebration-modal">
+        <h2 style="font-size: 2em; color: #b68b40; margin-bottom: 15px;">Yayyy Congrats!</h2>
+        <p style="font-size: 1.2em; color: #333; margin-bottom: 10px;">Coupon Copied Successfully</p>
+        <p style="font-size: 1em; color: #666;">Continue Shopping and Save Big!</p>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confettiCanvas" class="confetti"></canvas>
 
       <!-- Address Section -->
       <div id="address" class="dashboard-section">
@@ -867,15 +1019,20 @@
                 <!-- Product Names -->
                 <td colspan="1">
                   <div class="product-list">
-                    <% order.orderedItems.forEach(item=> { %>
+                    <% order.orderedItems.forEach(item => { %>
                       <div class="product-item">
                         <p>
-                          <%= item.product.productName %>
+                          <% if (item.product) { %>
+                            <%= item.product.productName %>
+                          <% } else { %>
+                            Product not available
+                          <% } %>
                         </p>
                       </div>
-                      <% }) %>
+                    <% }) %>
                   </div>
                 </td>
+                
 
                 <!-- Date -->
                 <td>
@@ -922,6 +1079,24 @@
               <% }) %>
           </tbody>
         </table>
+
+        <!-- Pagination for Orders -->
+        <div class="pagination-area my-4">
+          <nav>
+              <ul class="pagination justify-content-center"> 
+                  <% for(let i=1;i<=totalPages;i++){ %>
+                      <li class="page-item <%= (i===page) ? 'active' : '' %>">
+                          <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
+                              <%= i %>
+                          </a>
+  
+  
+                      </li>
+                      <% } %>
+              </ul>
+          </nav>
+      </div>
+
       </div>
 
 
@@ -1082,6 +1257,64 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+      function copyCouponWithCelebration() {
+            // Copy Coupon Code
+            const couponCode = document.getElementById('couponCode');
+            const tempInput = document.createElement('input');
+            tempInput.value = couponCode.textContent.trim();
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            // Show Celebration Modal
+            const celebrationModal = document.getElementById('celebrationModal');
+            celebrationModal.classList.add('show');
+
+            // Remove Modal after 3 seconds
+            setTimeout(() => {
+                celebrationModal.classList.remove('show');
+            }, 3000);
+
+            // Trigger Confetti Animation
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const confettiColors = [
+                ' #e81416', '#ffa500', '#faeb36', '#79c314', 
+                '#487de7', '#4b369d', '#70369d', '#b59b3d'
+            ];
+
+            const confettiPieces = 150;
+
+            function createConfettiPiece() {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti-piece');
+                piece.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                piece.style.left = `${Math.random() * window.innerWidth}px`;
+                piece.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+                piece.style.animation = `fall ${Math.random() * 3 + 2}s linear`;
+                
+                document.body.appendChild(piece);
+
+                // Remove piece after animation
+                setTimeout(() => {
+                    document.body.removeChild(piece);
+                }, 5000);
+            }
+
+            // Create multiple confetti pieces
+            for (let i = 0; i < confettiPieces; i++) {
+                createConfettiPiece();
+            }
+        }
 
       function copyReferralCode() {
         const referralCodeInput = document.getElementById('referralCode');

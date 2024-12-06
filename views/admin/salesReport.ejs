@@ -128,13 +128,16 @@
                                 </td>
                                 <td>
                                     <ul>
-                                        <% orders[i].orderedItems.forEach(item=> { %>
-                                            <li>
-                                                <%= item.product.productName %>
-                                            </li>
-                                            <% }) %>
+                                        <% orders[i].orderedItems.forEach(item => { %>
+                                            <% if (item.product) { %>
+                                                <li><%= item.product.productName %></li>
+                                            <% } else { %>
+                                                <li>Product not available</li>
+                                            <% } %>
+                                        <% }) %>
                                     </ul>
                                 </td>
+                                
                                 <td>
                                     <ul>
                                         <% orders[i].orderedItems.forEach(item=> { %>

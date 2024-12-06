@@ -19,7 +19,7 @@ const categorySchema = new Schema({
         type:Number,
         default:0
     },
-    creatyedAt:{
+    createdAt:{
         type:Date,
         default:Date.now
     }

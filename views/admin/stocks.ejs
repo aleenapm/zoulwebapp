@@ -63,6 +63,21 @@
                     </table>
                 </div>
             </div>
+            <div class="pagination-area my-4">
+                <nav>
+                    <ul class="pagination justify-content-center"> 
+                        <% for(let i=1;i<=totalPages;i++){ %>
+                            <li class="page-item <%= (i===page) ? 'active' : '' %>">
+                                <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+    
+    
+                            </li>
+                            <% } %>
+                    </ul>
+                </nav>
+            </div>
         </div>
     </section>
 <%- include("../../views/partials/admin/footer") %>

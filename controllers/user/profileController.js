@@ -2,6 +2,7 @@ const User = require("../../models/userSchema");
 const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
 const Wallet = require("../../models/walletSchema");
+const Coupon = require("../../models/couponSchema");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
@@ -166,11 +167,15 @@ const postNewPassword = async (req,res) => {
 const userProfile = async (req, res) => {
     try {
         const userId = req.session.user;
+        const page = parseInt(req.query.page) || 1; // Get the current page number from the query
+        const limit = 10; // Number of items per page
+        const skip = (page - 1) * limit;
 
-        // Fetch user data
+        const latestCoupon = await Coupon.findOne()
+            .sort({ createdOn: -1 }) // Sort by most recent creation date
+            .limit(1);
+
         const userData = await User.findById(userId);
-
-        // Fetch address data, with a default value if none is found
         const addressData = (await Address.findOne({ userId })) || { address: [] };
         const walletData = await Wallet.findOne({ userId })
             .populate({
@@ -180,29 +185,43 @@ const userProfile = async (req, res) => {
                     select: 'productName',
                 },
             });
+
         if (walletData && walletData.transactions) {
             walletData.transactions = walletData.transactions.sort(
                 (a, b) => new Date(b.date) - new Date(a.date)
             );
         }
+
+        // Fetch paginated orders
         const orderData = await Order.find({ user: userId })
             .sort({ createdOn: -1 })
+            .skip(skip) // Skip documents for pagination
+            .limit(limit) // Limit results for pagination
             .populate({
                 path: 'orderedItems.product',
                 select: 'productName',
             });
-            console.log(walletData)
+
+        const totalOrders = await Order.countDocuments({ user: userId }); // Total number of orders
+        const totalPages = Math.ceil(totalOrders / limit); // Calculate total pages
+
+        // Render profile page
         res.render("profile", {
             user: userData,
             userAddress: addressData,
             orders: orderData,
             walletData: walletData || { balance: 0, transactions: [] },
+            totalPages,
+            page, // Current page
+            latestCoupon: latestCoupon
         });
     } catch (error) {
         console.error("Error retrieving profile data:", error);
         res.redirect("/pageNotFound");
     }
 };
+
+
 
 
 

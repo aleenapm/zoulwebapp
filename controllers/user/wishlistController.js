@@ -1,4 +1,5 @@
 const Wishlist = require('../../models/wishlistSchema');
+const Banner = require('../../models/bannerSchema');
 const Product = require('../../models/productSchema');
 
 const getWishList = async (req, res) => {
@@ -8,20 +9,15 @@ const getWishList = async (req, res) => {
           return res.redirect('/login');
       }
 
-      // Find the wishlist document and populate product details
       const wishlistDoc = await Wishlist.findOne({ userId: user }).populate('products.productId');
 
       if (wishlistDoc) {
-          // Filter out products where productId is null
           const validProducts = wishlistDoc.products.filter(product => product.productId);
 
-          // Sort valid products by `addedOn` in descending order
           validProducts.sort((a, b) => b.addedOn - a.addedOn);
 
-          // Render the wishlist view with valid, sorted products
           return res.render('wishlist', { products: validProducts });
       } else {
-          // Render an empty wishlist view if no products found
           return res.render('wishlist', { products: null });
       }
   } catch (error) {
@@ -36,22 +32,19 @@ const addToWishlist = async (req, res) => {
       const productId = req.body.id;
       console.log("wishlist:",productId);
       const userId = req.session.user;
-      console.log(userId); // Assuming `userId` is stored as `user` in session
+      console.log(userId);
   
-      // Check if product already in wishlist
       const existingWishlistItem = await Wishlist.findOne({ userId: userId, "products.productId": productId });
       console.log(existingWishlistItem);
       if (existingWishlistItem) {
         return res.status(400).json({ message: 'Product already in wishlist' });
       }
   
-      // If wishlist for the user doesn't exist, create it
       let wishlistDoc = await Wishlist.findOne({ userId });
       if (!wishlistDoc) {
         wishlistDoc = new Wishlist({ userId, products: [] });
       }
   
-      // Add the product to the wishlist
       wishlistDoc.products.push({ productId });
       await wishlistDoc.save();
   

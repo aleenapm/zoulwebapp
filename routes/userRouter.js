@@ -46,12 +46,11 @@ router.post("/resend-otp", userController.resendOtp);
 router.get("/auth/google",passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback",passport.authenticate("google", { failureRedirect: "/signup" }),
 (req, res) => {
+    req.session.user = req.user._id;
     res.redirect("/");
   }
 );
 
-
-// router.use(checkBlocked);
 
 //login-logout management
 router.get("/login", userController.loadLogin);
@@ -121,6 +120,7 @@ router.post('/removeWishlistItem',userAuth, wishlistController.removeItem);
 //payment 
 router.post('/createRazorpay',userAuth,paymentController.createRazorpay);
 router.post('/updatePayment',userAuth,paymentController.updatePaymentStatus)
+
 
 
 module.exports = router;
