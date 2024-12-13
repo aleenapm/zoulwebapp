@@ -1,6 +1,9 @@
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 const Addresses = require("../../models/addressSchema");
+const Wallet = require("../../models/walletSchema");
+const User = require("../../models/userSchema");
+
 const mongoose = require('mongoose'); 
 
 
@@ -17,71 +20,72 @@ const loadCart = async (req, res) => {
         res.status(500).send("Server Error");
     }
 };
-const loadCheckout = async (req, res) => {     
-    try {
-        const user = req.session.user;
-        if (!user) {
-            return res.redirect('/login');
-        }
+const loadCheckout = async (req, res) => { 
+    try { 
+        const user = req.session.user; 
+        if (!user) { 
+            return res.redirect('/login'); 
+        } 
 
-        const SHIPPING_CHARGE = 70; // Fixed shipping charge
-        const GST_RATE = 0.18; // 18% GST
+        const SHIPPING_CHARGE = 70; // Fixed shipping charge 
+        const GST_RATE = 0.18; // 18% GST 
 
-        const addressDoc = await Addresses.findOne({ userId: user });
-        const addresses = addressDoc ? addressDoc.address : [];
+        // Fetch user to get wallet balance
+        const walletData = await Wallet.findOne({userId:user});
+        const walletBalance =walletData.balance || 0;
 
-        let subtotal = 0;
-        let products = [];
-        let discount = 0;
-        let shippingCharges = SHIPPING_CHARGE;
-        let gstAmount = 0;
-        let totalPriceAfterDiscount = 0;
+        const addressDoc = await Addresses.findOne({ userId: user }); 
+        const addresses = addressDoc ? addressDoc.address : []; 
 
-        if (req.query.id) {
-            const quantity = req.query.quantity || 1;
-            const product = await Product.findById(req.query.id);
-            if (!product) {
-                return res.redirect('/page-not-found');
-            }
+        let subtotal = 0; 
+        let products = []; 
+        let discount = 0; 
+        let shippingCharges = SHIPPING_CHARGE; 
+        let gstAmount = 0; 
+        let totalPriceAfterDiscount = 0; 
 
-            subtotal = product.salePrice * quantity;
-            gstAmount = subtotal * GST_RATE;
-            totalPriceAfterDiscount = subtotal + shippingCharges + gstAmount - discount;
-
-            return res.render('checkout', {
-                cart: null,
-                product,
-                quantity,
-                address: addresses,
-                subtotal,
-                discount,
-                shippingCharges,
-                gstAmount,
-                totalPriceAfterDiscount,
-                products: []
-            });
-        } else {
-            const cartItems = await Cart.findOne({ userId: user }).populate('items.productId');
-            if (!cartItems || !cartItems.items.length) {
-                return res.render('checkout', {
-                    cart: null,
-                    products: [],
-                    address: addresses,
-                    subtotal: 0,
-                    discount: 0,
-                    shippingCharges,
-                    gstAmount: 0,
-                    totalPriceAfterDiscount: shippingCharges,
-                    product: null
-                });
-            }
-
-            subtotal = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0);
-            products = cartItems.items;
-            
-            gstAmount = subtotal * GST_RATE;
-            totalPriceAfterDiscount = subtotal + shippingCharges + gstAmount - discount;
-
+        if (req.query.id) { 
+            const quantity = req.query.quantity || 1; 
+            const product = await Product.findById(req.query.id); 
+            if (!product) { 
+                return res.redirect('/page-not-found'); 
+            } 
+            subtotal = product.salePrice * quantity; 
+            gstAmount = subtotal * GST_RATE; 
+            totalPriceAfterDiscount = subtotal + shippingCharges + gstAmount - discount; 
+            return res.render('checkout', { 
+                cart: null, 
+                product, 
+                quantity, 
+                address: addresses, 
+                subtotal, 
+                discount, 
+                shippingCharges, 
+                gstAmount, 
+                totalPriceAfterDiscount, 
+                products: [],
+                walletBalance // Add wallet balance to the render
+            }); 
+        } else { 
+            const cartItems = await Cart.findOne({ userId: user }).populate('items.productId'); 
+            if (!cartItems || !cartItems.items.length) { 
+                return res.render('checkout', { 
+                    cart: null, 
+                    products: [], 
+                    address: addresses, 
+                    subtotal: 0, 
+                    discount: 0, 
+                    shippingCharges, 
+                    gstAmount: 0, 
+                    totalPriceAfterDiscount: shippingCharges, 
+                    product: null,
+                    walletBalance // Add wallet balance to the render
+                }); 
+            } 
+            subtotal = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0); 
+            products = cartItems.items; 
+            gstAmount = subtotal * GST_RATE; 
+            totalPriceAfterDiscount = subtotal + shippingCharges + gstAmount - discount; 
             return res.render('checkout', {
                 cart: cartItems,
                 products,
@@ -91,12 +95,14 @@ const loadCheckout = async (req, res) => {
                 shippingCharges,
                 gstAmount,
                 totalPriceAfterDiscount,
-                product: null
+                product: null,
+                walletBalance 
             });
-        }
-    } catch (error) {
-        console.error("Error loading checkout page:", error);
-        res.redirect('/page-not-found');
+            
+        } 
+    } catch (error) { 
+        console.error("Error loading checkout page:", error); 
+        res.redirect('/page-not-found'); 
     } 
 };
 

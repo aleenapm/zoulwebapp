@@ -4,6 +4,7 @@ const Product = require("../../models/productSchema");
 const User = require("../../models/userSchema");
 const Coupon = require("../../models/couponSchema");
 const Wallet = require("../../models/walletSchema");
+const Return = require("../../models/returnSchema");
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
@@ -62,21 +63,13 @@ const createOrder = async (req, res) => {
             shippingCharges
         } = req.body;
 
-        console.log("Incoming request data:", {
-            subtotal,
-            totalAmount,
-            discount,
-            gstAmount,
-            shippingCharges,
-            cart,
-            singleProduct
-        });
 
         subtotal = parseFloat(subtotal) || 0;
         discount = parseFloat(discount) || 0;
         gstAmount = parseFloat(gstAmount) || 0;
         shippingCharges = parseFloat(shippingCharges) || 70;
 
+        // Retrieve user's address
         const userAddressDoc = await Address.findOne({ userId: userId });
         if (!userAddressDoc) {
             return res.status(400).json({ error: "Address not found." });
@@ -89,6 +82,7 @@ const createOrder = async (req, res) => {
             return res.status(404).json({ error: "Address with provided ID not found." });
         }
 
+        // Prepare order items
         let orderedItems = [];
         if (singleProduct) {
             const product = JSON.parse(singleProduct);
@@ -112,20 +106,46 @@ const createOrder = async (req, res) => {
             }
         }
 
+        // Calculate GST and total amount
         const GST = gstAmount || (subtotal * 0.18);
-        
         const calculatedTotalAmount = parseFloat(
             (subtotal + GST + shippingCharges - discount).toFixed(2)
         );
 
-        console.log("Calculation breakdown:", {
-            subtotal,
-            GST,
-            shippingCharges,
-            discount,
-            calculatedTotalAmount
-        });
+        // Handle wallet payment
+        if (paymentMethod === 'Wallet') {
+            const wallet = await Wallet.findOne({ userId }); // Fetch wallet document
+            if (!wallet) {
+                return res.status(404).json({ error: "Wallet not found." });
+            }
 
+            const walletBalance = parseFloat(wallet.balance) || 0;
+
+            // Check if wallet balance is sufficient
+            if (walletBalance < calculatedTotalAmount) {
+                return res.status(400).json({
+                    error: "Insufficient wallet balance.",
+                    walletBalance
+                });
+            }
+
+            // Deduct amount from wallet balance
+            wallet.balance -= calculatedTotalAmount;
+
+            // Add debit transaction
+            const walletTransaction = {
+                type: "debit",
+                amount: calculatedTotalAmount,
+                date: new Date(),
+                description: "Order payment using wallet",
+                orderId: null, // Will assign after order creation
+            };
+            wallet.transactions.push(walletTransaction);
+
+            await wallet.save();
+        }
+
+        // Prepare order data
         const orderData = {
             orderedItems,
             totalPrice: subtotal.toFixed(2),
@@ -139,14 +159,23 @@ const createOrder = async (req, res) => {
             address: specificAddress,
             paymentMethod,
             status: 'Pending',
-            paymentStatus:'Pending',
+            paymentStatus: paymentMethod === 'Wallet' ? 'payment completed' : 'Pending',
         };
 
-        console.log("Final order data:", orderData);
-
+        // Save order to database
         const newOrder = new Order(orderData);
         await newOrder.save();
 
+        // Update wallet transaction with the order ID
+        if (paymentMethod === 'Wallet') {
+            const wallet = await Wallet.findOne({ userId });
+            const lastTransaction = wallet.transactions[wallet.transactions.length - 1];
+            if (lastTransaction) {
+                lastTransaction.orderId = newOrder._id;
+            }
+            await wallet.save();
+            return res.redirect(`/order?id=${newOrder._id}`);
+        }
         if (paymentMethod === 'COD') {
             return res.redirect(`/order?id=${newOrder._id}`);
         } else {
@@ -155,11 +184,15 @@ const createOrder = async (req, res) => {
                 finalAmount: calculatedTotalAmount 
             });
         }
+
+        
     } catch (error) {
         console.error("Error in placing order:", error);
         res.status(500).json({ error: error.message || "Internal Server Error" });
     }
 };
+
+
 
 const getUserOrders = async (req, res) => {
     try {
@@ -445,6 +478,47 @@ const getInvoice = async (req, res) => {
     }
 };
 
+const returnOrder = async (req, res) => {
+    try {
+        const { orderId, reason } = req.body;
+        const userId = req.session.user;
+
+        const orderData = await Order.findById(orderId);
+        if (!orderData) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const existingReturn = await Return.findOne({ orderId });
+        if (existingReturn) {
+            return res.status(400).json({ message: 'Return request already submitted for this order' });
+        }
+
+        // Create a new return request
+        const reasonData = new Return({
+            userId,
+            orderId,
+            reason,
+            refundAmount: orderData.finalAmount,
+            returnStatus: 'pending',
+        });
+
+        await reasonData.save();
+
+        // Update order status to "Return Requested"
+        await Order.findByIdAndUpdate(
+            orderId,
+            { $set: { status: 'Return Requested' } },
+            { new: true }
+        );
+
+        return res.status(200).json({ message: 'Return Request Submitted Successfully' });
+    } catch (error) {
+        console.error('Error processing return request:', error);
+        return res.status(500).json({ message: 'Something went wrong, please try again later.' });
+    }
+};
+
+
 
 
 
@@ -455,5 +529,6 @@ module.exports = {
     getUserOrders,
     cancelOrder,
     orderDetails,
-    getInvoice
+    getInvoice,
+    returnOrder
 };

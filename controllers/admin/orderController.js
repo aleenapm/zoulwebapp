@@ -2,6 +2,7 @@ const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
 
 const loadOrders = async (req, res) => {
+    console.log(req.session.admin);
     if (req.session.admin) {
         try {
             const page = parseInt(req.query.page) || 1;

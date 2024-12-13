@@ -61,7 +61,7 @@
                 <div class="card shadow-sm text-center">
                     <div class="card-body">
                         <h6 class="text-muted">Total Sales</h6>
-                        <h3 class="text-primary"></h3>
+                        <h3 class="text-primary"><%=totalSalesValue.toFixed(2)  %></h3>
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@
                 <div class="card shadow-sm text-center">
                     <div class="card-body">
                         <h6 class="text-muted">Total Discount</h6>
-                        <h3 class="text-warning"></h3>
+                        <h3 class="text-warning"><%=totalDiscountValue %></h3>
                     </div>
                 </div>
             </div>
@@ -87,7 +87,7 @@
                 <div class="card shadow-sm text-center">
                     <div class="card-body">
                         <h6 class="text-muted">Total Customers</h6>
-                        <h3 class="text-info"></h3>
+                        <h3 class="text-info"><%=custCount%></h3>
                     </div>
                 </div>
             </div>
@@ -385,9 +385,9 @@
                     if (showRow) {
                         visibleRows++;
 
-                        // Parse and accumulate final amount and discount values
-                        const finalAmount = parseFloat(row.cells[9].textContent.replace(/[₹,]/g, '')) || 0;
-                        const discount = parseFloat(row.cells[8].textContent.replace(/[₹,]/g, '')) || 0;
+                        // // Parse and accumulate final amount and discount values
+                        // const finalAmount = parseFloat(row.cells[9].textContent.replace(/[₹,]/g, '')) || 0;
+                        // const discount = parseFloat(row.cells[8].textContent.replace(/[₹,]/g, '')) || ;
 
                         totalSales += finalAmount;
                         totalDiscount += discount;
@@ -471,7 +471,7 @@
             startDateInput.addEventListener('change', filterTable);
             endDateInput.addEventListener('change', filterTable);
 
-            filterTable();
+        filterTable();
         }
 
         document.addEventListener('DOMContentLoaded', initializeDateFilter);

@@ -294,9 +294,14 @@
       margin-right: 10px;
     }
 
+    .swal2-container {
+      z-index: 99999 !important;
+    }
+
     .wallet-header {
       margin-bottom: 2rem;
     }
+
 
     .wallet-card {
       background: linear-gradient(135deg, #232526 0%, #414345 100%);
@@ -477,6 +482,10 @@
       background: #ffebee;
       color: #c62828;
     }
+    .badge.referral {
+      background: #eee;
+      color: #ef6c00;
+    }
 
     .amount {
       font-weight: 500;
@@ -492,6 +501,9 @@
 
     .amount.debit {
       color: #c62828;
+    }
+    .amount.referral {
+      color: #ef6c00;
     }
 
     .status-badge {
@@ -1074,6 +1086,10 @@
                     <% } else { %>
                       <span></span>
                       <% } %>
+                      <% if (order.status && order.status.toLowerCase()==="delivered" ) { %>
+                        <button class="btn btn-sm btn-outline-warning" 
+                          onclick="confirmReturn('<%= order._id %>')">Return</button>
+                        <% } %>
                 </td>
               </tr>
               <% }) %>
@@ -1116,7 +1132,7 @@
             <!-- <div class="wallet-actions">
               <button class="btn btn-primary" onclick="handleTransaction('deposit')">
                 <i class="fas fa-plus-circle"></i> Add Money
-              </button>
+              </button>--
               <button class="btn btn-outline" onclick="handleTransaction('withdraw')">
                 <i class="fas fa-minus-circle"></i> Withdraw
               </button>
@@ -1170,7 +1186,7 @@
                               <%= item.product.productName %>
                             </span><br>
                             <% }); %>
-                              <% } else if(transaction.type == 'referal') { %>
+                              <% } else if(transaction.type == 'referral') { %>
                                 <span class="transaction-title">Referral</span>
                                 <% } else { %>
                                   <span class="transaction-title">No Product Available</span>
@@ -1183,12 +1199,16 @@
                       </span>
                     </td>
                     <td class="amount <%= transaction.type %>">
-                      <%= (transaction.type==='credit' || transaction.type==='refund' || 'referal') ? '+' : '-' %>₹<%=
+                      <%= (transaction.type === 'credit' || transaction.type === 'refund' || transaction.type === 'referral') ? '+' : '-' %>₹<%= 
                           transaction.amount.toFixed(2) %>
                     </td>
+                    
                     <td>
-                      <span class="status-badge <%= transaction.status === 'Refunded' ? 'warning' : 'success' %>">
+                      <span class="status-badge 
+                        <%= transaction.status === 'Refunded' ? 'warning' : 'success' %>">
                         <%= transaction.status==='Refunded' ? 'Refunded' : 'Completed' %>
+                        
+
                       </span>
                     </td>
                   </tr>
@@ -1533,6 +1553,53 @@
           }
         });
       }
+
+      async function confirmReturn(orderId) {
+          try {
+            const result = await Swal.fire({
+              title: "Return Order?",
+              icon: "warning",
+              text: "Reason for Returning Product",
+              html: `<textarea id="returnReason" class="swal2-textarea" placeholder="Enter your reason here"></textarea>`,
+              showCancelButton: true,
+              confirmButtonText: 'Submit',
+              cancelButtonText: 'Cancel',
+              preConfirm: () => {
+                const reason = document.getElementById('returnReason').value.trim();
+                if (!reason) {
+                  Swal.showValidationMessage('Reason cannot be empty');
+                }
+                return reason;
+              }
+            });
+
+            if (result.isConfirmed) {
+              const reason = result.value;
+
+              const response = await fetch('/return-request', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify({ 
+                  orderId: orderId,
+                  reason: reason,
+                }),
+              });
+
+              const responseData = await response.json();
+              if (response.ok) {
+                Swal.fire('Success!', responseData.message, 'success');
+              } else {
+                Swal.fire('Error!', responseData.message, 'error');
+              }
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
+          }
+        }
+
 
     </script>
 </body>

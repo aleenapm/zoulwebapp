@@ -11,6 +11,7 @@ const couponController = require("../controllers/admin/couponController");
 const salesController = require("../controllers/admin/salesController");
 const dashboardController = require('../controllers/admin/dashboardController');
 const bannerController = require("../controllers/admin/bannerController");
+const returnController = require("../controllers/admin/returnController");
 
 const { userAuth, adminAuth } = require("../middlewares/auth");
 const multer = require("multer");
@@ -89,6 +90,10 @@ router.post('/editBanner', adminAuth, uploads.single("image"), bannerController.
 
 //sales report
 router.get('/salesReport',adminAuth,salesController.getSalesReport);
+
+//return approvals
+router.get('/return-approvals',adminAuth,returnController.getReturnApprovals)
+router.post('/returnDataUpdate',adminAuth,returnController.returnUpdate);
 
 
 

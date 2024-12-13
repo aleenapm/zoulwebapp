@@ -75,11 +75,9 @@ const addCategoryOffer = async (req,res) => {
 const removeCategoryOffer = async (req, res) => {
     try {
         const categoryId = req.body.categoryId;
-        console.log("Received categoryId:", categoryId);
 
         const category = await Category.findById(categoryId);
         if (!category) {
-            console.error("Category not found for ID:", categoryId);
             return res.status(404).json({ status: false, message: "Category not found" });
         }
 
@@ -88,7 +86,6 @@ const removeCategoryOffer = async (req, res) => {
 
         if (products.length > 0) {
             for (const product of products) {
-                console.log(`Updating product: ${product._id}`);
                 product.salePrice += Math.floor(product.regularPrice * (percentage / 100));
                 product.productOffer = 0;
                 await product.save();

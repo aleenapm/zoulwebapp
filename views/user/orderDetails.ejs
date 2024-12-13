@@ -176,7 +176,9 @@
                 <!-- <button id="downloadInvoiceBtn" class="invoice-download-btn">
                     <i class="bi bi-download"></i> Download Invoice
                 </button> -->
-                <button id="downloadInvoice" class="btn"> Download Invoice</button>
+                <%if(orders.status === 'Delivered'){%>
+                    <button id="downloadInvoice" class="btn"> Download Invoice</button>
+                <%}%>
 
             </div>
         </div>

@@ -104,6 +104,7 @@ router.get("/api/user/orders",userAuth, orderController.getUserOrders);
 router.post("/cancelOrder", userAuth, orderController.cancelOrder);
 router.get("/orderDetails",userAuth,orderController.orderDetails);
 router.get('/downloadInvoice',userAuth,orderController.getInvoice);
+router.post('/return-request',orderController.returnOrder)
 
 
 
@@ -121,6 +122,8 @@ router.post('/removeWishlistItem',userAuth, wishlistController.removeItem);
 router.post('/createRazorpay',userAuth,paymentController.createRazorpay);
 router.post('/updatePayment',userAuth,paymentController.updatePaymentStatus)
 
+
+router.patch('/mark-notification-read',userController.updateNotification)
 
 
 module.exports = router;

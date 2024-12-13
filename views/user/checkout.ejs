@@ -99,7 +99,9 @@
         .btn-fill-out:hover {
             background-color: var(--secondary-color);
         }
+       
 
+        
 
 
         @media (max-width: 768px) {
@@ -270,26 +272,41 @@
                             </div>
                             <!-- Payment Method and Order Form -->
                             <form id="orderForm" method="POST" action="/createOrder"
-                                onsubmit="return validateAddress()">
-                                <div class="payment_option">
-                                    <h4>Select Payment Method</h4>
-                                    <br>
-                                    <div class="custome-radio" id="codOption">
-                                        <input class="form-check-input" required type="radio" value="COD"
-                                            name="paymentMethod" id="exampleRadios3" checked
-                                            onchange="togglePaymentButtons()">
-                                        <label class="form-check-label" for="exampleRadios3">Cash on Delivery</label>
-                                        <p id="codLimitWarning" class="text-danger"
-                                            style="display: none; font-size: 1em; margin-top: 5px; margin-left: 25px;">
-                                            Cash on Delivery is not available for orders above ₹1,000.
-                                        </p>
-                                    </div>
-                                    <div class="custome-radio">
-                                        <input class="form-check-input" required type="radio" value="Online"
-                                            name="paymentMethod" id="exampleRadios5" onchange="togglePaymentButtons()">
-                                        <label class="form-check-label" for="exampleRadios5">Online Payment</label>
-                                    </div>
+                            onsubmit="return validateAddress()">
+                            <div class="payment_option">
+                                <h4>Select Payment Method</h4>
+                                <br>
+                                
+                                <div class="custome-radio wallet-option" id="walletOption">
+                                    <input class="form-check-input" type="radio" value="Wallet" 
+                                        name="paymentMethod" id="exampleRadios4" 
+                                        onchange="togglePaymentButtons(); checkWalletBalance();">
+                                    <label class="form-check-label" for="exampleRadios4">
+                                        Wallet Payment
+                                        <span id="walletBalanceText" style="margin-left: 10px;">
+                                            (Balance: ₹<%= walletBalance.toFixed(2) %>)
+                                        </span>
+                                    </label>
                                 </div>
+                                
+                                <div class="custome-radio" id="codOption">
+                                    <input class="form-check-input" required type="radio" value="COD"
+                                        name="paymentMethod" id="exampleRadios3" checked
+                                        onchange="togglePaymentButtons()">
+                                    <label class="form-check-label" for="exampleRadios3">Cash on Delivery</label>
+                                    <p id="codLimitWarning" class="text-danger"
+                                        style="display: none; font-size: 1em; margin-top: 5px; margin-left: 25px;">
+                                        Cash on Delivery is not available for orders above ₹1,000.
+                                    </p>
+                                </div>
+                                
+                                <div class="custome-radio">
+                                    <input class="form-check-input" required type="radio" value="Online"
+                                        name="paymentMethod" id="exampleRadios5" onchange="togglePaymentButtons()">
+                                    <label class="form-check-label" for="exampleRadios5">Online Payment</label>
+                                </div>
+                            </div>
+
 
                                 <input type="hidden" name="cart" value='<%= JSON.stringify(cart ? cart.items : []) %>'>
                                 <input type="hidden" id="totalamount" name="totalAmount"
@@ -330,6 +347,13 @@
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+
+                // Initial wallet balance display
+                const walletBalanceText = document.getElementById('walletBalanceText');
+                if (walletBalanceText) {
+                    walletBalanceText.textContent = `(Balance: ₹<%= walletBalance.toFixed(2) %>)`;
+                }
+
                 const codButton = document.getElementById('codButton');
                 const codMessage = document.getElementById('codMessage');
 
@@ -377,6 +401,27 @@
                 togglePaymentButtons();
             }
 
+            function checkWalletBalance() {
+                const walletRadio = document.getElementById('exampleRadios4');
+                const totalAmount = parseFloat(document.getElementById('totalamount').value);
+                const walletBalance = parseFloat('<%= walletBalance %>');
+
+                if (walletRadio && walletRadio.checked) {
+                    if (totalAmount > walletBalance) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Insufficient Wallet Balance',
+                            text: `Your wallet balance (₹${walletBalance.toFixed(2)}) is less than the total order amount (₹${totalAmount.toFixed(2)}).`,
+                            confirmButtonColor: '#39b4ac',
+                        });
+                        
+                        // Optionally, switch to another payment method
+                        document.getElementById('exampleRadios3').checked = true; // Default to COD
+                        togglePaymentButtons();
+                    }
+                }
+            }
+
             function togglePaymentButtons() {
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
                 const submitButton = document.getElementById('submitButton');
@@ -385,11 +430,17 @@
                 if (paymentMethod === 'Online') {
                     submitButton.style.display = 'none';
                     razorpayButton.style.display = 'block';
+                } else if (paymentMethod === 'Wallet') {
+                    // Perform wallet balance check when wallet is selected
+                    checkWalletBalance();
+                    submitButton.style.display = 'block';
+                    razorpayButton.style.display = 'none';
                 } else {
                     submitButton.style.display = 'block';
                     razorpayButton.style.display = 'none';
                 }
             }
+
 
             function validateAndOpenRazorpay(amount) {
                 console.log("Validating for Razorpay...");

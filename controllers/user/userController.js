@@ -3,6 +3,7 @@ const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Wallet = require("../../models/walletSchema");
 const Banner = require("../../models/bannerSchema");
+const Notification = require("../../models/notificationSchema");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt")
@@ -227,20 +228,28 @@ const loadHomepage = async(req,res)=>{
 
         productData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
         productData = productData.slice(0);
+        let notifications = [];
 
         if (user) {
             const userData = await User.findById(user);
+            notifications = await Notification.find({ 
+                userId: user, 
+                status: "unread" 
+            }); 
+
             return res.render("home", {
                 user: userData,
                 products: productData,
                 categories,
-                banners: findBanner || []
+                banners: findBanner || [],
+                notifications: notifications || []
             });
         } else {
             return res.render("home", {
                 products: productData,
                 categories,
-                banners: findBanner || []
+                banners: findBanner || [],
+                notifications: notifications
             });
         }
     } catch (error) {
@@ -283,7 +292,7 @@ const verifyOtp = async (req, res) => {
                       $inc: { balance: refererBonus },
                       $push: {
                         transactions: {
-                          type: "referal",
+                          type: "referral",
                           amount: refererBonus,
                           description: "Referral bonus for referring a new user"
                         }
@@ -307,7 +316,7 @@ const verifyOtp = async (req, res) => {
                 balance: user.referal ? newUserBonus : 0,
                 transactions: user.referal
                   ? [{
-                    type: "referal",
+                    type: "referral",
                     amount: newUserBonus,
                     description: "Referral bonus for signing up with a referral code"
                   }]
@@ -394,6 +403,19 @@ const logout = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 }
+
+const updateNotification = async (req,res) => {
+    try {
+        const notificationId = req.query.id;
+        console.log(notificationId)
+        await Notification.findByIdAndUpdate(notificationId,{status:"read"})
+        res.status(200).send({ success: true });
+    } catch (error) {
+        console.error('Error updating notification status:', error);
+        res.status(500).send({ success: false, error: error.message });
+    }
+}
+
 
 const productDetails = async (req, res) => {
     try {
@@ -506,6 +528,7 @@ const catFilter = async (req, res) => {
 
 
 
+
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -521,5 +544,7 @@ module.exports = {
     productDetails,
     catFilter,
     searchProducts,
-    loadCategoryProducts
+    loadCategoryProducts,
+    updateNotification
+    
 }

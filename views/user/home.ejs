@@ -448,8 +448,61 @@
         
         
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+
+    const notifications = JSON.parse(`<%- JSON.stringify(notifications || []) %>`);
+
+    function showNotifications() {
+        console.log('Triggering notifications display');
+        notifications.forEach((notification) => {
+            console.log('Displaying notification:', notification);
+            Swal.fire({
+                title: '📢 Notification',
+                text: notification.message,
+                icon: 'info',
+                confirmButtonText: 'OK', 
+                showCancelButton: false, 
+                background: '#f5f5f5', 
+                color: '#333',
+                iconColor: '#3085d6', 
+                position: 'center', 
+                toast: false, 
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown', 
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp', 
+                },
+                customClass: {
+                    title: 'custom-swal-title', 
+                    popup: 'custom-swal-popup',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/mark-notification-read?id=${notification._id}`, {
+                        method: 'PATCH',
+                    })
+                        .then((response) => {
+                            if (response.ok) {
+                                console.log('Notification marked as read');
+                            } else {
+                                console.error('Failed to update notification status');
+                            }
+                        })
+                        .catch((error) => console.error('Error:', error));
+                }
+            });
+        });
+    }
+
+    if (Array.isArray(notifications) && notifications.length > 0) {
+        showNotifications();
+    } else {
+        console.log('No notifications to display');
+    }
+
 
         document.addEventListener('DOMContentLoaded', function() {
             $('.hero-slider-1').slick({

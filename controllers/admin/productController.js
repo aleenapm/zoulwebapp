@@ -284,7 +284,7 @@ const editProduct = async (req, res) => {
         if (parseInt(data.quantity) === 0) {
             updatefields.status = "Out of Stock";
         } else {
-            updatefields.status = "In Stock";
+            updatefields.status = "Available";
         }
 
         await Product.findByIdAndUpdate(id, updatefields, { new: true });
