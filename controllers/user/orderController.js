@@ -2,6 +2,7 @@ const Order = require("../../models/orderSchema");
 const Address = require("../../models/addressSchema");
 const Product = require("../../models/productSchema");
 const User = require("../../models/userSchema");
+const Cart = require("../../models/cartSchema");
 const Coupon = require("../../models/couponSchema");
 const Wallet = require("../../models/walletSchema");
 const Return = require("../../models/returnSchema");
@@ -161,7 +162,11 @@ const createOrder = async (req, res) => {
             status: 'Pending',
             paymentStatus: paymentMethod === 'Wallet' ? 'payment completed' : 'Pending',
         };
-
+        if(cart){
+            const cartProducts = await Cart.findOne({userId:req.session.user})
+            cartProducts.items = [];
+            await cartProducts.save()
+        }
         // Save order to database
         const newOrder = new Order(orderData);
         await newOrder.save();
@@ -227,7 +232,7 @@ const cancelOrder = async (req, res) => {
             return res.json({ message: 'Order cancelled successfully' });
         }
 
-        if (order.paymentMethod === 'Online') {
+        if (order.paymentMethod === 'Online'|| order.paymentMethod === "Wallet") {
             const userId = req.session.user;
 
             if (!userId) {
