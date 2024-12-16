@@ -170,6 +170,22 @@
         color: #a8a8a8;
         cursor: not-allowed;
     }
+    .product-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
+}
+
+.product-cart-wrap {
+  box-sizing: border-box;
+  margin: 10px;
+}
+
+@media (max-width: 768px) {
+  .product-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
     
 </style>
@@ -210,12 +226,13 @@
     </div>
 
     <section class="product-tabs section-padding position-relative wow fadeIn animated">
-        <div class="bg-square"></div>
+        
         <div class="container">
             <div class="tab-content wow fadeIn animated" id="myTabContent">
                 <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
                     <div class="row product-grid-4" id="product-grid">
                         <% for(let i = 0; i < products.length; i++) { %>
+                            
                             <div class="product-cart-wrap mb-30 <%= products[i].quantity === 0 ? 'out-of-stock' : '' %>" style="flex: 1 1 23%; box-sizing: border-box; margin: 10px;">
                                 <div class="product-img-action-wrap">
                                     <div class="product-img product-img-zoom">
