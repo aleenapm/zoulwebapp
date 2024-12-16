@@ -98,7 +98,7 @@ const returnUpdate = async (req, res) => {
                 // Update the order status
                 await Order.findOneAndUpdate(
                     { _id: orderId },
-                    { $set: { status: "Return Approved", paymentStatus: "Refunded" } }
+                    { $set: { status: "Returned", paymentStatus: "Refunded" } }
                 );
 
             } catch (error) {
