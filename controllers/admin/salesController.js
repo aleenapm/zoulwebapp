@@ -22,7 +22,7 @@ const getSalesReport = async (req,res) => {
     
     
       if(orderData){
-          res.render("salesreport",{orders:orderData,activePage:"sales-report",count:orderData.length,totalPages,page,totalDiscountValue,totalSalesValue,custCount:custCount.length})
+          res.render("salesReport",{orders:orderData,activePage:"sales-report",count:orderData.length,totalPages,page,totalDiscountValue,totalSalesValue,custCount:custCount.length})
       }
   } catch (error) {
       console.log(error)
