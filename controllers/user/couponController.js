@@ -2,26 +2,22 @@ const Coupon = require('../../models/couponSchema');
 
 const getCouponList = async (req,res) => {
     try {
-      
-      const user = req.session.user;
-      if(!user){
+        const user = req.session.user;
+        if(!user){
         return res.redirect('/login');
-      }
-  
-      const coupons = await Coupon.find({
+        }
+        const coupons = await Coupon.find({
         isList: true,
         userId: { $ne: user },
-      });
-      
-      res.render('couponList',{coupons});
-  
+        });
+        res.render('couponList',{coupons});
     } catch (error) {
-      
+        console.error("Error fetching coupon list:", error.message);
+        res.status(500).render('errorPage', { message: 'Failed to load coupons.' });
     }
-  }
-  
-  
-  const applyCoupon = async (req, res) => {
+}
+   
+const applyCoupon = async (req, res) => {
     try {
         const { couponCode, totalPrice } = req.body;
         const userId = req.session.user;
@@ -73,10 +69,10 @@ const getCouponList = async (req,res) => {
         });
     }
 };
+
 const removeCoupon = async (req, res) => {
   try {
       const { totalPrice, shippingCharges, gstAmount } = req.body;
-      
       res.json({
           success: true,
           message: 'Coupon removed successfully'
@@ -90,10 +86,8 @@ const removeCoupon = async (req, res) => {
   }
 };
 
-  module.exports = {
+module.exports = {
     getCouponList,
     applyCoupon,
     removeCoupon
-
-
-  }
+}

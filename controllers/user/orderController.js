@@ -64,13 +64,11 @@ const createOrder = async (req, res) => {
             shippingCharges
         } = req.body;
 
-
         subtotal = parseFloat(subtotal) || 0;
         discount = parseFloat(discount) || 0;
         gstAmount = parseFloat(gstAmount) || 0;
         shippingCharges = parseFloat(shippingCharges) || 70;
 
-        // Retrieve user's address
         const userAddressDoc = await Address.findOne({ userId: userId });
         if (!userAddressDoc) {
             return res.status(400).json({ error: "Address not found." });
@@ -83,7 +81,6 @@ const createOrder = async (req, res) => {
             return res.status(404).json({ error: "Address with provided ID not found." });
         }
 
-        // Prepare order items
         let orderedItems = [];
         if (singleProduct) {
             const product = JSON.parse(singleProduct);
@@ -107,22 +104,19 @@ const createOrder = async (req, res) => {
             }
         }
 
-        // Calculate GST and total amount
         const GST = gstAmount || (subtotal * 0.18);
         const calculatedTotalAmount = parseFloat(
             (subtotal + GST + shippingCharges - discount).toFixed(2)
         );
 
-        // Handle wallet payment
         if (paymentMethod === 'Wallet') {
-            const wallet = await Wallet.findOne({ userId }); // Fetch wallet document
+            const wallet = await Wallet.findOne({ userId }); 
             if (!wallet) {
                 return res.status(404).json({ error: "Wallet not found." });
             }
 
             const walletBalance = parseFloat(wallet.balance) || 0;
 
-            // Check if wallet balance is sufficient
             if (walletBalance < calculatedTotalAmount) {
                 return res.status(400).json({
                     error: "Insufficient wallet balance.",
@@ -130,23 +124,20 @@ const createOrder = async (req, res) => {
                 });
             }
 
-            // Deduct amount from wallet balance
             wallet.balance -= calculatedTotalAmount;
 
-            // Add debit transaction
             const walletTransaction = {
                 type: "debit",
                 amount: calculatedTotalAmount,
                 date: new Date(),
                 description: "Order payment using wallet",
-                orderId: null, // Will assign after order creation
+                orderId: null, 
             };
             wallet.transactions.push(walletTransaction);
 
             await wallet.save();
         }
 
-        // Prepare order data
         const orderData = {
             orderedItems,
             totalPrice: subtotal.toFixed(2),
@@ -167,11 +158,9 @@ const createOrder = async (req, res) => {
             cartProducts.items = [];
             await cartProducts.save()
         }
-        // Save order to database
         const newOrder = new Order(orderData);
         await newOrder.save();
 
-        // Update wallet transaction with the order ID
         if (paymentMethod === 'Wallet') {
             const wallet = await Wallet.findOne({ userId });
             const lastTransaction = wallet.transactions[wallet.transactions.length - 1];
@@ -188,20 +177,15 @@ const createOrder = async (req, res) => {
                 orderId: newOrder._id, 
                 finalAmount: calculatedTotalAmount 
             });
-        }
-
-        
+        }  
     } catch (error) {
         console.error("Error in placing order:", error);
         res.status(500).json({ error: error.message || "Internal Server Error" });
     }
 };
 
-
-
 const getUserOrders = async (req, res) => {
     try {
-      
       const userId = req.session.user;
       const orders = await Order.find({ user: userId }).sort({ createdOn: -1 });
   
@@ -214,10 +198,8 @@ const getUserOrders = async (req, res) => {
   
 const cancelOrder = async (req, res) => {
     const { orderId } = req.body;
-
     try {
         const order = await Order.findById(orderId);
-
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
@@ -239,7 +221,6 @@ const cancelOrder = async (req, res) => {
                 console.error("User ID not found in session.");
                 return res.status(400).json({ message: 'User not authenticated' });
             }
-
             const amount = order.finalAmount;
 
             let wallet = await Wallet.findOne({ userId });
@@ -498,7 +479,6 @@ const returnOrder = async (req, res) => {
             return res.status(400).json({ message: 'Return request already submitted for this order' });
         }
 
-        // Create a new return request
         const reasonData = new Return({
             userId,
             orderId,
@@ -509,7 +489,6 @@ const returnOrder = async (req, res) => {
 
         await reasonData.save();
 
-        // Update order status to "Return Requested"
         await Order.findByIdAndUpdate(
             orderId,
             { $set: { status: 'Return Requested' } },
@@ -522,11 +501,6 @@ const returnOrder = async (req, res) => {
         return res.status(500).json({ message: 'Something went wrong, please try again later.' });
     }
 };
-
-
-
-
-
 
 module.exports = {
     createOrder,

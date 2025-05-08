@@ -11,7 +11,6 @@ const dashboard = async (req, res) => {
             const totalOrders = await Order.countDocuments();
             const totalProducts = await Product.countDocuments()
 
-
             res.render('dashboard', { 
                 salesData: JSON.parse(JSON.stringify(salesData)), 
                 products: JSON.parse(JSON.stringify(products)), 
@@ -37,7 +36,7 @@ async function getTotalSales() {
                 }
             }
         ]);
-
+ 
         const currentYear = new Date().getFullYear();
         const startOfYear = new Date(currentYear, 0, 1);
 
@@ -120,7 +119,6 @@ async function getTotalSales() {
         };
     }
 }
-
 
 async function getMostSellingProducts() {
     try {
@@ -248,7 +246,6 @@ async function getMostSellingBrands() {
         console.error("Error finding most selling category and brand:", error);
     }
 }
-
 
 module.exports ={
     dashboard,

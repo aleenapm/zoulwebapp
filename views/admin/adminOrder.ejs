@@ -118,10 +118,8 @@
     <script src="assets/js/vendors/jquery.fullscreen.min.js"></script>
     <script src="assets/js/main.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
-
-
-
         document.addEventListener("DOMContentLoaded", function () {
             async function updateOrderStatus(orderId, newStatus) {
                 try {
@@ -135,7 +133,7 @@
                     });
 
                     if (!response.ok) {
-                        const errorText = await response.text(); // Capture error text if not OK
+                        const errorText = await response.text(); 
                         console.error('Failed to update order status:', response.status, errorText);
                         Swal.fire({
                             title: 'Error',
@@ -169,56 +167,41 @@
             function updateStatusOptions(selectElement) {
                 const selectedStatus = selectElement.value;
                 const options = selectElement.querySelectorAll('option');
-                
-                // Enable all options first
+  
                 options.forEach(option => option.disabled = false);
 
-                // Disable based on selected status
                 if (selectedStatus === 'Return Requested') {
-                    // Only "Cancelled" and "Returned" should be enabled
                     options.forEach(option => {
                         if (option.value !== 'Cancelled' && option.value !== 'Returned') {
                             option.disabled = true;
                         }
                     });
                 } else if (selectedStatus === 'Delivered') {
-                    // "Cancelled", "Return Requested", and "Returned" should be enabled
                     options.forEach(option => {
                         if (option.value !== 'Cancelled' && option.value !== 'Return Requested' && option.value !== 'Returned') {
                             option.disabled = true;
                         }
                     });
                 } else if (selectedStatus === 'Cancelled') {
-                    // No more options should be selectable after "Cancelled"
                     options.forEach(option => option.disabled = true);
                 } else if (selectedStatus === 'Returned') {
-                    // No more options should be selectable after "Returned"
                     options.forEach(option => option.disabled = true);
                 }
             }
 
-            // Attach event listener to each status dropdown
             document.querySelectorAll('.order-status').forEach(select => {
-                // Initially update options when the page loads
                 updateStatusOptions(select);
 
-                // Listen for changes in the dropdown
                 select.addEventListener('change', function () {
                     const newStatus = this.value;
                     const orderId = this.getAttribute('data-order-id');
 
-                    // Update the order status
                     updateOrderStatus(orderId, newStatus);
 
-                    // Update the options based on the selected status
                     updateStatusOptions(this);
                 });
             });
         });
-
-        
-
     </script>
 
-
-    <%- include("../../views/partials/admin/footer") %>
+<%- include("../../views/partials/admin/footer") %>

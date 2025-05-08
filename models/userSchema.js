@@ -80,7 +80,6 @@ const userSchema = new Schema({
     }]
 })
 
-// Global object to track active sessions (replace with Redis in production)
 const activeSessions = {};
 userSchema.methods.isLoggedIn = function() {
     return !!activeSessions[this._id];
@@ -91,7 +90,6 @@ userSchema.methods.setLoggedIn = function() {
 userSchema.methods.setLoggedOut = function() {
     delete activeSessions[this._id];
 };
-
 
 const User = mongoose.model("User",userSchema);
 

@@ -1,6 +1,5 @@
 const Coupon = require('../../models/couponSchema');
 
-
 const getCouponPage = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -23,7 +22,6 @@ const getCouponPage = async (req, res) => {
         res.redirect("/admin/pageerror");
     }
 };
-
 
 const addCoupon = async (req,res) => {
     try {
@@ -49,13 +47,12 @@ const addCoupon = async (req,res) => {
 
 const deleteCoupon = async (req,res) => {
     try {
-        
         const id = req.query.id;
         await Coupon.findByIdAndDelete(id);
         res.redirect('/admin/coupons');
-
     } catch (error) {
-        
+        console.error("Error deleting coupon:", error.message);
+        res.status(500).send("Internal Server Error. Failed to delete coupon.");
     }
 }
 

@@ -26,36 +26,34 @@ const getWishList = async (req, res) => {
   }
 };
 
-
 const addToWishlist = async (req, res) => {
-    try {
-      const productId = req.body.id;
-      console.log("wishlist:",productId);
-      const userId = req.session.user;
-      console.log(userId);
-  
-      const existingWishlistItem = await Wishlist.findOne({ userId: userId, "products.productId": productId });
-      console.log(existingWishlistItem);
-      if (existingWishlistItem) {
-        return res.status(400).json({ message: 'Product already in wishlist' });
-      }
-  
-      let wishlistDoc = await Wishlist.findOne({ userId });
-      if (!wishlistDoc) {
-        wishlistDoc = new Wishlist({ userId, products: [] });
-      }
-  
-      wishlistDoc.products.push({ productId });
-      await wishlistDoc.save();
-  
-      res.status(200).json({ message: 'Product added to wishlist' });
-    } catch (error) {
-      console.error('Wishlist error:', error);
-      res.status(500).json({ message: 'Error adding to wishlist' });
-    }
-  };
-  
+  try {
+    const productId = req.body.id;
+    console.log("wishlist:",productId);
+    const userId = req.session.user;
+    console.log(userId);
 
+    const existingWishlistItem = await Wishlist.findOne({ userId: userId, "products.productId": productId });
+    console.log(existingWishlistItem);
+    if (existingWishlistItem) {
+      return res.status(400).json({ message: 'Product already in wishlist' });
+    }
+
+    let wishlistDoc = await Wishlist.findOne({ userId });
+    if (!wishlistDoc) {
+      wishlistDoc = new Wishlist({ userId, products: [] });
+    }
+
+    wishlistDoc.products.push({ productId });
+    await wishlistDoc.save();
+
+    res.status(200).json({ message: 'Product added to wishlist' });
+  } catch (error) {
+    console.error('Wishlist error:', error);
+    res.status(500).json({ message: 'Error adding to wishlist' });
+  }
+};
+  
 const removeItem = async (req, res) => {
   try {
     const userId = req.session.user;

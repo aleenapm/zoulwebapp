@@ -38,16 +38,16 @@ const orderSchema = new Schema({
     },
     shippingCharges: {
         type: Number,
-        default: 70, // Default shipping charge
+        default: 70, 
         required: true
     },
     GST: {
         type: Number,
-        required: true // Will store 18% of totalPrice
+        required: true 
     },
     finalAmount: {
         type: Number,
-        required: true // Final amount after adding GST and shipping, and deducting discount
+        required: true 
     },
     address: {
         type: Schema.Types.ObjectId,

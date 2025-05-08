@@ -1,7 +1,6 @@
 const Brand = require("../../models/brandSchema");
 const Product = require("../../models/productSchema");
 
-
 const getBrandPage = async (req,res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -22,7 +21,6 @@ const getBrandPage = async (req,res) => {
     }
 }
 
-
 const addBrand = async (req,res) => {
     try {
         const brand = req.body.name;
@@ -37,10 +35,8 @@ const addBrand = async (req,res) => {
             res.redirect("/admin/brands");
         }
     } catch (error) {
-        res.redirect("/admin/pageerror")
-        
+        res.redirect("/admin/pageerror")    
     }
-    
 }
 
 const blockBrand = async (req,res) => {
@@ -51,7 +47,6 @@ const blockBrand = async (req,res) => {
     } catch (error) {
         res.redirect("/admin/pageerror");
     }
-    
 }
 
 const unBlockBrand = async (req,res) => {
@@ -62,7 +57,6 @@ const unBlockBrand = async (req,res) => {
     } catch (error) {
         res.redirect("/admin/pageerror");
     }
-    
 }
 
 const deleteBrand = async (req,res) => {

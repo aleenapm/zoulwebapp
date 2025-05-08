@@ -10,7 +10,7 @@ const productSchema = new Schema(
         },
         slug: {
             type: String,
-            unique: true, // Ensure slugs are unique
+            unique: true, 
         },
         description: {
             type: String,
@@ -63,13 +63,11 @@ const productSchema = new Schema(
     { timestamps: true }
 );
 
-// Pre-save middleware to generate a slug based on productName
 productSchema.pre("save", async function (next) {
-    if (!this.isModified("productName")) return next(); // Only generate slug if the name is modified
+    if (!this.isModified("productName")) return next(); 
 
     let slug = slugify(this.productName, { lower: true, strict: true });
 
-    // Check for uniqueness and append a number if there's a conflict
     let existingProduct = await mongoose.models.Product.findOne({ slug });
     let count = 1;
     while (existingProduct) {
@@ -77,8 +75,7 @@ productSchema.pre("save", async function (next) {
         existingProduct = await mongoose.models.Product.findOne({ slug });
         count++;
     }
-
-    this.slug = slug; // Set the generated slug
+    this.slug = slug;
     next();
 });
 

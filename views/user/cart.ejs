@@ -141,18 +141,15 @@
       color: white;
     }
   </style>
-  <!-- Header include -->
+
   <div>
     <div class="container">
-      <!-- Breadcrumb -->
       <div class="breadcrumbs">
         <a href="/">Home</a> › <span>Your Shopping Cart</span>
       </div>
 
-      <!-- Cart Title -->
       <h1 class="cart-title">Your cart</h1>
 
-      <!-- Cart Header -->
       <div class="cart-header">
         <div>PRODUCT</div>
         <div>PRICE</div>
@@ -161,7 +158,6 @@
         <div>TOTAL</div>
       </div>
 
-      <!-- Cart Items -->
       <% if(cart.length> 0){ %>
         <% cart.forEach(item=>{ %>
           <div class="cart-item" data-product-id="<%= item.productId._id %>">
@@ -180,7 +176,7 @@
               <input type="text" id="quantity-<%= item.productId._id %>" value="<%= item.quantity %>">
               <button class="increment" onclick="updateQuantity('<%= item.productId._id %>', 1)">+</button>
             </div>
-            <!-- Cart Item Remove Button -->
+ 
             <div>
               <button class="btn btn-danger remove-btn" style="width: 100px;"
                 onclick="removeProduct('<%= item.productId._id %>')">
@@ -195,13 +191,11 @@
 
 
 <br>
-            <!-- Cart Total -->
+           
             <div class="subtotal" id="subtotal" style="margin-right: 100px; font-weight: bold; font-size: 20px;">
               Subtotal ₹ <%= cart.reduce((acc, item)=> acc + item.totalPrice, 0).toFixed(2) %>
             </div>
 
-
-            <!-- Checkout Button -->
             <div>
               <a href="/checkout">
                 <button class="checkout-btn" style="float: right; margin-right: 90px;">Check out</button>
@@ -215,7 +209,6 @@
     <br>
     <br>
     <br>
-    <!-- Footer include -->
     <%- include("../partials/user/footer.ejs") %>
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -251,13 +244,10 @@
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update the input field value
             quantityElement.value = data.newQuantity;
 
-            // Update the item's total price in real-time
             document.querySelector(`[data-product-id="${productId}"] .total-price`).textContent = `₹ ${data.newTotalPrice.toFixed(2)}`;
 
-            // Update the cart subtotal in real-time
             document.getElementById("subtotal").textContent = `Subtotal ₹ ${data.totalPrice.toFixed(2)}`;
 
         } else {
@@ -286,13 +276,12 @@ function removeProduct(productId) {
         cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
-            // User confirmed removal
             fetch("/removeProduct", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ id: productId }) // Send productId in the request body
+                body: JSON.stringify({ id: productId }) 
             })
             .then(response => response.json())
             .then(data => {
@@ -304,7 +293,6 @@ function removeProduct(productId) {
                         timer: 1500,
                         showConfirmButton: false
                     }).then(() => {
-                        // Reload the page after the Swal
                         window.location.reload();
                     });
                 } else {

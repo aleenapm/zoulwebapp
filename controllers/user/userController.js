@@ -17,6 +17,7 @@ const pageNotFound = async (req,res) => {
     } 
 }
 
+//referral code generating: 
 function generateReferalCode(length) {
     let result = '';
     const characters = 'abcdef0123456789';
@@ -27,10 +28,12 @@ function generateReferalCode(length) {
     return result;
 }
 
-
+//OTP generating:
 function generateOtp(){
     return Math.floor(100000 + Math.random()*900000).toString();
 }
+
+//Email verification:
 async function sendVerificationEmail(email,otp) {
     try {
         const transporter = nodemailer.createTransport({
@@ -61,6 +64,7 @@ async function sendVerificationEmail(email,otp) {
     
 }
 
+//user Login:
 const login = async(req,res)=>{
     try {
         const {email,password} = req.body;
@@ -84,7 +88,7 @@ const login = async(req,res)=>{
         
     }
 }
-
+// user Signup:
 const signup = async (req,res) => {
     try {
         const {name,phone,email,referal,password,cPassword} = req.body
@@ -173,18 +177,18 @@ const loadShopping = async (req, res) => {
 
         let products;
         if (category) {
-            products = await Product.find({ category: category._id, isBlocked: false }) // Exclude blocked products
+            products = await Product.find({ category: category._id, isBlocked: false }) 
                 .skip(skip)
                 .limit(itemsPerPage);
         } else {
-            products = await Product.find({ isBlocked: false }) // Exclude blocked products
+            products = await Product.find({ isBlocked: false })
                 .skip(skip)
                 .limit(itemsPerPage);
         }
 
         const totalProducts = category 
-            ? await Product.countDocuments({ category: category._id, isBlocked: false }) // Count unblocked products
-            : await Product.countDocuments({ isBlocked: false }); // Count unblocked products
+            ? await Product.countDocuments({ category: category._id, isBlocked: false })
+            : await Product.countDocuments({ isBlocked: false });
 
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
@@ -200,9 +204,6 @@ const loadShopping = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
-
-
-
 
 const loadHomepage = async(req,res)=>{ 
     try {
@@ -221,7 +222,7 @@ const loadHomepage = async(req,res)=>{
         });
 
         let productData = await Product.find({
-            isBlocked: false, // Exclude blocked products
+            isBlocked: false, 
             category: { $in: categories.map(category => category._id) },
             quantity: { $gt: 0 }
         });
@@ -258,16 +259,18 @@ const loadHomepage = async(req,res)=>{
     }
 };
 
+//password hashing:
 const securePassword = async (password)=>{
     try {
         const passwordHash = await bcrypt.hash(password,10);
         return passwordHash;
     } catch (error) {
-        
+        console.error('Error hashing password:', error);
+        throw error;
     }
 }
 
-
+//OTP verification
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
@@ -343,6 +346,7 @@ const verifyOtp = async (req, res) => {
         });
     }
 };
+
 const resendOtp = async (req, res) => {
     try {
         const { email } = req.session.userData || {};
@@ -422,7 +426,7 @@ const productDetails = async (req, res) => {
         const productId = req.query.id;
         const user = req.session.user;
 
-        const product = await Product.findOne({ _id: productId, isBlocked: false }); // Exclude blocked products
+        const product = await Product.findOne({ _id: productId, isBlocked: false }); 
         if (!product) {
             return res.status(404).send("Product not found or is blocked");
         }
@@ -430,8 +434,8 @@ const productDetails = async (req, res) => {
         const categoryId = product.category;
         const recommendedProducts = await Product.find({
             category: categoryId,
-            isBlocked: false, // Exclude blocked products
-            _id: { $ne: productId } // Exclude the current product
+            isBlocked: false, 
+            _id: { $ne: productId } 
         });
 
         const category = await Category.findById(product.category);
@@ -468,9 +472,9 @@ const catFilter = async (req, res) => {
       console.error(error);
       res.status(500).json({ message: 'Error fetching products' });
     }
-  }
+}
 
-  const searchProducts = async (req,res) => {
+const searchProducts = async (req,res) => {
     try {
         const searchQuery = req.query.query.toLowerCase();
         
@@ -483,9 +487,9 @@ const catFilter = async (req, res) => {
         console.error('Error searching products:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-    
-  }
-  const loadCategoryProducts = async (req, res) => {
+}
+
+const loadCategoryProducts = async (req, res) => {
     try {
         const categories = await Category.find();
 
@@ -504,10 +508,10 @@ const catFilter = async (req, res) => {
         const itemsPerPage = 12;
         const page = Math.max(parseInt(req.query.page, 10) || 1, 1); 
 
-        const products = await Product.find({ category: category._id, isBlocked: false }) // Exclude blocked products
+        const products = await Product.find({ category: category._id, isBlocked: false }) 
             .limit(itemsPerPage);
 
-        const totalProducts = await Product.countDocuments({ category: category._id, isBlocked: false }); // Count unblocked products
+        const totalProducts = await Product.countDocuments({ category: category._id, isBlocked: false }); 
         const totalPages = Math.ceil(totalProducts / itemsPerPage);
         
         res.render('shop', {
@@ -522,12 +526,6 @@ const catFilter = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
-
-
-
-
-
-
 
 module.exports = {
     loadHomepage,
@@ -546,5 +544,4 @@ module.exports = {
     searchProducts,
     loadCategoryProducts,
     updateNotification
-    
 }

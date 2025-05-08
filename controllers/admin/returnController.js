@@ -5,7 +5,6 @@ const User = require("../../models/userSchema");
 const Notification = require("../../models/notificationSchema");
 const { Transaction } = require("mongodb");
 
-
 const getReturnApprovals = async (req, res) => {
     try {
         const returnData = await Return.find().populate('orderId userId'); 
@@ -34,7 +33,6 @@ const returnUpdate = async (req, res) => {
 
         if (status === "approved") {
             try {
-                // Fetch or create the wallet for the user
                 let wallet = await Wallet.findOne({ userId });
                 
                 if (!wallet) {
@@ -45,8 +43,7 @@ const returnUpdate = async (req, res) => {
                     });
                     await wallet.save();
                 }
-       
-                // Update the wallet's balance and add the transaction
+   
                 const updatedWallet = await Wallet.findOneAndUpdate(
                     { userId },
                     { 
@@ -61,20 +58,17 @@ const returnUpdate = async (req, res) => {
                             }
                         }
                     },
-                    { new: true } // Return the updated document
+                    { new: true } 
                 );
 
-                // Update the user's wallet balance in their document
                 await User.findOneAndUpdate(
                     { _id: userId },
-                    { $set: { wallet: updatedWallet.balance } } // Sync wallet balance
+                    { $set: { wallet: updatedWallet.balance } } 
                 );
 
-                // Update return status
                 returnData.returnStatus = status;
                 await returnData.save();
 
-                // Add or update notifications
                 let notification = await Notification.findOne({ userId });
 
                 if (!notification) {
@@ -95,7 +89,6 @@ const returnUpdate = async (req, res) => {
                     );
                 }
 
-                // Update the order status
                 await Order.findOneAndUpdate(
                     { _id: orderId },
                     { $set: { status: "Returned", paymentStatus: "Refunded" } }
@@ -130,15 +123,12 @@ const returnUpdate = async (req, res) => {
                 return res.status(500).json({ message: "Internal server error" });
             }
         }
-        
         return res.redirect(`/admin/return-approvals`);
-        
     } catch (error) {
         console.error("Error in Updating Return Status:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 };
-
 
 module.exports={
     getReturnApprovals,

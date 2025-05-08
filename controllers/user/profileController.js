@@ -30,7 +30,6 @@ const sendVerificationEmail = async (email,otp) => {
             }
         })
 
-
         const mailOptions = {
             from:process.env.NODEMAILER_EMAIL,
             to:email,
@@ -42,14 +41,10 @@ const sendVerificationEmail = async (email,otp) => {
         const info = await transporter.sendMail(mailOptions);
         console.log("Email sent:",info.messageId);
         return true;
-        
     } catch (error) {
-
         console.error("Error sending email",error);
-        return false;
-        
+        return false; 
     }
-    
 }
 
 const securePassword = async (password) => {
@@ -57,19 +52,15 @@ const securePassword = async (password) => {
         const passwordHash = await bcrypt.hash(password,10);
         return passwordHash;
     } catch (error) {
-
-        res.redirect("/pageNotFound");
-        
+        res.redirect("/pageNotFound");  
     }
-    
 }
 
 const getForgotPassPage = async (req,res)=>{
     try {
         res.render("forgot-password");
     } catch (error) {
-        res.redirect("/pageNotFound");
-        
+        res.redirect("/pageNotFound");  
     }
 }
 
@@ -95,8 +86,7 @@ const forgotEmailValid = async (req,res) => {
         }
     } catch (error) {
         res.redirect("/pageNotFound");
-    }
-    
+    } 
 }
 
 const verifyForgotPassOtp = async (req,res) => {
@@ -108,10 +98,8 @@ const verifyForgotPassOtp = async (req,res) => {
             res.json({success:false,message:"OTP not matching"});
         }
     } catch (error) {
-        res.status(500).json({success:false,message:"An error occurred. Please try again"});
-        
+        res.status(500).json({success:false,message:"An error occurred. Please try again"});  
     }
-    
 }
 
 const getResetPassPage = async (req,res) => {
@@ -119,8 +107,7 @@ const getResetPassPage = async (req,res) => {
         res.render("reset-password");
     } catch (error) {
         res.redirect("/pageNotFound");
-    }
-    
+    } 
 }
 
 const resendOtp = async (req,res) => {
@@ -134,14 +121,11 @@ const resendOtp = async (req,res) => {
         if(emailSent){
             console.log("Resend OTP:",otp);
             res.status(200).json({success:true,message:"Resend OTP Successful"});
-        }
-        
+        }   
     } catch (error) {
         console.error("Error in resend OTP",error);
-        res.status(500).json({success:false,message:"Internal Server Error"});
-        
+        res.status(500).json({success:false,message:"Internal Server Error"});   
     }
-    
 }
 
 const postNewPassword = async (req,res) => {
@@ -159,20 +143,19 @@ const postNewPassword = async (req,res) => {
             res.render("reset-password",{message:'Passwords do not match'});
         }
     } catch (error) {
-        res.redirect("/pageNotFound");
-        
-    }
-    
+        res.redirect("/pageNotFound"); 
+    }  
 }
+
 const userProfile = async (req, res) => {
     try {
         const userId = req.session.user;
-        const page = parseInt(req.query.page) || 1; // Get the current page number from the query
-        const limit = 10; // Number of items per page
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 10; 
         const skip = (page - 1) * limit;
 
         const latestCoupon = await Coupon.findOne()
-            .sort({ createdOn: -1 }) // Sort by most recent creation date
+            .sort({ createdOn: -1 }) 
             .limit(1);
 
         const userData = await User.findById(userId);
@@ -192,27 +175,25 @@ const userProfile = async (req, res) => {
             );
         }
 
-        // Fetch paginated orders
         const orderData = await Order.find({ user: userId })
             .sort({ createdOn: -1 })
-            .skip(skip) // Skip documents for pagination
-            .limit(limit) // Limit results for pagination
+            .skip(skip) 
+            .limit(limit) 
             .populate({
                 path: 'orderedItems.product',
                 select: 'productName',
             });
 
-        const totalOrders = await Order.countDocuments({ user: userId }); // Total number of orders
-        const totalPages = Math.ceil(totalOrders / limit); // Calculate total pages
+        const totalOrders = await Order.countDocuments({ user: userId }); 
+        const totalPages = Math.ceil(totalOrders / limit);
 
-        // Render profile page
         res.render("profile", {
             user: userData,
             userAddress: addressData,
             orders: orderData,
             walletData: walletData || { balance: 0, transactions: [] },
             totalPages,
-            page, // Current page
+            page, 
             latestCoupon: latestCoupon
         });
     } catch (error) {
@@ -221,18 +202,11 @@ const userProfile = async (req, res) => {
     }
 };
 
-
-
-
-
-
-
 const changeEmail = async(req,res)=>{
     try {
         res.render("change-email");
     } catch (error) {
-        res.redirect("/pageNotFound");
-        
+        res.redirect("/pageNotFound");  
     }
 }
 
@@ -261,10 +235,8 @@ const changeEmailValid = async (req,res) => {
             })
         }
     } catch (error) {
-        res.redirect("/pageNotFound");
-        
-    }
-    
+        res.redirect("/pageNotFound");    
+    }  
 }
 
 const verifyEmailOtp = async(req,res)=>{
@@ -304,10 +276,8 @@ const changePassword = async (req,res) => {
     try {
         res.render("change-password");
     } catch (error) {
-        res.redirect("/pageNotFound");
-        
+        res.redirect("/pageNotFound");  
     }
-    
 }
 
 const changePasswordValid = async (req,res) => {
@@ -353,9 +323,7 @@ const verifyChangePassOtp = async (req,res) => {
     } catch (error) {
 
         res.status(500).json({success:false,message:"An error occured. Please try again later"})
-        
     }
-    
 }
 
 const addAddress = async (req,res) => {
@@ -386,10 +354,8 @@ const postAddAddress =async (req,res) => {
         res.redirect("/userProfile#address");
     } catch (error) {
         console.error("Error adding address:",error);
-        res.redirect("/pageNotFound");
-        
-    }
-    
+        res.redirect("/pageNotFound");  
+    }   
 }
 
 const editAddress = async (req,res) => {
@@ -413,7 +379,6 @@ const editAddress = async (req,res) => {
         console.error("Error in edit address",error);
         res.redirect("/pageNotFound");
     }
-    
 }
 
 const postEditAddress = async (req,res) => {
@@ -444,10 +409,8 @@ const postEditAddress = async (req,res) => {
         res.redirect("/userProfile#address")
     } catch (error) {
         console.error("Error in edit address",error);
-        res.redirect("/pageNotFound");
-        
-    }
-    
+        res.redirect("/pageNotFound");   
+    }  
 }
 
 const deleteAddress = async (req,res) => {
@@ -470,10 +433,8 @@ const deleteAddress = async (req,res) => {
         res.redirect("/userProfile#address");
     } catch (error) {
         console.error("Error in delete address",error);
-        res.redirect("/pageNotFound");
-        
-    }
-    
+        res.redirect("/pageNotFound"); 
+    }  
 }
 
 module.exports = {

@@ -51,7 +51,6 @@ router.get("/auth/google/callback",passport.authenticate("google", { failureRedi
   }
 );
 
-
 //login-logout management
 router.get("/login", userController.loadLogin);
 router.post("/login", userController.login);
@@ -64,8 +63,6 @@ router.get('/filter-by-category',userController.catFilter);
 router.get("/searchProducts",userController.searchProducts);
 router.get("/loadShop",userController.loadShopping);
 router.get("/shop", userController.loadCategoryProducts);
-
-
 
 //profile management
 router.get("/forgot-password", profileController.getForgotPassPage);
@@ -106,8 +103,6 @@ router.get("/orderDetails",userAuth,orderController.orderDetails);
 router.get('/downloadInvoice',userAuth,orderController.getInvoice);
 router.post('/return-request',orderController.returnOrder)
 
-
-
 //coupon management
 router.get('/couponList',userAuth,couponController.getCouponList); 
 router.post('/applyCoupon',userAuth, couponController.applyCoupon);
@@ -122,8 +117,6 @@ router.post('/removeWishlistItem',userAuth, wishlistController.removeItem);
 router.post('/createRazorpay',userAuth,paymentController.createRazorpay);
 router.post('/updatePayment',userAuth,paymentController.updatePaymentStatus)
 
-
 router.patch('/mark-notification-read',userController.updateNotification)
-
 
 module.exports = router;

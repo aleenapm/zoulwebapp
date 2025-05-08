@@ -114,28 +114,26 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
-  let countdown; // Declare a global variable for the countdown interval
+  let countdown; 
 
   function startOTPTimer(durationInSeconds) {
-    // Clear any existing interval to prevent multiple timers from running
+    
     if (countdown) {
       clearInterval(countdown);
     }
 
     let timer = durationInSeconds;
     const timerElement = document.getElementById('otpTimer');
-    
-    // Start a new countdown timer
+   
     countdown = setInterval(function () {
       const minutes = Math.floor(timer / 60);
       const seconds = timer % 60;
 
       timerElement.textContent = `OTP Expires in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-      // Decrement timer and stop when it reaches zero
       if (--timer < 0) {
         clearInterval(countdown);
-        countdown = null; // Reset countdown variable
+        countdown = null; 
         timerElement.textContent = 'OTP Expired';
       }
     }, 1000);
@@ -147,7 +145,7 @@
       url: '/resend-otp',
       success: function (response) {
         if (response.success) {
-          startOTPTimer(60); // Restart the timer to 60 seconds for a new OTP
+          startOTPTimer(60); 
         } else {
           alert('Failed to resend OTP. Please try again.');
         }
@@ -158,7 +156,6 @@
     });
   }
 
-  // Initial timer start
   startOTPTimer(60);
 </script>
 

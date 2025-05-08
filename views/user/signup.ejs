@@ -1,4 +1,4 @@
-<!-- signup.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -271,7 +271,6 @@
     const form = document.getElementById('signform');
     const toggleButtons = document.querySelectorAll('.toggle-password');
 
-    // Real-time validation
     inputs.forEach(input => {
         input.addEventListener('input', function () {
             validateField(this);
@@ -296,13 +295,13 @@
             isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(field.value.trim());
             const confirmPassword = document.getElementById('cPassword');
             if (confirmPassword.value.trim()) {
-                validateField(confirmPassword); // Re-validate confirm password
+                validateField(confirmPassword); 
             }
             break;
         case 'cPassword':
             const password = document.getElementById('password');
             isValid = field.value.trim() === password.value.trim() && field.value.trim() !== '';
-            console.log('Password match:', isValid); // Debugging line
+            console.log('Password match:', isValid); 
             break;
 
     }
@@ -310,18 +309,16 @@
     if (errorElement) {
         if (!isValid || field.value.trim() === '') {
             errorElement.classList.add('show');
-            errorElement.style.display = 'block'; // Make sure the error message is visible
+            errorElement.style.display = 'block'; 
         } else {
             errorElement.classList.remove('show');
-            errorElement.style.display = 'none'; // Hide the error message if valid
+            errorElement.style.display = 'none'; 
         }
     }
 
     return isValid && field.value.trim() !== '';
 }
 
-
-    // Toggle password visibility
     toggleButtons.forEach(button => {
         button.addEventListener('click', function () {
             const targetId = this.getAttribute('data-target');
@@ -340,7 +337,6 @@
         });
     });
 
-    // Form submission
     if (form) {
         form.addEventListener('submit', function (e) {
             let isValid = true;

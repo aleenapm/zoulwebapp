@@ -1,5 +1,4 @@
-const Order = require("../../models/orderSchema"); // Import the Order model
-
+const Order = require("../../models/orderSchema"); 
 
 const getSalesReport = async (req,res) => {
   try {
@@ -20,7 +19,6 @@ const getSalesReport = async (req,res) => {
     const custCount = await Order.distinct('user')
     console.log(custCount);
     
-    
       if(orderData){
           res.render("salesReport",{orders:orderData,activePage:"sales-report",count:orderData.length,totalPages,page,totalDiscountValue,totalSalesValue,custCount:custCount.length})
       }
@@ -28,4 +26,5 @@ const getSalesReport = async (req,res) => {
       console.log(error)
   }
 }
+
 module.exports = { getSalesReport };

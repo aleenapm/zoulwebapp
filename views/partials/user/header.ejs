@@ -10,94 +10,87 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <style>
-        /* Move these styles to an external CSS file if possible */
-        /* Global styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f8f8; /* Light background for better contrast */
+            background-color: #f8f8f8; 
         }
 
-        /* Promotional Banner */
         .promo-banner {
             background-color: #ff9800;
             color: white;
             text-align: center;
             padding: 10px;
-            font-size: 1.1em; /* Slightly larger text */
+            font-size: 1.1em;
         }
 
-        /* Header styles */
         .header-area {
-            background-color: #ffffff; /* Ensures header stands out */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            background-color: #ffffff; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
         }
 
         .header-top {
-            background-color: #f1f1f1; /* Slightly darker background */
+            background-color: #f1f1f1; 
         }
 
         .header-info ul {
             display: flex;
             justify-content: flex-end;
-            gap: 15px; /* Consistent spacing */
-            padding: 10px 0; /* Vertical padding */
+            gap: 15px;
+            padding: 10px 0;
         }
 
         .header-info a {
             color: #333;
             text-decoration: none;
-            transition: color 0.3s ease; /* Smooth color transition */
+            transition: color 0.3s ease; 
         }
 
         .header-info a:hover {
-            color: #ff9800; /* Match hover color to promotional color */
+            color: #ff9800; 
         }
 
-        /* Main menu styles */
         .header-nav {
-            background-color: #fff; /* White background for the menu */
+            background-color: #fff; 
         }
 
         .main-menu nav ul {
-            padding: 10px 0; /* Vertical padding for menu */
+            padding: 10px 0; 
         }
 
         .main-menu nav ul li {
-            position: relative; /* For dropdown positioning */
+            position: relative; 
         }
 
         .main-menu nav ul li a {
             color: #333;
             font-weight: bold;
-            padding: 12px 20px; /* Increased padding for touch targets */
-            border-radius: 4px; /* Slight rounding of edges */
-            transition: background-color 0.3s ease; /* Smooth background transition */
+            padding: 12px 20px; 
+            border-radius: 4px;
+            transition: background-color 0.3s ease; 
         }
 
         .main-menu nav ul li a:hover {
-            background-color: #f1f1f1; /* Light gray background on hover */
+            background-color: #f1f1f1; 
         }
 
-        /* Dropdown styles */
         .dropdown-content {
-            display: none; /* Hide dropdowns by default */
+            display: none; 
         }
 
         .dropdown:hover .dropdown-content {
-            display: block; /* Show dropdown on hover */
+            display: block; 
         }
 
         .dropdown-content a {
-            padding: 10px 15px; /* Adequate padding for dropdown items */
+            padding: 10px 15px; 
         }
 
         .dropdown-content a:hover {
-            background-color: #f1f1f1; /* Highlight dropdown items on hover */
+            background-color: #f1f1f1; 
         }
 
-        /* Mobile menu styles */
         .mobile-menu-toggle {
             cursor: pointer;
         }
@@ -112,31 +105,30 @@
 
         .hamburger .line {
             height: 3px;
-            background: #333; /* Dark color for visibility */
+            background: #333; 
             border-radius: 5px;
-            transition: all 0.3s ease; /* Smooth transitions for hamburger */
+            transition: all 0.3s ease; 
         }
 
-        /* Media Queries */
         @media (max-width: 768px) {
             .header-nav {
-                flex-direction: column; /* Stack items in mobile view */
+                flex-direction: column; 
             }
 
             .main-menu {
-                display: none; /* Hide main menu by default */
+                display: none;
             }
 
             .main-menu.show {
-                display: flex; /* Show menu when toggled */
-                flex-direction: column; /* Vertical stacking */
-                background-color: white; /* Background for mobile menu */
+                display: flex; 
+                flex-direction: column; 
+                background-color: white; 
                 position: absolute;
                 top: 60px;
                 left: 0;
                 right: 0;
-                z-index: 999; /* Ensure visibility */
-                padding: 10px; /* Padding around menu */
+                z-index: 999;
+                padding: 10px;
             }
         }
 
@@ -174,7 +166,6 @@
 
         .notification-badge::after {
             content: "3";
-            /* Example count */
             position: absolute;
             top: -8px;
             right: -8px;
@@ -187,39 +178,28 @@
 
         .dropdown-content {
             display: none;
-            /* Hide by default */
             position: absolute;
             background-color: #ffffff;
-            /* Background color */
             min-width: 160px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 10;
-            /* Higher z-index to overlay other elements */
             border-radius: 4px;
-            /* Rounded corners */
             padding: 10px;
-            /* Padding around dropdown items */
         }
 
         .dropdown:hover .dropdown-content {
             display: block;
-            /* Show dropdown on hover */
         }
 
         .dropdown-content a {
             display: block;
-            /* Display links as block elements */
             padding: 10px;
-            /* Add padding for better spacing */
             color: #333;
-            /* Text color */
             text-decoration: none;
-            /* Remove underline */
         }
 
         .dropdown-content a:hover {
             background-color: #f1f1f1;
-            /* Highlight on hover */
         }
 
         .promo-banner {
@@ -231,7 +211,6 @@
 
         .mobile-menu-toggle {
             display: none;
-            /* Hide by default, show on smaller screens */
         }
 
         .hamburger {
@@ -240,20 +219,16 @@
             flex-direction: column;
             justify-content: space-between;
             width: 30px;
-            /* Adjust as necessary */
             height: 21px;
-            /* Adjust as necessary */
         }
 
         .hamburger .line {
             height: 3px;
             background: #333;
-            /* Line color */
             border-radius: 5px;
             transition: all 0.3s ease;
         }
 
-        /* Show hamburger menu on small screens */
         @media (max-width: 768px) {
             .mobile-menu-toggle {
                 display: block;
@@ -261,31 +236,25 @@
 
             .mobile-header-content-area {
                 display: none;
-                /* Hide mobile menu initially */
             }
 
             .mobile-header-content-area.show {
                 display: block;
-                /* Show mobile menu when toggled */
             }
 
             .main-menu {
                 display: none;
-                /* Hide main menu on small screens */
             }
 
             .main-menu.show {
                 display: flex;
                 flex-direction: column;
                 background-color: white;
-                /* Background color of mobile menu */
                 position: absolute;
                 top: 60px;
-                /* Adjust based on header height */
                 left: 0;
                 right: 0;
                 z-index: 999;
-                /* Ensure it appears above other elements */
                 padding: 10px;
             }
         }
@@ -402,7 +371,7 @@
     <script>
         function toggleMobileMenu() {
             const menu = document.querySelector('.main-menu');
-            menu.classList.toggle('show'); // Toggle visibility of mobile menu
+            menu.classList.toggle('show'); 
         }
     </script>
 </body>

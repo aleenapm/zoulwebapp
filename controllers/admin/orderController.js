@@ -77,11 +77,7 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-
-
-
 module.exports = {
     loadOrders,
     updateOrderStatus,
-   
 };

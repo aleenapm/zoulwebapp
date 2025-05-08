@@ -1,6 +1,5 @@
 <%- include("../partials/user/header.ejs") %>
 
-
     <style>
         :root {
             --primary-color: #b68b40;
@@ -164,7 +163,6 @@
     </style>
 
     <div id="orderDetails" class="order-details-container">
-        <!-- Order Header -->
         <div class="order-header">
             <div>
                 <h2 class="mb-2">Order Details</h2>
@@ -183,7 +181,6 @@
             </div>
         </div>
 
-        <!-- Order Status -->
         <div class="order-status-section">
             <div>
                 <h5>Payment Status:
@@ -219,7 +216,6 @@
             </div>
         </div>
 
-        <!-- Product List -->
         <div class="product-list">
             <h4 class="mb-3">Ordered Items</h4>
             <% orders.orderedItems.forEach(function(item) { %>
@@ -241,9 +237,7 @@
                 <% }); %>
         </div>
 
-        <!-- Order Summary Grid -->
         <div class="order-summary-grid">
-            <!-- Shipping Details -->
             <div class="summary-card">
                 <h5>Shipping Details</h5> <br>
                 <% if (address && address.length> 0) { %>
@@ -262,7 +256,6 @@
                                 <% } %>
             </div>
 
-            <!-- Payment Method -->
             <div class="summary-card">
                 <h5>Payment Method</h5> <br>
                 <p><strong>
@@ -270,7 +263,6 @@
                     </strong></p>
             </div>
 
-            <!-- Order Summary -->
             <div class="summary-card">
                 <h4>Order Summary</h4>
                 <br>
@@ -303,15 +295,12 @@
         </div>
     </div>
 
-
-
-    <!-- Required Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         document.getElementById('downloadInvoice').addEventListener('click', function () {
-            const orderId = '<%= orders._id%>'; // Dynamically set order ID
+            const orderId = '<%= orders._id%>'; 
             if (orderId) {
                 window.open(`/downloadInvoice?id=${orderId}`, '_blank');
             } else {
@@ -388,7 +377,6 @@
                 modal: {
                     ondismiss: function () {
                         console.log('Checkout form closed');
-                        // Handle modal dismissal - maybe cleanup or show message
                     }
                 }
             };
@@ -428,11 +416,6 @@
             rzp.open();
 
         }
-
-
     </script>
-
-
-
-
+    
     <%- include("../partials/user/footer.ejs") %>

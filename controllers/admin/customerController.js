@@ -1,7 +1,5 @@
 const User = require("../../models/userSchema");
 
-
-
 const customerInfo = async (req, res) => {
     try {
         let search = req.query.search || "";
@@ -23,7 +21,6 @@ const customerInfo = async (req, res) => {
         const count = await User.countDocuments(searchConditions);
         const totalPages =Math.ceil(count/limit);
 
-
         res.render("customers", {
             data: userData,
             totalPages,
@@ -36,6 +33,7 @@ const customerInfo = async (req, res) => {
         res.redirect("/admin/pageerror");
     }
 };
+
 const customerBlocked = async (req,res) => {
     try {
         const userId = req.query.id;
@@ -49,6 +47,7 @@ const customerBlocked = async (req,res) => {
         res.redirect('/admin/customers');
     }
 };
+
 const customerunBlocked = async (req,res) => {
     try {
         const userId = req.query.id;
@@ -60,10 +59,7 @@ const customerunBlocked = async (req,res) => {
         console.error(error);
         res.redirect('/admin/customers');
     }
-    
 }
-
-
 
 module.exports = {
     customerInfo,

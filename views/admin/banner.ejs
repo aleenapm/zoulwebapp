@@ -93,21 +93,17 @@
                             <a class="page-link" style="z-index: 100;" href="?page=<%= i %>">
                                 <%= i %>
                             </a>
-
-
                         </li>
                         <% } %>
                 </ul>
             </nav>
         </div>
-
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const toggleVisibilityButtons = document.querySelectorAll('.toggle-visibility');
-
     toggleVisibilityButtons.forEach(button => {
         button.addEventListener('click', function() {
             const bannerId = this.getAttribute('data-id');

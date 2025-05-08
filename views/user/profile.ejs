@@ -872,15 +872,13 @@
     </div>
 
     <div class="main-content">
-      <!-- Dashboard Section -->
       <div id="dashboard" class="dashboard-section active" style="max-width: 900px; width: 100%; background-color: #fff; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
-        <!-- Header -->
+
         <div class="header" style="background-color: #b68b40; color: #fff; padding: 20px; text-align: center;">
             <h2 style="font-size: 1.6em; margin: 0; color: #fff;">Dashboard</h2>
             <p style="font-size: 1em; color: #fff; margin-top: 5px;">Welcome, <%= user.name %></p>
         </div>
 
-        <!-- User Info Section -->
         <div class="user-info" style="padding: 20px;">
             <h3 style="font-size: 1.4em; color: #333; margin-bottom: 10px; border-bottom: 2px solid #b68b40; padding-bottom: 5px;">
                 User Profile
@@ -902,7 +900,6 @@
         </div> 
         <br> <br>
 
-        <!-- Coupon Section -->
         <% if (latestCoupon) { %>
         <div class="coupon-section" style="background-color: #f4f4f4; padding: 20px; text-align: center;">
             <h3 style="font-size: 1.6em; color: #b68b40; margin-bottom: 15px; margin-top: 20px;">
@@ -938,17 +935,14 @@
         <% } %>
     </div>
 
-    <!-- Celebration Modal -->
     <div id="celebrationModal" class="celebration-modal">
         <h2 style="font-size: 2em; color: #b68b40; margin-bottom: 15px;">Yayyy Congrats!</h2>
         <p style="font-size: 1.2em; color: #333; margin-bottom: 10px;">Coupon Copied Successfully</p>
         <p style="font-size: 1em; color: #666;">Continue Shopping and Save Big!</p>
     </div>
 
-    <!-- Confetti Canvas -->
     <canvas id="confettiCanvas" class="confetti"></canvas>
 
-      <!-- Address Section -->
       <div id="address" class="dashboard-section">
         <div class="address-section-header">
           <h2 class="section-title">My Addresses</h2>
@@ -1009,7 +1003,6 @@
         </div>
       </div>
 
-      <!-- Orders Section -->
       <div id="orders" class="dashboard-section">
         <h2 class="section-title">My Orders</h2>
         <table class="transaction-table">
@@ -1028,7 +1021,6 @@
           <tbody>
             <% orders.forEach(order=> { %>
               <tr id="order-row-<%= order._id %>">
-                <!-- Product Names -->
                 <td colspan="1">
                   <div class="product-list">
                     <% order.orderedItems.forEach(item => { %>
@@ -1045,18 +1037,14 @@
                   </div>
                 </td>
                 
-
-                <!-- Date -->
                 <td>
                   <%= new Date(order.createdOn).toLocaleDateString() %>
                 </td>
 
-                <!-- Status -->
                 <td id="order-status-<%= order._id %>" class="status-<%= order.status.toLowerCase() %>">
                   <%= order.status %>
                 </td>
 
-                <!-- Quantity -->
                 <td>
                   <div>
                     <% order.orderedItems.forEach(item=> { %>
@@ -1066,16 +1054,14 @@
                       <% }) %>
                   </div>
                 </td>
-                <!-- Payment Method -->
+        
                 <td>
                   <%= order.paymentMethod %>
                 </td>
 
-                <!-- Total Amount -->
                 <td>₹ <%= order.finalAmount %>
                 </td>
 
-                <!-- Action -->
                 <td id="order-action-<%= order._id %>">
                   <a class="view-details-btn btn" style="margin-right: 5px; text-decoration: none;"
                     href="/orderDetails?id=<%= order._id %>">
@@ -1096,7 +1082,6 @@
           </tbody>
         </table>
 
-        <!-- Pagination for Orders -->
         <div class="pagination-area my-4">
           <nav>
               <ul class="pagination justify-content-center"> 
@@ -1115,16 +1100,13 @@
 
       </div>
 
-
-      <!-- Wallet Section -->
-
       <div id="wallet" class="dashboard-section">
         <div class="wallet-header">
           <h1>My Wallet</h1>
           <div class="wallet-card">
             <div class="balance-info">
               <span class="balance-label">Available Balance</span>
-              <!-- Display balance dynamically -->
+              
               <h1 class="balance-amount">₹<%= walletData.balance.toFixed(2) %>
               </h1>
               <span class="balance-date">As of <%= new Date().toLocaleDateString() %></span>
@@ -1219,14 +1201,11 @@
         </div>
       </div>
 
-
-      <!-- Referrals Section -->
       <div id="referrals" class="dashboard-section">
         <div class="container">
           <div class="card">
             <h3 class="card-title">My Referrals</h3>
       
-            <!-- Referral Code Section -->
             <div class="mb-4">
               <label class="form-label">Your Referral Code</label>
               <div style="margin-top: 10px;" class="input-group">
@@ -1236,7 +1215,6 @@
               <small class="text-muted mt-2">Share this code with friends to earn rewards!</small> <br> <br>
             </div>
       
-            <!-- Rewards Info -->
             <div class="rewards-info mb-4">
               <div class="card">
                 <h5>Referrer Bonus</h5>
@@ -1250,7 +1228,6 @@
               </div>
             </div> <br>
       
-            <!-- How It Works -->
             <div class="mb-4"> <br>
               <h4 class="mb-3">How It Works</h4> <br>
               <div class="how-it-works">
@@ -1278,7 +1255,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
       function copyCouponWithCelebration() {
-            // Copy Coupon Code
+      
             const couponCode = document.getElementById('couponCode');
             const tempInput = document.createElement('input');
             tempInput.value = couponCode.textContent.trim();
@@ -1287,16 +1264,13 @@
             document.execCommand('copy');
             document.body.removeChild(tempInput);
 
-            // Show Celebration Modal
             const celebrationModal = document.getElementById('celebrationModal');
             celebrationModal.classList.add('show');
 
-            // Remove Modal after 3 seconds
             setTimeout(() => {
                 celebrationModal.classList.remove('show');
             }, 3000);
 
-            // Trigger Confetti Animation
             createConfetti();
         }
 
@@ -1324,13 +1298,11 @@
                 
                 document.body.appendChild(piece);
 
-                // Remove piece after animation
                 setTimeout(() => {
                     document.body.removeChild(piece);
                 }, 5000);
             }
 
-            // Create multiple confetti pieces
             for (let i = 0; i < confettiPieces; i++) {
                 createConfettiPiece();
             }
@@ -1341,7 +1313,6 @@
         referralCodeInput.select();
         document.execCommand('copy');
 
-        // Show success message using SweetAlert
         Swal.fire({
           title: 'Copied!',
           text: 'Referral code copied to clipboard',
@@ -1352,39 +1323,33 @@
       }
 
       function showSection(sectionId) {
-        // Hide all sections
+
         const sections = document.querySelectorAll('.dashboard-section');
         sections.forEach(section => section.classList.remove('active'));
 
-        // Remove active class from all sidebar buttons
         const buttons = document.querySelectorAll('.nav-links button');
         buttons.forEach(button => button.classList.remove('active'));
 
-        // Show the selected section and activate the respective button
         document.getElementById(sectionId).classList.add('active');
         const activeButton = Array.from(buttons).find(button => button.textContent.toLowerCase() === sectionId);
         if (activeButton) activeButton.classList.add('active');
       }
 
-      // Load 'dashboard' as default active section on page load
       document.addEventListener('DOMContentLoaded', () => {
         showSection('dashboard');
       });
-      // Check the URL hash on page load and show the correct section
       window.onload = function () {
-        const hash = window.location.hash.substring(1); // Get the hash without the '#'
+        const hash = window.location.hash.substring(1);
         if (hash) {
-          showSection(hash); // Show the section based on the hash
+          showSection(hash); 
         } else {
-          showSection('dashboard'); // Default to 'dashboard' section
+          showSection('dashboard'); 
         }
       };
 
       function confirmDelete(event) {
-        event.preventDefault(); // Prevent the default link action
-        const url = event.currentTarget.href; // Store the link URL
-
-        // Show the SweetAlert confirmation dialog
+        event.preventDefault(); 
+        const url = event.currentTarget.href; 
         Swal.fire({
           title: 'Are you sure?',
           text: "You won't be able to revert this!",
@@ -1395,15 +1360,13 @@
           confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
           if (result.isConfirmed) {
-            // Redirect to the delete URL if confirmed
             window.location.href = url;
           }
         });
       }
       function confirmLogout(event) {
-        event.preventDefault(); // Prevent the default form action
+        event.preventDefault(); 
 
-        // Show the SweetAlert confirmation dialog
         Swal.fire({
           title: 'Are you sure?',
           text: "Do you really want to log out?",
@@ -1414,14 +1377,12 @@
           confirmButtonText: 'Yes, logout'
         }).then((result) => {
           if (result.isConfirmed) {
-            // Redirect to the logout URL if confirmed
             window.location.href = '/logout';
           }
         });
       }
 
       async function confirmCancelOrder(orderId) {
-        // Display confirmation modal
         const result = await Swal.fire({
           title: 'Cancel Order',
           text: 'Are you sure you want to cancel this order? This action cannot be undone.',
@@ -1429,14 +1390,13 @@
           showCancelButton: true,
           confirmButtonText: 'Yes, Cancel',
           cancelButtonText: 'No, Keep',
-          confirmButtonColor: '#e74c3c', // A nice red shade for confirmation
-          cancelButtonColor: '#6c757d', // Neutral gray for cancel
-          reverseButtons: true // Reverses the order of buttons for better UX
+          confirmButtonColor: '#e74c3c', 
+          cancelButtonColor: '#6c757d', 
+          reverseButtons: true 
         });
 
         if (result.isConfirmed) {
           try {
-            // Send cancellation request to the server
             const response = await fetch('/cancelOrder', {
               method: 'POST',
               headers: {
@@ -1447,21 +1407,18 @@
 
             const data = await response.json();
 
-            // Check response and handle success
             if (response.ok && data.message?.toLowerCase().includes('success')) {
               Swal.fire({
                 title: 'Order Cancelled',
                 text: 'Your order has been successfully cancelled.',
                 icon: 'success',
                 confirmButtonText: 'OK',
-                confirmButtonColor: '#4caf50' // Green for success
+                confirmButtonColor: '#4caf50' 
               });
 
-              // Update UI
               document.getElementById(`order-status-${orderId}`).innerText = 'Cancelled';
               document.getElementById(`order-action-${orderId}`).innerHTML = '<span class="text-muted">Cancelled</span>';
             } else {
-              // Handle server errors
               Swal.fire({
                 title: 'Cancellation Failed',
                 text: data.message || 'An error occurred while cancelling your order. Please try again.',
@@ -1471,7 +1428,6 @@
               });
             }
           } catch (error) {
-            // Handle network or unexpected errors
             Swal.fire({
               title: 'Network Error',
               text: 'Unable to connect to the server. Please check your internet connection.',
@@ -1483,21 +1439,15 @@
         }
       }
 
-
-
-
       document.head.appendChild(style);
-      // Add this to your existing script section
       document.addEventListener('DOMContentLoaded', function () {
-        // Filter buttons functionality
+
         const filterButtons = document.querySelectorAll('.filter-btn');
         const transactionRows = document.querySelectorAll('.transaction-row');
 
         filterButtons.forEach(button => {
           button.addEventListener('click', () => {
-            // Remove active class from all buttons
             filterButtons.forEach(btn => btn.classList.remove('active'));
-            // Add active class to clicked button
             button.classList.add('active');
 
             const filterValue = button.getAttribute('data-filter');
@@ -1544,7 +1494,6 @@
           }
         }).then((result) => {
           if (result.isConfirmed) {
-            // Here you would typically make an API call to process the transaction
             Swal.fire(
               'Success!',
               `${type === 'deposit' ? 'Money added' : 'Withdrawal processed'} successfully!`,

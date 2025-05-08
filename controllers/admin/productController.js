@@ -38,7 +38,6 @@ const addProducts = async (req,res) => {
                     images.push(req.files[i].filename);
                 }
             }
-            
 
             const categoryId = await Category.findOne({name:products.category})
 
@@ -81,7 +80,6 @@ const getAllProducts = async (req, res) => {
         const limit = 10;
         const skip = (page - 1) * limit;
 
-        // Count documents before applying pagination
         const count = await Product.find({
             $or: [
                 { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
@@ -89,7 +87,6 @@ const getAllProducts = async (req, res) => {
             ]
         }).countDocuments();
 
-        // Fetch paginated product data
         const productData = await Product.find({
             $or: [
                 { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
@@ -124,7 +121,6 @@ const getAllProducts = async (req, res) => {
     }
 };
 
-
 const addProductOffer = async (req, res) => {
     try {
         const { productId, percentage } = req.body;
@@ -147,7 +143,7 @@ const addProductOffer = async (req, res) => {
         findProduct.productOffer = parseInt(percentage);
         await findProduct.save();
 
-        findCategory.categoryOffer = 0; // Reset category offer
+        findCategory.categoryOffer = 0; 
         await findCategory.save();
 
         return res.json({ status: true, message: "Product offer added successfully" });
@@ -212,10 +208,8 @@ const deleteProduct = async (req,res) => {
         console.log("Product deleted successfully:", id);
         res.redirect("/admin/products");
     } catch (error) {
-        res.redirect("/admin/pageerror");
-        
+        res.redirect("/admin/pageerror"); 
     }
-    
 }
 
 const getEditProduct = async (req,res) => {
@@ -230,10 +224,8 @@ const getEditProduct = async (req,res) => {
             brand:brand,
         })
     } catch (error) {
-        res.redirect("/admin/pageerror");
-        
+        res.redirect("/admin/pageerror");  
     }
-    
 }
 
 const editProduct = async (req, res) => {
@@ -241,7 +233,6 @@ const editProduct = async (req, res) => {
         const id = req.query.id;
         console.log(id);
 
-    
         const product = await Product.findById({ _id: id });
         const data = req.body;
 
@@ -255,7 +246,6 @@ const editProduct = async (req, res) => {
 
         const images = [];
 
-        
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
                 images.push(req.files[i].filename);
@@ -264,7 +254,6 @@ const editProduct = async (req, res) => {
 
         const category = await Category.findOne({ name: data.category });
 
-       
         const updatefields = {
             productName: data.productName,
             description: data.description,
@@ -310,10 +299,8 @@ const deleteSingleImage = async (req,res) => {
         }
         res.send({status:true});
     } catch (error) {
-        res.redirect("/admin/pageerror");
-        
+        res.redirect("/admin/pageerror"); 
     }
-    
 }
 
 module.exports = {

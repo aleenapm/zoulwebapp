@@ -7,20 +7,18 @@
             <p>Comprehensive data about your business</p>
         </div>
     </div>
-    
-    <!-- Hidden Input Fields for Data -->
+
     <input type="hidden" id="salesData" value='<%- JSON.stringify(salesData) %>'>
     <input type="hidden" id="productsData" value='<%- JSON.stringify(products) %>'>
     <input type="hidden" id="categoriesData" value='<%- JSON.stringify(categories) %>'>
     <input type="hidden" id="brandsData" value='<%- JSON.stringify(brands) %>'>
-    
-    <!-- Statistics Cards -->
+
     <div class="statistics-grid">
         <div class="stat-card">
             <div class="stat-content">
                 <h6>Total Revenue</h6>
                 <span class="stat-value">₹<%= typeof salesData.totalSalesAmount === 'number' ? salesData.totalSalesAmount.toLocaleString('en-IN') : '0' %></span>
-            </div>
+            </div> 
         </div>
         <div class="stat-card">
             <div class="stat-content">
@@ -36,10 +34,8 @@
         </div>
     </div>
 
-    <!-- Error Display Container -->
     <div id="errorContainer" class="alert alert-danger" style="display: none;"></div>
 
-    <!-- Charts Container -->
     <div class="chart-container">
         <div class="chart-card">
             <div class="chart-header">
@@ -87,13 +83,12 @@
     </div>
 </section>
 
-<!-- Required Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-// Helper function to show errors
+
 function showError(message) {
     const errorContainer = document.getElementById('errorContainer');
     if (errorContainer) {
@@ -103,7 +98,6 @@ function showError(message) {
     console.error(message);
 }
 
-// Initialize data with proper error handling
 let salesData, productsData, categoriesData, brandsData;
 
 try {
@@ -128,12 +122,10 @@ try {
     brandsData = [];
 }
 
-// Helper function to check if canvas exists and is valid
 function isCanvasValid(canvas) {
     return canvas && canvas.getContext && canvas.getContext('2d');
 }
 
-// Helper function to create chart with error handling
 function createChart(canvasId, config) {
     const canvas = document.getElementById(canvasId);
     if (!isCanvasValid(canvas)) {
@@ -158,16 +150,13 @@ function exportToPDF() {
     try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-
-        // Add title
+      
         doc.setFontSize(18);
         doc.text('Sales Report', 14, 20);
 
-        // Add date
         doc.setFontSize(10);
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
 
-        // Add summary statistics
         doc.setFontSize(12);
         doc.text('Summary', 14, 40);
         
@@ -191,9 +180,8 @@ function exportToPDF() {
     }
 }
 
-// Initialize Charts when DOM is loaded
 document.addEventListener('DOMContentLoaded', function () {
-    // Main Sales Chart
+
     const mainChart = createChart('mainChart', {
         type: 'line',
         data: {
@@ -236,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Products Chart
     createChart("productsChart", {
         type: "bar",
         data: {
@@ -261,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Categories Chart
     createChart("categoriesChart", {
         type: "pie",
         data: {
@@ -283,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Brands Chart
     createChart("brandsChart", {
         type: "doughnut",
         data: {
@@ -305,7 +290,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Time filter event listener
     const timeFilter = document.getElementById('timeFilter');
     if (timeFilter && mainChart) {
         timeFilter.addEventListener('change', function(e) {
@@ -605,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 </style>
 
-<!-- Add toast container for notifications -->
 <div class="toast-container"></div>
 
 <%- include('../partials/admin/footer') %>

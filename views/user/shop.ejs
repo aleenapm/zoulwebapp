@@ -402,7 +402,6 @@ function updateProductList(products) {
             cancelButtonColor: '#d33'
         }).then(result => {
             if (result.isConfirmed) {
-                // Redirect to /getCart if "View Cart" is clicked
                 window.location.href = '/getCart';
             }
         });
@@ -432,7 +431,6 @@ function updateProductList(products) {
             if (!response.ok) {
                 console.error(`Server responded with error status: ${response.status}`);
                 return response.json().then(data => {
-                    // Check for specific error message
                     if (data.message === 'Product already in wishlist') {
                         throw new Error('Product already in wishlist');
                     }
@@ -442,7 +440,6 @@ function updateProductList(products) {
             return response.json();
         })
         .then(data => {
-            // Success notification with more engaging design
             Swal.fire({
                 title: 'Wishlist Updated!',
                 html: `
@@ -459,13 +456,11 @@ function updateProductList(products) {
                 cancelButtonText: 'View Wishlist',
                 cancelButtonColor: '#d33',
                 didClose: () => {
-                    // Optional: You can add logic to redirect to wishlist or continue shopping
+                    
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Continue shopping logic
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    // Redirect to wishlist page
                     window.location.href = '/getWishlist';
                 }
             });
@@ -474,7 +469,6 @@ function updateProductList(products) {
         })
         .catch(error => {
             if (error.message === 'Product already in wishlist') {
-                // Notification for already existing product
                 Swal.fire({
                     title: 'Oops! Duplicate Item',
                     html: `
@@ -492,12 +486,10 @@ function updateProductList(products) {
                     cancelButtonColor: '#d33'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Redirect to wishlist
                         window.location.href = '/getWishlist';
                     }
                 });
             } else {
-                // Error notification
                 Swal.fire({
                     title: 'Wishlist Error',
                     html: `

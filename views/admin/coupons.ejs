@@ -64,7 +64,6 @@
                             </div>
                         </form>
 
-
                     </div>
                     <div class="col-md-9">
                         <div>
@@ -107,7 +106,7 @@
                                     <%}%>
                         </div>
                         
-                    </div> <!-- .col// -->
+                    </div> 
                     <div class="pagination-area mt-30 mb-50">
                         <nav aria-label="Page navigation example justify-content-center">
                             <ul class="pagination justify-content-center">
@@ -122,12 +121,11 @@
                         </nav>
                     </div>
                     
-                </div> <!-- .row // -->
-            </div> <!-- card body .// -->
-        </div> <!-- card .// -->
-    </section> <!-- content-main end// -->
+                </div> 
+            </div> 
+        </div> 
+    </section> 
 
-    
     <br>
 
     <script>
@@ -193,61 +191,47 @@
                 isValid = false;
             }
 
-            // Validate Discount Percentage
             const discountValue = parseInt(discountPercentage.value, 10);
             if (!discountPercentage.value.trim() || discountValue < 1 || discountValue > 100) {
                 document.getElementById("discountError").style.display = "block";
                 isValid = false;
             }
 
-            // Validate Minimum Price
             const minPriceValue = parseFloat(minimumPrice.value);
             if (!minimumPrice.value.trim() || minPriceValue <= 0) {
                 document.getElementById("minimumError").style.display = "block";
                 isValid = false;
             }
 
-            // Validate Maximum Price (should not be equal to or less than Minimum Price)
             const maxPriceValue = parseFloat(maximumPrice.value);
             if (!maximumPrice.value.trim() || maxPriceValue <= minPriceValue) {
                 document.getElementById("maximumError").style.display = "block";
                 isValid = false;
             }
 
-
-            // Validate Created Date (must be today's date)
-            const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+            const today = new Date().toISOString().split("T")[0]; 
             if (createdDate.value !== today) {
                 document.getElementById("createdError").style.display = "block";
                 isValid = false;
             }
 
-            // Validate Expiry Date (must be greater than today's date)
             if (!endDate.value || endDate.value <= today) {
                 document.getElementById("endDateError").style.display = "block";
                 isValid = false;
             }
-
             return isValid;
         }
 
-        // Set default date for Created Date to today's date
         document.getElementById("createdDate").value = new Date().toISOString().split("T")[0];
 
-        // Set the Created Date input to only accept today's date (disable other dates)
         const today = new Date().toISOString().split("T")[0];
         document.getElementById("createdDate").setAttribute("min", today);
         document.getElementById("createdDate").setAttribute("max", today);
 
-        // Set min attribute for Expiry Date to tomorrow, ensuring only future dates are allowed
         const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1); // Set to tomorrow's date
-        const tomorrowString = tomorrow.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        tomorrow.setDate(tomorrow.getDate() + 1); 
+        const tomorrowString = tomorrow.toISOString().split("T")[0]; 
         document.getElementById("endDate").setAttribute("min", tomorrowString);
-
-
-
     </script>
 
-
-    <%- include('../partials/admin/footer') %>
+<%- include('../partials/admin/footer') %>

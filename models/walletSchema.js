@@ -35,7 +35,7 @@ const walletSchema = new mongoose.Schema({
         ref: 'Order', 
         required: false,
       },
-      productName: { // New field for product name
+      productName: { 
         type: String,
         default: '',
       },

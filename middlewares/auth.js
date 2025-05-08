@@ -5,7 +5,6 @@ const userAuth = (req, res, next) => {
     User.findById(req.session.user)
       .then((data) => {
         if (data && !data.isBlocked) {
-          // Attach user to req object for subsequent middleware/routes
           req.user = data;
           next();
         } else {
@@ -47,7 +46,7 @@ const checkBlocked = async (req, res, next) => {
                   }
                   return res.redirect("/login");
               });
-              return; // Stop further execution
+              return; 
           }
       }
       next();

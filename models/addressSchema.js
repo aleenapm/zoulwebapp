@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
-
 const addressSchema = new Schema({
     userId:{
         type:Schema.Types.ObjectId,
@@ -43,7 +42,6 @@ const addressSchema = new Schema({
         }
     }]
 })
-
 
 const Address = mongoose.model("Address",addressSchema);
 

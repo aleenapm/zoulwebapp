@@ -2,10 +2,8 @@ const Banner = require("../../models/bannerSchema");
 const path = require("path");
 const fs = require("fs");
 
-
 const getBannerPage = async (req,res) => {
     try {
-        // For admin view - show all banners
         const page= (req.query.page) || 1;
         const limit = 5;
         const skip = (page-1)*limit;
@@ -45,10 +43,8 @@ const addBanner = async (req,res) => {
         res.redirect("/admin/banner");
     } catch (error) {
         console.error("Error in addBanner:", error);
-        res.redirect("/admin/pageerror");
-        
+        res.redirect("/admin/pageerror"); 
     }
-    
 }
 
 const getEditBannerPage = async (req, res) => {
@@ -76,12 +72,11 @@ const editBanner = async (req, res) => {
             link,
         };
 
-        // Update image if a new file is uploaded
         if (req.file) {
             const banner = await Banner.findById(id);
             if (banner.image) {
                 const oldImagePath = path.join(__dirname, "../../public/uploads/re-image/", banner.image);
-                fs.unlinkSync(oldImagePath); // Delete old image
+                fs.unlinkSync(oldImagePath); 
             }
             updatedData.image = req.file.filename;
         }
@@ -94,7 +89,6 @@ const editBanner = async (req, res) => {
     }
 };
 
-
 const deleteBanner = async (req,res) => {
     try {
         const id = req.query.id;
@@ -104,7 +98,6 @@ const deleteBanner = async (req,res) => {
         console.error("Error in deleteBanner:", error);
         res.redirect("/admin/pageerror")
     }
-    
 }
 
 const toggleBannerVisibility = async (req, res) => {
@@ -113,16 +106,14 @@ const toggleBannerVisibility = async (req, res) => {
         const banner = await Banner.findByIdAndUpdate(
             id, 
             { hidden: hidden },
-            { new: true } // Return updated document
-        );
-        
+            { new: true } 
+        )
         if (!banner) {
             return res.status(404).json({ 
                 success: false, 
                 message: "Banner not found" 
             });
         }
-        
         res.json({ 
             success: true, 
             message: hidden ? "Banner has been hidden." : "Banner is now visible." 
@@ -135,10 +126,6 @@ const toggleBannerVisibility = async (req, res) => {
         });
     }
 };
-
-
-
-
 
 module.exports = {
     getBannerPage,

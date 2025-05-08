@@ -10,19 +10,17 @@ const getStocks = async (req,res) => {
         const totalPages =Math.ceil(count/limit);
 
         res.render('stocks',{products,count:count,totalPages,page});
-
     } catch (error) {
-        
+        console.error("Error fetching stocks:", error.message);
+        res.status(500).send("Internal Server Error");
     }
 }
 
 const updateStock = async (req,res) => {
     try {
-        
         const {productId,newStock} = req.body;
         await Product.findByIdAndUpdate(productId,{quantity:newStock});
         res.json({ success: true });
-
     } catch (error) {
         console.error("Error updating stock",error);
         res.json({ success: false });

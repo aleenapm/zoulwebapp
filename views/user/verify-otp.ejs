@@ -5,13 +5,13 @@
     <title>OTP Verification</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Favicon -->
+  
     <link
       rel="shortcut icon"
       type="image/x-icon"
       href="zoul-frontend/assets/imgs/theme/logo.png"
     />
-    <!-- Template CSS -->
+ 
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
@@ -153,11 +153,10 @@
       </div>
     </section>
 
-    <!-- Vendor JS -->
     <script src="zoul-frontend/assets/js/vendor/jquery-3.6.0.min.js"></script>
     <script src="zoul-frontend/assets/js/vendor/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Template JS -->
+  
     <script src="zoul-frontend/assets/js/main.js?v=3.4"></script>
 
     <script>
@@ -169,7 +168,6 @@
         const verifyBtn = document.querySelector(".btn-verify");
         const otpInput = document.getElementById("otp");
         
-        // Initially disable resend button
         resendBtn.disabled = true;
         resendBtn.classList.add('disabled');
         
@@ -190,7 +188,7 @@
                     clearInterval(timerInterval);
                     document.getElementById("timerValue").classList.add("expired");
                     document.getElementById("timerValue").textContent = "Expired";
-                    // Enable resend button, disable verify button
+              
                     resendBtn.disabled = false;
                     resendBtn.classList.remove('disabled');
                     verifyBtn.disabled = true;
@@ -199,7 +197,6 @@
             }, 1000);
         }
         
-        // Start timer when page loads
         startTimer();
         
         function validateOTPForm() {
@@ -254,9 +251,9 @@
                 url: "/resend-otp",
                 success: function(response) {
                     if (response.success) {
-                        // Clear the OTP input
+                        
                         document.getElementById("otp").value = "";
-                        // Reset and start the timer
+                        
                         startTimer();
                         
                         Swal.fire({

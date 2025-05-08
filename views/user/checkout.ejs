@@ -160,7 +160,6 @@
                                 </div>
                                 <% }) %>
                                     <% } else { %>
-                                        <!-- Display message when there are no addresses available -->
                                         <p class="alert alert-info"
                                             style="margin-top: 0; padding-top: 0; background-color: var(--light-bg); border: none; color: rgb(255, 0, 0);">
                                             No address available. Please add an address to continue.</p>
@@ -183,7 +182,6 @@
                                 </thead>
                                 <tbody>
                                     <% if (product) { %>
-                                        <!-- Single product checkout -->
                                         <tr>
                                             <td>
                                                 <img src="/uploads/re-image/<%= product.productImage[0] %>"
@@ -195,7 +193,7 @@
                                             </td>
                                         </tr>
                                         <% } else if (cart && cart.items && cart.items.length> 0) { %>
-                                            <!-- Cart-based checkout -->
+                                        
                                             <% cart.items.forEach(item=> { %>
                                                 <tr>
                                                     <td>
@@ -209,7 +207,6 @@
                                                 </tr>
                                                 <% }) %>
                                                     <% } else { %>
-                                                        <!-- No items in cart or product selection -->
                                                         <tr>
                                                             <td colspan="2">No items in cart or product selection.</td>
                                                         </tr>
@@ -246,8 +243,6 @@
                             </table>
                             <br>
 
-                            <!-- Coupon Section -->
-
                             <div class="col-xs-6">
                                 <div class="toggle_info">
                                     <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a
@@ -270,7 +265,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Payment Method and Order Form -->
+
                             <form id="orderForm" method="POST" action="/createOrder"
                             onsubmit="return validateAddress()">
                             <div class="payment_option">
@@ -314,7 +309,7 @@
                                 <input type="hidden" id="subtotalAmt" name="subtotal" value="<%= subtotal %>">
                                 <input type="hidden" id="discountInput" name="discount">
                                 <input type="hidden" id="couponCode" name="couponCode">
-                                <!-- Updated to match schema field name -->
+                                
                                 <input type="hidden" id="selectedAddressId" name="addressId">
                                 <input type="hidden" id="shippingCharges" name="shippingCharges"
                                     value="<%= shippingCharges %>">
@@ -348,7 +343,6 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
 
-                // Initial wallet balance display
                 const walletBalanceText = document.getElementById('walletBalanceText');
                 if (walletBalanceText) {
                     walletBalanceText.textContent = `(Balance: ₹<%= walletBalance.toFixed(2) %>)`;
@@ -366,38 +360,31 @@
                     });
                 }
 
-                // Initial check for COD eligibility
                 checkCODEligibility();
 
-                // Add listeners for amount changes
                 document.addEventListener('priceUpdate', checkCODEligibility);
             });
 
             function checkCODEligibility() {
                 const totalAmount = parseFloat(document.getElementById('totalamount').value);
-                const COD_LIMIT = 1000; // COD limit set to ₹1000
+                const COD_LIMIT = 1000; 
                 const codRadio = document.getElementById('exampleRadios3');
                 const onlineRadio = document.getElementById('exampleRadios5');
                 const codLimitWarning = document.getElementById('codLimitWarning');
 
                 if (totalAmount > COD_LIMIT) {
-                    // Disable COD
                     codRadio.disabled = true;
                     codRadio.style.opacity = '0.5';
                     codLimitWarning.style.display = 'block';
-
-                    // Automatically switch to Online Payment if COD was selected
                     if (codRadio.checked) {
                         onlineRadio.checked = true;
                     }
                 } else {
-                    // Enable COD
                     codRadio.disabled = false;
                     codRadio.parentElement.style.opacity = '1';
                     codLimitWarning.style.display = 'none';
                 }
 
-                // Ensure payment buttons are toggled correctly
                 togglePaymentButtons();
             }
 
@@ -415,8 +402,7 @@
                             confirmButtonColor: '#39b4ac',
                         });
                         
-                        // Optionally, switch to another payment method
-                        document.getElementById('exampleRadios3').checked = true; // Default to COD
+                        document.getElementById('exampleRadios3').checked = true; 
                         togglePaymentButtons();
                     }
                 }
@@ -431,7 +417,6 @@
                     submitButton.style.display = 'none';
                     razorpayButton.style.display = 'block';
                 } else if (paymentMethod === 'Wallet') {
-                    // Perform wallet balance check when wallet is selected
                     checkWalletBalance();
                     submitButton.style.display = 'block';
                     razorpayButton.style.display = 'none';
@@ -440,7 +425,6 @@
                     razorpayButton.style.display = 'none';
                 }
             }
-
 
             function validateAndOpenRazorpay(amount) {
                 console.log("Validating for Razorpay...");
@@ -455,7 +439,7 @@
 
                 addressRadioButtons.forEach((radio) => {
                     if (radio.checked) {
-                        document.getElementById("selectedAddressId").value = radio.value; // Ensure this field is populated with the selected address ID
+                        document.getElementById("selectedAddressId").value = radio.value; 
                         console.log('Selected Address ID:', document.getElementById('selectedAddressId').value);
                         addressSelected = true;
                     }
@@ -476,14 +460,13 @@
                 try {
                     console.log("Opening Razorpay...");
 
-                    // Calculate subtotal from cart items
                     const cart = JSON.parse(document.querySelector('input[name="cart"]').value);
                     const subtotal = parseFloat(document.getElementById("subtotalAmt").value);
                     const gstAmount = parseFloat(document.getElementById("gstAmount").value);
-                    // Calculate other values
+                    
                     const totalAmount = parseFloat(document.getElementById('totalamount').value);
                     const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-                    const shippingCharges = 70; // Default shipping charge
+                    const shippingCharges = 70; 
 
                     const orderData = {
                         cart: document.querySelector('input[name="cart"]').value,
@@ -500,7 +483,6 @@
 
                     console.log('Order Data:', orderData);
 
-                    // Validate required fields
                     if (!orderData.addressId) {
                         console.error("Address ID is missing");
                         Swal.fire({
@@ -606,7 +588,6 @@
                         modal: {
                             ondismiss: function () {
                                 console.log('Checkout form closed');
-                                // Handle modal dismissal - maybe cleanup or show message
                             }
                         }
                     };
@@ -687,7 +668,6 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        // Retrieve existing values
                         const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('₹', '').trim());
                         const shippingCharges = parseFloat(document.getElementById('shippingCharges').textContent.replace('₹', '').trim());
                         const gstAmount = parseFloat(document.getElementById('gstAmount').textContent.replace('₹', '').trim());
@@ -695,7 +675,6 @@
                         const discountAmount = parseFloat(result.discountAmount);
                         const finalTotal = subtotal - discountAmount + shippingCharges + gstAmount;
 
-                        // Update displays
                         updateDisplays({
                             subtotal: subtotal,
                             shippingCharges: shippingCharges,
@@ -704,15 +683,12 @@
                             final: finalTotal
                         });
 
-                        // Update hidden inputs
                         document.getElementById('discountInput').value = discountAmount.toFixed(2);
                         document.getElementById('couponCode').value = couponCode;
                         document.getElementById('totalamount').value = finalTotal.toFixed(2);
 
-                        // Store original price as a data attribute for potential removal
                         document.getElementById('totalamount').setAttribute('data-original-price', subtotal.toFixed(2));
 
-                        // Toggle coupon buttons
                         document.getElementById('applyCouponBtn').classList.add('d-none');
                         document.getElementById('removeCouponBtn').classList.remove('d-none');
 
@@ -746,7 +722,6 @@
                     final: document.getElementById('totalPriceAfterDiscount')
                 };
 
-                // Consistently format with two decimal places and ₹ symbol
                 if (elements.subtotal) elements.subtotal.textContent = `₹ ${subtotal.toFixed(2)}`;
                 if (elements.shippingCharges) elements.shippingCharges.textContent = `₹ ${shippingCharges.toFixed(2)}`;
                 if (elements.gstAmount) elements.gstAmount.textContent = `₹ ${gstAmount.toFixed(2)}`;
@@ -770,7 +745,6 @@
 
                     const finalTotal = originalPrice + shippingCharges + gstAmount;
 
-                    // Update displays
                     updateDisplays({
                         subtotal: originalPrice,
                         shippingCharges: shippingCharges,
@@ -779,15 +753,12 @@
                         final: finalTotal
                     });
 
-                    // Reset hidden inputs
                     document.getElementById('discountInput').value = '0';
                     document.getElementById('couponCode').value = '';
                     document.getElementById('totalamount').value = finalTotal.toFixed(2);
 
-                    // Clear coupon code input
                     document.getElementById('couponCode').value = '';
 
-                    // Toggle buttons
                     document.getElementById('applyCouponBtn').classList.remove('d-none');
                     document.getElementById('removeCouponBtn').classList.add('d-none');
 
@@ -832,9 +803,5 @@
                     document.getElementById('couponCode').value = coupon;
                 }
             }
-
-
-
-
 
         </script>

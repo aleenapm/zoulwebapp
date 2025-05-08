@@ -29,7 +29,6 @@ router.get("/logout", admincontroller.logout);
 // API routes for dashboard data
 router.get('/dashboard',adminAuth,dashboardController.dashboard);
 
-
 //customer management
 router.get("/customers", adminAuth, customerController.customerInfo);
 router.get("/blockCustomer", adminAuth, customerController.customerBlocked);
@@ -87,15 +86,12 @@ router.post('/toggleBannerVisibility',adminAuth,bannerController.toggleBannerVis
 router.get('/editBanner', adminAuth, bannerController.getEditBannerPage);
 router.post('/editBanner', adminAuth, uploads.single("image"), bannerController.editBanner);
 
-
 //sales report
 router.get('/salesReport',adminAuth,salesController.getSalesReport);
 
 //return approvals
 router.get('/return-approvals',adminAuth,returnController.getReturnApprovals)
 router.post('/returnDataUpdate',adminAuth,returnController.returnUpdate);
-
-
 
 
 module.exports = router;

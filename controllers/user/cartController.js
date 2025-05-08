@@ -6,7 +6,6 @@ const User = require("../../models/userSchema");
 
 const mongoose = require('mongoose'); 
 
-
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -27,10 +26,9 @@ const loadCheckout = async (req, res) => {
             return res.redirect('/login'); 
         } 
 
-        const SHIPPING_CHARGE = 70; // Fixed shipping charge 
-        const GST_RATE = 0.18; // 18% GST 
+        const SHIPPING_CHARGE = 70; 
+        const GST_RATE = 0.18; 
 
-        // Fetch user to get wallet balance
         const walletData = await Wallet.findOne({userId:user});
         const walletBalance =walletData.balance || 0;
 
@@ -64,7 +62,7 @@ const loadCheckout = async (req, res) => {
                 gstAmount, 
                 totalPriceAfterDiscount, 
                 products: [],
-                walletBalance // Add wallet balance to the render
+                walletBalance 
             }); 
         } else { 
             const cartItems = await Cart.findOne({ userId: user }).populate('items.productId'); 
@@ -79,13 +77,14 @@ const loadCheckout = async (req, res) => {
                     gstAmount: 0, 
                     totalPriceAfterDiscount: shippingCharges, 
                     product: null,
-                    walletBalance // Add wallet balance to the render
+                    walletBalance 
                 }); 
             } 
             subtotal = cartItems.items.reduce((sum, item) => sum + item.totalPrice, 0); 
             products = cartItems.items; 
             gstAmount = subtotal * GST_RATE; 
             totalPriceAfterDiscount = subtotal + shippingCharges + gstAmount - discount; 
+
             return res.render('checkout', {
                 cart: cartItems,
                 products,
@@ -112,12 +111,8 @@ const addToCart = async (req, res) => {
         if (!userId) {
             return res.redirect('/login');
         }
-
-
         const productId = req.body.id || req.query.id;
         const quantity = parseInt(req.body.quantity) || 1;
-
-        
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
@@ -172,7 +167,6 @@ const addToCart = async (req, res) => {
     }
 };
 
-
 const getCart = async (req,res) => {
     try {
         const userId = req.session.user;
@@ -181,9 +175,7 @@ const getCart = async (req,res) => {
     } catch (error) {
         console.error("Error fetching cart:",error);
         res.status(500).send("Internal Server Error");
-        
     }
-    
 }
 
 const updateQuantity = async (req, res) => {
@@ -223,9 +215,7 @@ const updateQuantity = async (req, res) => {
 
         await cart.save();
 
-       
         const subtotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-
       
         return res.json({ 
             success: true, 
@@ -240,13 +230,10 @@ const updateQuantity = async (req, res) => {
     }
 };
 
-
-
 const removeProduct = async (req, res) => {
     try {
         const userId = req.session.user;
         const cartProductId = req.body.id; 
-
         
         const findCart = await Cart.findOne({ userId });
         if (!findCart) {
@@ -268,8 +255,6 @@ const removeProduct = async (req, res) => {
         res.status(500).json({ success: false, message: "Error deleting product from cart" });
     }
 };
-
-
 
 module.exports = {
     loadCart,

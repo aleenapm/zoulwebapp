@@ -63,7 +63,6 @@
        let isValid = true;
        const Fields = ["addressType", "name", "city", "landMark", "state", "pincode", "phone", "altPhone"];
        
-       // Reset all error messages
        Fields.forEach(function(field) {
            const errorElement = document.getElementById(field + '-error');
            if (errorElement) {
@@ -99,7 +98,6 @@
            }
        });
 
-       // Check if phone and alternate phone are different
        const phone = document.getElementById('phone').value.trim();
        const altPhone = document.getElementById('altPhone').value.trim();
        if (phone === altPhone) {

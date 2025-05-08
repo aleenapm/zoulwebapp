@@ -27,7 +27,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <canvas id="pdfCanvas"></canvas> <!-- Canvas for PDF rendering -->
+                        <canvas id="pdfCanvas"></canvas> 
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
@@ -37,7 +37,6 @@
             </div>
         </div>
 
-        <!-- Date Filter Options -->
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <select class="form-select w-auto" name="dateRange" id="dateRangeSelect" aria-label="Select Date Range">
                 <option value="">Select Date Range</option>
@@ -55,7 +54,6 @@
             </form>
         </div>
 
-        <!-- Summary Cards -->
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6">
                 <div class="card shadow-sm text-center">
@@ -93,7 +91,6 @@
             </div>
         </div>
 
-        <!-- Sales Report Table -->
         <div class="table-responsive shadow-sm">
             <table class="table table-hover align-middle text-center" id="salesTable">
                 <thead class="table-primary text-uppercase">
@@ -322,7 +319,6 @@
                 }
             });
 
-            // Save the PDF
             doc.save('sales-report.pdf');
         }
 
@@ -366,39 +362,28 @@
                 let totalDiscount = 0;
                 const uniqueCustomers = new Set();
 
-                // Loop through each row to filter by date and sum values
                 for (const row of rows) {
                     const dateCell = row.cells[5].textContent.trim();
                     const rowDate = parseDate(dateCell);
 
-                    // Skip if no date or outside of range
                     if (!rowDate) continue;
 
                     let showRow = true;
                     if (startDate && rowDate < startDate) showRow = false;
                     if (endDate && rowDate > endDate) showRow = false;
 
-                    // Show or hide row based on date filter
                     row.style.display = showRow ? '' : 'none';
 
-                    // Aggregate only if the row is within the date range
                     if (showRow) {
                         visibleRows++;
 
-                        // // Parse and accumulate final amount and discount values
-                        // const finalAmount = parseFloat(row.cells[9].textContent.replace(/[₹,]/g, '')) || 0;
-                        // const discount = parseFloat(row.cells[8].textContent.replace(/[₹,]/g, '')) || ;
-
                         totalSales += finalAmount;
                         totalDiscount += discount;
-
-                        // Use a unique customer identifier for counting
                         const customerId = row.cells[1].getAttribute('data-customer-id');
                         if (customerId) uniqueCustomers.add(customerId);
                     }
                 }
 
-                // Format the total sales and discount as currency
                 const formatCurrency = (amount) => {
                     return amount.toLocaleString('en-IN', {
                         style: 'currency',

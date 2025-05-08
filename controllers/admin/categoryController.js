@@ -1,10 +1,9 @@
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 
-
 const categoryInfo = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Convert page to a number
+        const page = parseInt(req.query.page) || 1; 
         const limit = 10;
         const skip = (page - 1) * limit;
 
@@ -27,7 +26,6 @@ const categoryInfo = async (req, res) => {
     }
 };
 
-
 const addCategory = async (req,res) => {
     const {name,description} = req.body;
     try {
@@ -42,7 +40,6 @@ const addCategory = async (req,res) => {
         console.log("Error in addCategory:",error)
         return res.status(500).json({error:"Internal Server Error"})
     }
-    
 }
 
 const addCategoryOffer = async (req,res) => {
@@ -70,7 +67,6 @@ const addCategoryOffer = async (req,res) => {
         res.status(500).json({status:false, message:"Internal server Error"});
     }
 }
-
 
 const removeCategoryOffer = async (req, res) => {
     try {
@@ -101,7 +97,6 @@ const removeCategoryOffer = async (req, res) => {
         return res.status(500).json({ status: false, message: "Internal server error" });
     }
 };
-
 
 const getListcategory = async (req,res) => {
     try {
@@ -160,8 +155,6 @@ const editcategory = async (req,res) => {
         res.status(500).json({error:"Internal server error"})
     }   
 }
-
-
 
 module.exports = {
     categoryInfo,
